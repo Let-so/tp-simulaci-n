@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulación RTV — UTN FRC</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap');
+
+  :root {
+    --bg: #0a0c10;
+    --surface: #111418;
+    --border: #1e2430;
+    --accent: #00e5a0;
+    --accent2: #0077ff;
+    --warn: #ff6b35;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --libre: #00e5a0;
+    --ocupado: #0077ff;
+    --bloq: #ff6b35;
+    --header-h: 64px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    height: var(--header-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+  }
+  .logo span { color: var(--muted); font-size: 0.75rem; display: block; letter-spacing: 0; }
+  header h1 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--muted);
+    border-left: 1px solid var(--border);
+    padding-left: 1rem;
+    margin-left: 0.5rem;
+  }
+
+  /* ── Layout ── */
+  .container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+    height: calc(100vh - var(--header-h));
+  }
+
+  /* ── Sidebar ── */
+  aside {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .param-group { display: flex; flex-direction: column; gap: 0.75rem; }
+  .param-group h3 {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 0.3rem; }
+  .field label { font-size: 0.8rem; color: var(--muted); }
+  .field input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--accent); }
+  .field .hint { font-size: 0.7rem; color: var(--muted); }
+
+  .btn-run {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.05em;
+  }
+  .btn-run:hover { opacity: 0.88; }
+  .btn-run:active { transform: scale(0.98); }
+  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Main panel ── */
+  main {
+    overflow: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* ── Stats cards ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    align-items: start;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    min-height: 84px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .stat-card .label { font-size: 0.74rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .stat-card .value {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-card.warn .value { color: var(--warn); }
+  .stat-card.info .value { color: var(--accent2); }
+
+  /* ── Section title ── */
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .results-top { display: flex; flex-direction: column; gap: 1rem; }
+
+  /* ── Last row ── */
+  .last-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--warn);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin-top: 0.6rem;
+  }
+  .last-row h4 {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--warn);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.9rem;
+  }
+  .last-row-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.9rem;
+  }
+  .lr-item { font-size: 0.8rem; }
+  .lr-item .k { color: var(--muted); }
+  .lr-item .v { font-family: 'Space Mono', monospace; color: var(--text); }
+
+  /* ── Table ── */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  thead tr {
+    background: #151920;
+  }
+  th {
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: #151920;
+    z-index: 5;
+  }
+  th.group-frenos { color: var(--warn); }
+  th.group-luces  { color: var(--accent2); }
+  th.group-cola   { color: #a78bfa; }
+  th.group-acum   { color: var(--accent); }
+
+  td {
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid #161b24;
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.025); }
+
+  /* alternating */
+  tbody tr:nth-child(even) td { background: rgba(255,255,255,0.012); }
+
+  .iter-badge {
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    font-size: 0.7rem;
+  }
+  .hora-cell {
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .evt-cell {
+    color: #fbbf24;
+    font-weight: 500;
+  }
+  .prox-cell {
+    color: var(--muted);
+    font-size: 0.68rem;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* estado badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+  }
+  .badge.libre    { background: rgba(0,229,160,0.12); color: var(--libre); }
+  .badge.ocupado  { background: rgba(0,119,255,0.15); color: var(--ocupado); }
+  .badge.bloq     { background: rgba(255,107,53,0.15); color: var(--bloq); }
+
+  .vid-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  .rnd-pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    color: #a78bfa;
+    background: rgba(167,139,250,0.1);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    display: inline-block;
+    margin: 1px;
+  }
+  .num-cell {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    text-align: right;
+  }
+
+  /* ── Loading ── */
+  #loading {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 3rem;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+  }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Empty state ── */
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 4rem;
+    color: var(--muted);
+    text-align: center;
+  }
+  .empty .icon { font-size: 2.5rem; opacity: 0.3; }
+  .empty p { font-size: 0.85rem; }
+
+  /* ── Error ── */
+  .error-box {
+    background: rgba(255,107,53,0.1);
+    border: 1px solid var(--warn);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    color: var(--warn);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+  }
+
+  /* ── Formulas panel ── */
+  .formula-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+  }
+  .formula-box h4 {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+  }
+  .formula-box code {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text);
+    line-height: 1.8;
+  }
+  .formula-box code span { color: var(--accent); }
+
+  /* ── Bottom table dock ── */
+  .table-dock {
+    flex: 0 0 45vh;
+    border-top: 1px solid var(--border);
+    padding: 1rem 0.5rem 1.5rem 0.5rem;
+    overflow: auto;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+  }
+
+  .dock-controls {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.6rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .dock-controls input[type=range] { width: 140px; }
+  .dock-controls button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .help-panel {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 0.6rem;
+    color: var(--muted);
+    display: block;
+    font-size: 0.85rem;
+  }
+  td[contenteditable="true"]:focus { outline: 2px dashed rgba(0,229,160,0.15); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">RTV SIM <span>UTN FRC — Simulación 4K2 — Grupo 11</span></div>
+  <h1>Planta de Revisión Técnica Vehicular</h1>
+</header>
+
+<div class="container">
+  <!-- ── Sidebar ── -->
+  <aside>
+    <div class="param-group">
+      <h3>Parámetros de Simulación</h3>
+
+      <div class="field">
+        <label>Tiempo máximo (X) — minutos</label>
+        <input type="number" id="tiempo_max" value="480" min="1" max="10000">
+        <span class="hint">480 min = 08:00 a 16:00</span>
+      </div>
+
+      <div class="field">
+        <label>Hora inicio visualización (j)</label>
+        <input type="number" id="inicio_mostrar" value="0" min="0" step="0.1">
+        <span class="hint">Mostrar filas desde este minuto</span>
+      </div>
+
+      <div class="field">
+        <label>Iteraciones a mostrar (i)</label>
+        <input type="number" id="cant_mostrar" value="50" min="1" max="100000">
+        <span class="hint">Máx 100 000 iteraciones totales</span>
+      </div>
+    </div>
+
+    <div class="param-group">
+      <h3>Variables Aleatorias</h3>
+      <div class="formula-box" style="border-left-color: var(--accent); padding: 0.75rem 1rem;">
+        <code>
+          <span>Llegada autos:</span> −15·ln(1−RND)<br>
+          <span>Llegada camionetas:</span> −30·ln(1−RND)<br>
+          <span>Frenos U(4,7):</span> 4 + RND·3<br>
+          <span>Luces U(6,10):</span> 6 + RND·4
+        </code>
+      </div>
+    </div>
+
+    <div class="param-group">
+      <h3>Resultados a obtener</h3>
+      <div style="font-size:0.78rem; color: var(--muted); line-height:1.7;">
+        • Tiempo promedio de espera por tipo<br>
+        • % tiempo estación frenos bloqueada<br>
+        • Hora real de fin de jornada
+      </div>
+    </div>
+
+    <button class="btn-run" id="btn-run" onclick="runSim()">▶ SIMULAR</button>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main id="main-panel">
+    <div class="empty" id="empty-state">
+      <div class="icon">🚗</div>
+      <p>Configurá los parámetros y presioná <strong>SIMULAR</strong> para iniciar.</p>
+    </div>
+  </main>
+</div>
+
+<script>
+const CLOSE_MIN = 480;
+
+function minToHHMM(min) {
+  const base = 8 * 60;
+  const total = base + min;
+  const h = Math.floor(total / 60);
+  const m = Math.floor(total % 60);
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+
+function estadoBadge(est, vid, fin) {
+  const cls = est === 'Libre' ? 'libre' : est === 'Ocupado' ? 'ocupado' : 'bloq';
+  const vidStr = vid != null ? `<span class="vid-tag"> #${vid}</span>` : '';
+  const finStr = fin !== '—' ? `<span class="vid-tag"> →${fin}'</span>` : '';
+  return `<span class="badge ${cls}">${est}</span>${vidStr}${finStr}`;
+}
+
+function rndsHtml(rnds) {
+  if (!rnds || !Object.keys(rnds).length) return '<span style="color:var(--muted)">—</span>';
+  return Object.entries(rnds).map(([k,v]) =>
+    `<span class="rnd-pill" title="${k}">${v}</span>`
+  ).join('');
+}
+
+async function runSim() {
+  const btn = document.getElementById('btn-run');
+  btn.disabled = true;
+  btn.textContent = '⏳ Simulando…';
+
+  // Support both "1.6" and "1,6" (locale decimal separator)
+  const rawInicio = document.getElementById('inicio_mostrar').value.replace(',', '.');
+
+  const params = {
+    tiempo_max:     parseInt(document.getElementById('tiempo_max').value) || 480,
+    inicio_mostrar: parseFloat(rawInicio) || 0,
+    cant_mostrar:   parseInt(document.getElementById('cant_mostrar').value) || 50,
+  };
+
+    try {
+    const res = await fetch('/simulate/', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(params),
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      renderError(data.error + '\n' + (data.trace||''));
+    } else {
+      renderResults(data.rows, data.last_row, data.stats, params, data.total_rows);
+    }
+  } catch(e) {
+    renderError(e.toString());
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '▶ SIMULAR';
+  }
+}
+
+function renderError(msg) {
+  document.getElementById('main-panel').innerHTML =
+    `<div class="error-box">❌ Error:\n${msg}</div>`;
+}
+
+function renderResults(rows, lastRow, stats, params, totalRows) {
+  const panel = document.getElementById('main-panel');
+
+  // Stats cards
+  const finJornada = stats.hora_fin_jornada > CLOSE_MIN
+    ? `${minToHHMM(stats.hora_fin_jornada)} (+${(stats.hora_fin_jornada - CLOSE_MIN).toFixed(1)}')`
+    : minToHHMM(stats.hora_fin_jornada);
+
+  let topHtml = `
+  <div class="section-title">Resultados de Simulación (${stats.total_iter.toLocaleString()} iteraciones)</div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">Espera promedio Autos</div>
+      <div class="value">${stats.prom_esp_autos.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
+    </div>
+    <div class="stat-card info">
+      <div class="label">Espera promedio Camionetas</div>
+      <div class="value">${stats.prom_esp_camiones.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
+    </div>
+    <div class="stat-card warn">
+      <div class="label">% Bloq. Frenos (promedio)</div>
+      <div class="value">${stats.pct_bloq_total.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+    </div>
+    <div class="stat-card warn">
+      <div class="label">% Bloq. Frenos L1</div>
+      <div class="value">${stats.pct_bloq_f1.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+    </div>
+    <div class="stat-card warn">
+      <div class="label">% Bloq. Frenos L2</div>
+      <div class="value">${stats.pct_bloq_f2.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Fin de jornada</div>
+      <div class="value" style="font-size:1rem;">${finJornada}</div>
+    </div>
+    <div class="stat-card info">
+      <div class="label">Autos atendidos</div>
+      <div class="value">${stats.total_autos}</div>
+    </div>
+    <div class="stat-card info">
+      <div class="label">Camionetas atendidas</div>
+      <div class="value">${stats.total_camiones}</div>
+    </div>
+  </div>
+  `;
+
+  // Formulas explanation
+  topHtml += `
+  <div class="formula-box">
+    <h4>Fórmulas de resultados</h4>
+    <code>
+      Espera promedio = Σ(tiempo_fin_espera − tiempo_inicio_espera) / vehículos_atendidos<br>
+      % Bloqueada = tiempo_bloqueada_total / tiempo_simulado × 100<br>
+      Fin jornada = instante en que el último vehículo sale del sistema (después de las 16:00)
+    </code>
+  </div>
+  `;
+
+  // Last row
+  if (lastRow) {
+    topHtml += `
+    <div class="section-title">Fila final (instante ${params.tiempo_max} min — solo objetos permanentes)</div>
+    <div class="last-row">
+      <h4>⏹ Estado al cierre — T = ${lastRow.hora}' (${minToHHMM(lastRow.hora)})</h4>
+      <div class="last-row-grid">
+        <div class="lr-item"><span class="k">Frenos L1: </span><span class="v">${lastRow.f1_estado}</span></div>
+        <div class="lr-item"><span class="k">Frenos L2: </span><span class="v">${lastRow.f2_estado}</span></div>
+        <div class="lr-item"><span class="k">Luces L1: </span><span class="v">${lastRow.l1_estado}</span></div>
+        <div class="lr-item"><span class="k">Luces L2: </span><span class="v">${lastRow.l2_estado}</span></div>
+        <div class="lr-item"><span class="k">Cola Autos: </span><span class="v">${lastRow.cola_autos}</span></div>
+        <div class="lr-item"><span class="k">Cola Camionetas: </span><span class="v">${lastRow.cola_camiones}</span></div>
+        <div class="lr-item"><span class="k">T. Bloq F1: </span><span class="v">${lastRow.t_bloq_f1}'</span></div>
+        <div class="lr-item"><span class="k">T. Bloq F2: </span><span class="v">${lastRow.t_bloq_f2}'</span></div>
+      </div>
+    </div>
+    `;
+  }
+
+  // Build table HTML separately so it can be placed in the bottom dock
+  let tableHtml = '';
+  if (rows.length === 0) {
+    tableHtml = `<div class="empty"><div class="icon">📭</div><p>No hay filas para el rango solicitado.</p></div>`;
+  } else {
+    tableHtml = `
+    <div class="section-title">${rows.length} filas desde T=${params.inicio_mostrar}'</div>
+    <div style="font-size:0.85rem;color:var(--muted);margin:0.35rem 0 0.6rem 0;">Mostrando ${rows.length} de ${totalRows} filas — Iteraciones: ${stats.total_iter.toLocaleString()}</div>
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Hora (min)</th>
+          <th>Hora Real</th>
+          <th>Evento</th>
+          <th class="group-frenos">F1 Estado</th>
+          <th class="group-frenos">F1 Veh / Fin</th>
+          <th class="group-frenos">F2 Estado</th>
+          <th class="group-frenos">F2 Veh / Fin</th>
+          <th class="group-luces">L1 Estado</th>
+          <th class="group-luces">L1 Veh / Fin</th>
+          <th class="group-luces">L2 Estado</th>
+          <th class="group-luces">L2 Veh / Fin</th>
+          <th class="group-cola">Cola Autos</th>
+          <th class="group-cola">Cola Cam.</th>
+          <th class="group-acum">Esp. Autos</th>
+          <th class="group-acum">Esp. Cam.</th>
+          <th class="group-acum">% Bloq</th>
+          <th>Núm. Aleatorios</th>
+          <th>Próximos eventos</th>
+        </tr>
+      </thead>
+      <tbody>
+    `;
+
+    for (const r of rows) {
+      const f1v = r.f1_vid != null ? `#${r.f1_vid} →${r.f1_fin}'` : '—';
+      const f2v = r.f2_vid != null ? `#${r.f2_vid} →${r.f2_fin}'` : '—';
+      const l1v = r.l1_vid != null ? `#${r.l1_vid} →${r.l1_fin}'` : '—';
+      const l2v = r.l2_vid != null ? `#${r.l2_vid} →${r.l2_fin}'` : '—';
+
+      const f1cls = r.f1_estado === 'Libre' ? 'libre' : r.f1_estado === 'Ocupado' ? 'ocupado' : 'bloq';
+      const f2cls = r.f2_estado === 'Libre' ? 'libre' : r.f2_estado === 'Ocupado' ? 'ocupado' : 'bloq';
+      const l1cls = r.l1_estado === 'Libre' ? 'libre' : 'ocupado';
+      const l2cls = r.l2_estado === 'Libre' ? 'libre' : 'ocupado';
+
+      tableHtml += `<tr>
+        <td class="iter-badge">${r.iter}</td>
+        <td class="hora-cell">${r.hora}</td>
+        <td class="hora-cell" style="color:var(--muted);font-size:0.7rem;">${minToHHMM(r.hora)}</td>
+        <td class="evt-cell">${r.evento}</td>
+        <td><span class="badge ${f1cls}">${r.f1_estado}</span></td>
+        <td class="num-cell" style="color:var(--muted)">${f1v}</td>
+        <td><span class="badge ${f2cls}">${r.f2_estado}</span></td>
+        <td class="num-cell" style="color:var(--muted)">${f2v}</td>
+        <td><span class="badge ${l1cls}">${r.l1_estado}</span></td>
+        <td class="num-cell" style="color:var(--muted)">${l1v}</td>
+        <td><span class="badge ${l2cls}">${r.l2_estado}</span></td>
+        <td class="num-cell" style="color:var(--muted)">${l2v}</td>
+        <td class="num-cell">${r.cola_autos}</td>
+        <td class="num-cell">${r.cola_camiones}</td>
+        <td class="num-cell">${r.prom_esp_autos}'</td>
+        <td class="num-cell">${r.prom_esp_camiones}'</td>
+        <td class="num-cell">${r.pct_bloq}%</td>
+        <td>${rndsHtml(r.rnds)}</td>
+        <td class="prox-cell">${r.proximos}</td>
+      </tr>`;
+    }
+
+    tableHtml += `</tbody></table></div>`;
+  }
+
+  panel.innerHTML = `
+    <div class="results-top">${topHtml}</div>
+    <div class="dock-controls">
+      <label>Altura: <input id="dock-height" type="range" min="20" max="80" value="45" oninput="applyDockHeight(this.value)"></label>
+      <button id="toggle-edit" data-enabled="0" onclick="toggleEditable()">Editable: OFF</button>
+      <button onclick="exportCSV()">Exportar CSV</button>
+    </div>
+    <div class="help-panel">
+      <ul style="margin-top:0.25rem; line-height:1.5; margin-bottom:0; list-style:disc; padding-left:1rem;">
+        <li><strong>Hora (min)</strong>: instante desde la apertura (8:00 = 0).</li>
+        <li><strong>Evento</strong>: acción que ocurrió en ese instante.</li>
+        <li><strong>F1 / F2 / L1 / L2</strong>: estado y vehículo atendido (si aplica).</li>
+        <li><strong>Cola Autos / Cam.</strong>: cantidad de vehículos esperando.</li>
+        <li><strong>Esp. Autos / Esp. Cam.</strong>: espera promedio acumulada.</li>
+      </ul>
+    </div>
+    <div class="table-dock" style="flex: 0 0 45vh">${tableHtml}</div>
+  `;
+}
+
+function applyDockHeight(v) {
+  const dock = document.querySelector('.table-dock');
+  if (!dock) return;
+  const vh = parseInt(v, 10) || 45;
+  dock.style.flex = `0 0 ${vh}vh`;
+}
+
+function toggleEditable() {
+  const btn = document.getElementById('toggle-edit');
+  const enabled = !(btn && btn.dataset.enabled === '1');
+  if (btn) { btn.dataset.enabled = enabled ? '1' : '0'; btn.textContent = enabled ? 'Editable: ON' : 'Editable: OFF'; }
+  const tds = document.querySelectorAll('.table-wrap table tbody td');
+  tds.forEach(td => {
+    // avoid making status badges editable
+    if (td.querySelector('.badge')) return;
+    td.contentEditable = enabled;
+  });
+}
+
+function exportCSV() {
+  const table = document.querySelector('.table-wrap table');
+  if (!table) return alert('No hay tabla para exportar');
+  const rows = [];
+  const headers = Array.from(table.querySelectorAll('thead th')).map(h => h.innerText.trim());
+  rows.push(headers.join(','));
+  for (const tr of table.querySelectorAll('tbody tr')) {
+    const cols = Array.from(tr.querySelectorAll('td')).map(td => '"' + td.innerText.replace(/"/g,'""').trim() + '"');
+    rows.push(cols.join(','));
+  }
+  const csv = rows.join('\n');
+  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'simulacion_filas.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function toggleHelp(show) {
+  const hp = document.querySelector('.help-panel');
+  if (!hp) return;
+  hp.style.display = show ? 'block' : 'none';
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    for (const cookie of document.cookie.split(';')) {
+      const c = cookie.trim();
+      if (c.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(c.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+</script>
+</body>
+</html>
