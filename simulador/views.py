@@ -14,17 +14,17 @@ def simulate(request):
     try:
         data = json.loads(request.body)
 
-        dias           = int(data.get('dias', 1))
+        tiempo_max     = int(data.get('tiempo_max', 480))
         inicio_raw     = str(data.get('inicio_mostrar', 0)).replace(',', '.')
         inicio_mostrar = float(inicio_raw)
         cant_mostrar   = int(data.get('cant_mostrar', 50))
 
-        dias           = max(1, min(dias, 14))
+        tiempo_max     = max(1, tiempo_max)          # sin límite artificial de días
         cant_mostrar   = max(1, min(cant_mostrar, 100000))
         inicio_mostrar = max(0.0, inicio_mostrar)
 
         display_rows, last_row, stats, all_rows = run_simulation(
-            dias, inicio_mostrar, cant_mostrar
+            tiempo_max, inicio_mostrar, cant_mostrar
         )
 
         return JsonResponse({

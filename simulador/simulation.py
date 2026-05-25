@@ -67,10 +67,11 @@ class EstacionLuces:
 
 # ─── Main simulation ─────────────────────────────────────────────────────────
 
-def run_simulation(dias: int, inicio_mostrar: float, cant_mostrar: int):
+def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int):
     """
-    Simula `dias` jornadas laborales de 480 min (08:00–16:00) cada una.
-    Al terminar cada jornada, espera que el sistema quede vacío y arranca el día siguiente.
+    Simula `tiempo_max` minutos de trabajo en jornadas de 480 min (08:00–16:00).
+    Si tiempo_max > 480 simula múltiples días automáticamente.
+    Para cuando se alcanzan las 100.000 iteraciones o se agotan los minutos.
     Retorna (display_rows, last_row, stats, all_rows).
     """
     frenos = [EstacionFreno(1), EstacionFreno(2)]
@@ -97,7 +98,8 @@ def run_simulation(dias: int, inicio_mostrar: float, cant_mostrar: int):
     t          = 0.0
     iter_count = 0
     dia_actual = 1
-    day_close  = float(OPEN_DURATION)   # minuto en que cierra el día actual
+    # day_close: minuto absoluto en que el día actual deja de aceptar llegadas
+    day_close  = float(min(OPEN_DURATION, tiempo_max))
     cerrado    = False
 
     rows: list[dict] = []
@@ -310,11 +312,13 @@ def run_simulation(dias: int, inicio_mostrar: float, cant_mostrar: int):
                 bool(cola_autos) or bool(cola_camiones)
             )
             if not any_active:
-                if dia_actual >= dias:
+                # Minutos de trabajo ya "consumidos" en jornadas completas anteriores
+                tiempo_restante = tiempo_max - dia_actual * OPEN_DURATION
+                if tiempo_restante <= 0:
                     break
-                # Arrancar día siguiente inmediatamente después del último evento
+                # Arrancar día siguiente con los minutos que queden
                 dia_actual += 1
-                day_close   = t + OPEN_DURATION
+                day_close   = t + min(OPEN_DURATION, tiempo_restante)
                 cerrado     = False
                 rnd_la, dt_auto   = next_auto()
                 t_llegada_auto    = t + dt_auto
@@ -322,13 +326,17 @@ def run_simulation(dias: int, inicio_mostrar: float, cant_mostrar: int):
                 t_llegada_camion  = t + dt_camion
 
     # ── Final stats ───────────────────────────────────────────────────────
+    # pct_bloq: sobre tiempo_max (minutos de operación planificados), no sobre t
+    denom_bloq = max(tiempo_max, 1)
     stats = {
         "dias_simulados":    dia_actual,
+        "hora_fin_sim":      round(t, 2),   # minuto absoluto en que salió el último vehículo
+        "dia_fin":           dia_actual,
         "prom_esp_autos":    round(suma_espera_autos    / autos_atendidos,    4) if autos_atendidos    else 0,
         "prom_esp_camiones": round(suma_espera_camiones / camiones_atendidos, 4) if camiones_atendidos else 0,
-        "pct_bloq_f1":       round(tiempo_bloqueada_f1 / max(t, 1) * 100, 2),
-        "pct_bloq_f2":       round(tiempo_bloqueada_f2 / max(t, 1) * 100, 2),
-        "pct_bloq_total":    round((tiempo_bloqueada_f1 + tiempo_bloqueada_f2) / (2 * max(t, 1)) * 100, 2),
+        "pct_bloq_f1":       round(tiempo_bloqueada_f1 / denom_bloq * 100, 2),
+        "pct_bloq_f2":       round(tiempo_bloqueada_f2 / denom_bloq * 100, 2),
+        "pct_bloq_total":    round((tiempo_bloqueada_f1 + tiempo_bloqueada_f2) / (2 * denom_bloq) * 100, 2),
         "total_autos":       autos_atendidos,
         "total_camiones":    camiones_atendidos,
         "total_iter":        iter_count,

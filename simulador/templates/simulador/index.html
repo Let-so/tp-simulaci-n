@@ -436,15 +436,15 @@
       <h3>Parámetros de Simulación</h3>
 
       <div class="field">
-        <label>Días a simular</label>
-        <input type="number" id="dias" value="1" min="1" max="14">
-        <span class="hint">1 = un día (08:00–16:00) · 5 = semana laboral · máx. 14</span>
+        <label>Tiempo máximo (X) — minutos</label>
+        <input type="number" id="tiempo_max" value="480" min="1">
+        <span class="hint">480 = 1 jornada · 960 = 2 días · 2400 = semana (5 días)</span>
       </div>
 
       <div class="field">
-        <label>Hora inicio visualización (j)</label>
+        <label>Inicio visualización (j) — minuto absoluto</label>
         <input type="number" id="inicio_mostrar" value="0" min="0" step="0.1">
-        <span class="hint">Mostrar filas desde este minuto</span>
+        <span class="hint">0 = desde el inicio · 480 = desde día 2</span>
       </div>
 
       <div class="field">
@@ -521,7 +521,7 @@ async function runSim() {
   const rawInicio = document.getElementById('inicio_mostrar').value.replace(',', '.');
 
   const params = {
-    dias:           parseInt(document.getElementById('dias').value) || 1,
+    tiempo_max:     parseInt(document.getElementById('tiempo_max').value) || 480,
     inicio_mostrar: parseFloat(rawInicio) || 0,
     cant_mostrar:   parseInt(document.getElementById('cant_mostrar').value) || 50,
   };
@@ -583,6 +583,10 @@ function renderResults(rows, lastRow, stats, params, totalRows) {
     <div class="stat-card warn">
       <div class="label">% Bloq. Frenos L2</div>
       <div class="value">${stats.pct_bloq_f2.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Fin de jornada real</div>
+      <div class="value" style="font-size:0.95rem;">Día ${stats.dia_fin} — ${horaReal(stats.hora_fin_sim, stats.dia_fin)}</div>
     </div>
     <div class="stat-card info">
       <div class="label">Autos atendidos</div>
