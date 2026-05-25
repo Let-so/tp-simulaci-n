@@ -427,6 +427,47 @@
     display: block;
     font-size: 0.85rem;
   }
+  .table-wrap::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .table-wrap::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+    opacity: 0.5;
+  }
+
+  aside::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  aside::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  aside::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+    opacity: 0.5;
+  }
+
+  aside::-webkit-scrollbar-thumb:hover {
+    opacity: 0.8;
+  }
+
+  aside {
+    scrollbar-color: var(--border) transparent;
+    scrollbar-width: thin;
+  }
+
+  main::-webkit-scrollbar {
+    display: none;
+  }
+
+  main {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
   td[contenteditable="true"]:focus { outline: 2px dashed rgba(0,229,160,0.15); }
 </style>
 </head>
