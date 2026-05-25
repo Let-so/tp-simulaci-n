@@ -789,5 +789,289 @@ function getCookie(name) {
   return cookieValue;
 }
 </script>
+
+<!-- ── Sección de ayuda ──────────────────────────────────────────────────── -->
+<section id="ayuda">
+<style>
+  #ayuda {
+    background: var(--surface);
+    border-top: 2px solid var(--border);
+    padding: 2rem 2.5rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+  }
+  #ayuda h2 { font-size:18px;font-weight:500;color:var(--text);margin-bottom:1rem }
+  #ayuda .ay-section { margin-bottom:2rem }
+  #ayuda .ay-label { font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;font-family:'Space Mono',monospace }
+  #ayuda .ay-badge { display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500 }
+  #ayuda .badge-green  { background:rgba(0,229,160,0.15);color:var(--libre) }
+  #ayuda .badge-red    { background:rgba(255,107,53,0.15);color:var(--warn) }
+  #ayuda .badge-amber  { background:rgba(251,191,36,0.12);color:#fbbf24 }
+  #ayuda .badge-blue   { background:rgba(0,119,255,0.15);color:var(--ocupado) }
+  #ayuda .badge-purple { background:rgba(167,139,250,0.12);color:#a78bfa }
+  #ayuda .ay-card { background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem }
+  #ayuda .metric-card { background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center }
+  #ayuda .metric-val { font-size:22px;font-weight:700;color:var(--accent);font-family:'Space Mono',monospace }
+  #ayuda .metric-lbl { font-size:12px;color:var(--muted);margin-top:4px }
+  #ayuda .ay-grid2 { display:grid;grid-template-columns:1fr 1fr;gap:12px }
+  #ayuda .ay-grid3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px }
+  #ayuda .ay-grid4 { display:grid;grid-template-columns:repeat(4,1fr);gap:10px }
+  #ayuda .ay-sep { border:none;border-top:1px solid var(--border);margin:1.5rem 0 }
+  #ayuda .ay-tag { display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 10px;margin:3px }
+  #ayuda .ay-arrow { font-size:18px;color:var(--muted);display:flex;align-items:center;justify-content:center }
+  #ayuda .step-box { border-radius:8px;padding:12px 14px;text-align:center;font-size:13px;font-weight:600 }
+  #ayuda .step-libre     { background:rgba(0,229,160,0.12);color:var(--libre);border:1.5px solid var(--libre) }
+  #ayuda .step-ocupado   { background:rgba(251,191,36,0.12);color:#fbbf24;border:1.5px solid #fbbf24 }
+  #ayuda .step-bloqueada { background:rgba(255,107,53,0.15);color:var(--warn);border:1.5px solid var(--warn) }
+  #ayuda .step-cola      { background:rgba(167,139,250,0.12);color:#a78bfa;border:1.5px solid #a78bfa }
+  #ayuda .flow-row { display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px }
+  #ayuda .dot { width:10px;height:10px;border-radius:50%;flex-shrink:0 }
+  #ayuda .dot-green  { background:var(--libre) }
+  #ayuda .dot-amber  { background:#fbbf24 }
+  #ayuda .dot-red    { background:var(--warn) }
+  #ayuda .dot-blue   { background:var(--ocupado) }
+  #ayuda .dot-purple { background:#a78bfa }
+  #ayuda .leyenda { display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1rem;font-size:12px }
+  #ayuda .ej-table { display:grid;grid-template-columns:60px 130px 90px 90px 90px 90px 60px 60px 100px;gap:4px;align-items:center;font-size:12px;padding:6px 8px;border-radius:6px;white-space:nowrap }
+  #ayuda .ej-header { background:var(--bg);font-weight:700;font-size:11px;color:var(--muted);font-family:'Space Mono',monospace }
+  #ayuda .ej-even { background:rgba(255,255,255,0.02) }
+  #ayuda .ej-odd  { background:rgba(255,255,255,0.01) }
+  #ayuda .ej-bloq { background:rgba(255,107,53,0.08)!important;border:1px solid rgba(255,107,53,0.3) }
+  #ayuda .ej-cell { padding:2px 4px;overflow:hidden;text-overflow:ellipsis }
+  #ayuda .mono { font-family:'Space Mono',monospace;font-size:12px;background:var(--bg);border-radius:6px;padding:8px;color:var(--accent) }
+  @media (max-width:900px) {
+    #ayuda .ay-grid2, #ayuda .ay-grid3, #ayuda .ay-grid4 { grid-template-columns:1fr }
+    #ayuda { padding:1.5rem 1rem }
+  }
+</style>
+
+<div style="max-width:1100px;margin:0 auto">
+
+  <!-- Encabezado ayuda -->
+  <div style="margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
+    <div class="ay-label">Guía del simulador</div>
+    <h2 style="font-size:1.4rem;color:var(--accent)">Planta de Revisión Técnica Vehicular</h2>
+  </div>
+
+  <!-- El sistema -->
+  <div class="ay-section">
+    <div class="ay-label">El sistema</div>
+    <div class="ay-card" style="margin-bottom:1rem">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap">
+        <div class="ay-tag">🕗 Abre 08:00 — cierra 16:00</div>
+        <div class="ay-tag">⚠️ Si hay autos adentro, sigue hasta que salgan todos</div>
+      </div>
+      <div class="ay-label" style="margin-bottom:.6rem">Flujo de un vehículo</div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:1rem">
+        <div class="step-box step-cola" style="min-width:90px">Cola<br><span style="font-size:11px;font-weight:400">espera aquí</span></div>
+        <div class="ay-arrow">→</div>
+        <div class="step-box step-ocupado" style="min-width:90px">Frenos<br><span style="font-size:11px;font-weight:400">4–7 min</span></div>
+        <div class="ay-arrow">→</div>
+        <div class="step-box step-ocupado" style="min-width:110px">Luces y emisiones<br><span style="font-size:11px;font-weight:400">6–10 min</span></div>
+        <div class="ay-arrow">→</div>
+        <div class="step-box step-libre" style="min-width:70px">Sale<br><span style="font-size:11px;font-weight:400">listo</span></div>
+      </div>
+      <div class="ay-label" style="margin-bottom:.6rem">2 líneas en paralelo</div>
+      <div class="ay-grid2">
+        <div style="border:1px solid var(--border);border-radius:8px;padding:10px">
+          <div style="font-size:13px;font-weight:500;margin-bottom:8px;color:var(--muted)">Línea 1</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <div class="step-box step-libre" style="flex:1;font-size:12px">Frenos 1</div>
+            <div class="ay-arrow" style="font-size:14px">→</div>
+            <div class="step-box step-libre" style="flex:1;font-size:12px">Luces 1</div>
+          </div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:10px">
+          <div style="font-size:13px;font-weight:500;margin-bottom:8px;color:var(--muted)">Línea 2</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <div class="step-box step-libre" style="flex:1;font-size:12px">Frenos 2</div>
+            <div class="ay-arrow" style="font-size:14px">→</div>
+            <div class="step-box step-libre" style="flex:1;font-size:12px">Luces 2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ay-grid2">
+      <div class="ay-card">
+        <div class="ay-label">Llegadas</div>
+        <div class="flow-row"><div class="dot dot-blue"></div><span>🚗 Auto cada ~<strong>15 min</strong> (exponencial)</span></div>
+        <div class="flow-row"><div class="dot dot-purple"></div><span>🚙 Camioneta cada ~<strong>30 min</strong> (exponencial)</span></div>
+        <div style="margin-top:8px;padding:8px;background:rgba(167,139,250,0.08);border-radius:6px;font-size:12px;color:#a78bfa">
+          ★ Las camionetas tienen <strong>prioridad</strong> en la cola
+        </div>
+      </div>
+      <div class="ay-card">
+        <div class="ay-label">El bloqueo 🔴</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Cuando Frenos termina pero Luces está ocupada:</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <div class="step-box step-bloqueada" style="flex:1;font-size:12px">Frenos<br>bloqueada</div>
+          <div class="ay-arrow" style="font-size:14px">✗</div>
+          <div class="step-box step-ocupado" style="flex:1;font-size:12px">Luces<br>ocupada</div>
+        </div>
+        <div style="margin-top:8px;font-size:12px;color:var(--warn)">Nadie puede entrar a esa línea hasta que Luces se libere</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="ay-sep">
+
+  <!-- Parámetros -->
+  <div class="ay-section">
+    <div class="ay-label">Parámetros del enunciado</div>
+    <h2>Valores configurables</h2>
+    <div class="ay-card">
+      <div class="ay-grid4" style="margin-bottom:1rem">
+        <div class="metric-card" style="border:2px solid var(--warn)">
+          <div class="metric-val" style="color:var(--warn)">X</div>
+          <div class="metric-lbl">Minutos a simular<br><span style="font-size:11px">(ej: 480 = 1 día)</span></div>
+        </div>
+        <div class="metric-card" style="border:2px solid #a78bfa">
+          <div class="metric-val" style="color:#a78bfa">i</div>
+          <div class="metric-lbl">Filas a mostrar<br><span style="font-size:11px">(máx 100.000)</span></div>
+        </div>
+        <div class="metric-card" style="border:2px solid var(--ocupado)">
+          <div class="metric-val" style="color:var(--ocupado)">j</div>
+          <div class="metric-lbl">Minuto de inicio<br><span style="font-size:11px">(desde qué fila mostrar)</span></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" style="font-size:15px;color:var(--muted)">15/30<br>4‑7 / 6‑10</div>
+          <div class="metric-lbl">Tiempos medios<br><span style="font-size:11px">(llegadas y atención)</span></div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--muted);padding:10px;background:var(--bg);border-radius:6px;border:1px solid var(--border)">
+        ℹ️ La simulación para cuando ocurre lo primero: llega a <strong style="color:var(--text)">X minutos</strong> o se generan <strong style="color:var(--text)">100.000 iteraciones</strong>
+      </div>
+    </div>
+  </div>
+
+  <hr class="ay-sep">
+
+  <!-- Tabla de ejemplo -->
+  <div class="ay-section">
+    <div class="ay-label">Ejemplo de vector de estado</div>
+    <h2>Cómo leer la tabla</h2>
+    <div class="leyenda">
+      <div style="display:flex;align-items:center;gap:5px"><div class="dot dot-green"></div><span style="font-size:12px">Libre</span></div>
+      <div style="display:flex;align-items:center;gap:5px"><div class="dot dot-amber"></div><span style="font-size:12px">Ocupado</span></div>
+      <div style="display:flex;align-items:center;gap:5px"><div class="dot dot-red"></div><span style="font-size:12px">Bloqueada</span></div>
+      <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;background:rgba(255,107,53,0.3);border:1px solid var(--warn);border-radius:2px"></div><span style="font-size:12px">Fila bloqueada</span></div>
+    </div>
+    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px">
+      <div class="ej-table ej-header">
+        <div class="ej-cell">Hora</div><div class="ej-cell">Evento</div>
+        <div class="ej-cell">Frenos 1</div><div class="ej-cell">Luces 1</div>
+        <div class="ej-cell">Frenos 2</div><div class="ej-cell">Luces 2</div>
+        <div class="ej-cell">ColaA</div><div class="ej-cell">ColaC</div>
+        <div class="ej-cell">RND</div>
+      </div>
+      <div class="ej-table ej-even">
+        <div class="ej-cell" style="font-family:'Space Mono',monospace;color:var(--accent)">0.00</div>
+        <div class="ej-cell"><span class="ay-badge badge-blue">Llega auto</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #1</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-green">Libre</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-green">Libre</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-green">Libre</span></div>
+        <div class="ej-cell">0</div><div class="ej-cell">0</div>
+        <div class="ej-cell" style="color:var(--muted)">0.342</div>
+      </div>
+      <div class="ej-table ej-odd">
+        <div class="ej-cell" style="font-family:'Space Mono',monospace;color:var(--accent)">12.40</div>
+        <div class="ej-cell"><span class="ay-badge badge-purple">Llega camion.</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #1</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-green">Libre</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #2</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-green">Libre</span></div>
+        <div class="ej-cell">0</div><div class="ej-cell">0</div>
+        <div class="ej-cell" style="color:var(--muted)">0.781</div>
+      </div>
+      <div class="ej-table ej-even">
+        <div class="ej-cell" style="font-family:'Space Mono',monospace;color:var(--accent)">15.22</div>
+        <div class="ej-cell" style="font-size:11px;color:var(--muted)">Fin Frenos L1</div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #1</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #1</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #2</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-green">Libre</span></div>
+        <div class="ej-cell">0</div><div class="ej-cell">0</div>
+        <div class="ej-cell" style="color:var(--muted)">0.543</div>
+      </div>
+      <div class="ej-table ej-bloq">
+        <div class="ej-cell" style="font-family:'Space Mono',monospace">19.87</div>
+        <div class="ej-cell" style="font-size:11px">Fin Frenos L2</div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #1</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #1</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-red">BLOQUEADA</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #3</span></div>
+        <div class="ej-cell">1</div><div class="ej-cell">0</div>
+        <div class="ej-cell" style="color:var(--muted)">—</div>
+      </div>
+      <div class="ej-table ej-even">
+        <div class="ej-cell" style="font-family:'Space Mono',monospace;color:var(--accent)">23.15</div>
+        <div class="ej-cell" style="font-size:11px;color:var(--muted)">Fin Luces L2</div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #1</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #1</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #4</span></div>
+        <div class="ej-cell"><span class="ay-badge badge-amber">Ocup. #2</span></div>
+        <div class="ej-cell">0</div><div class="ej-cell">0</div>
+        <div class="ej-cell" style="color:var(--muted)">0.621</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:var(--muted);padding:8px 12px;background:var(--bg);border-radius:6px;border:1px solid var(--border)">
+      👁 Se muestran <strong style="color:var(--text)">i filas</strong> a partir del minuto <strong style="color:var(--text)">j</strong>. La fila naranja = bloqueo activo en esa línea.
+    </div>
+  </div>
+
+  <hr class="ay-sep">
+
+  <!-- Las 3 respuestas -->
+  <div class="ay-section">
+    <div class="ay-label">Lo que hay que calcular</div>
+    <h2>Las 3 respuestas que pide el enunciado</h2>
+    <div class="ay-grid3">
+      <div class="ay-card" style="border-top:3px solid #a78bfa">
+        <div style="font-size:24px;margin-bottom:8px">⏱️</div>
+        <div style="font-size:14px;font-weight:500;margin-bottom:6px">Espera promedio en cola</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Por tipo de vehículo (autos y camionetas por separado)</div>
+        <div class="mono">suma_esperas / cant_atendidos</div>
+      </div>
+      <div class="ay-card" style="border-top:3px solid var(--warn)">
+        <div style="font-size:24px;margin-bottom:8px">🔴</div>
+        <div style="font-size:14px;font-weight:500;margin-bottom:6px">% tiempo bloqueada</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Estación de Frenos (F1 y F2 por separado)</div>
+        <div class="mono">t_bloqueada / X × 100</div>
+      </div>
+      <div class="ay-card" style="border-top:3px solid var(--libre)">
+        <div style="font-size:24px;margin-bottom:8px">🕐</div>
+        <div style="font-size:14px;font-weight:500;margin-bottom:6px">Hora fin de jornada</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Instante en que sale el último vehículo del sistema</div>
+        <div class="mono">t del último Fin Luces</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="ay-sep">
+
+  <!-- Estados -->
+  <div class="ay-section">
+    <div class="ay-label">Referencia de estados</div>
+    <h2>Estados posibles de cada estación</h2>
+    <div class="ay-grid3">
+      <div class="step-box step-libre" style="padding:16px">
+        <div style="font-size:16px;margin-bottom:4px">Libre</div>
+        <div style="font-size:12px;font-weight:400">No hay vehículo. Puede entrar el siguiente de la cola.</div>
+      </div>
+      <div class="step-box step-ocupado" style="padding:16px">
+        <div style="font-size:16px;margin-bottom:4px">Ocupado</div>
+        <div style="font-size:12px;font-weight:400">Hay un vehículo siendo revisado ahora mismo.</div>
+      </div>
+      <div class="step-box step-bloqueada" style="padding:16px">
+        <div style="font-size:16px;margin-bottom:4px">Bloqueada</div>
+        <div style="font-size:12px;font-weight:400">Terminó frenos pero Luces está ocupada. Nadie más puede entrar.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /max-width -->
+</section>
+
 </body>
 </html>
