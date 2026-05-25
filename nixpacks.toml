@@ -1,0 +1,8 @@
+[phases.build]
+cmds = [
+  "pip install -r requirements.txt",
+  "python manage.py collectstatic --noinput"
+]
+
+[start]
+cmd = "gunicorn simulacion_rtv.wsgi:application --bind 0.0.0.0:$PORT"
