@@ -438,9 +438,9 @@
       <h3>Parámetros de Simulación</h3>
 
       <div class="field">
-        <label>Tiempo máximo (X) — minutos</label>
-        <input type="number" id="tiempo_max" value="480" min="1" max="10000">
-        <span class="hint">480 min = 08:00 a 16:00</span>
+        <label>Días a simular</label>
+        <input type="number" id="dias" value="1" min="1" max="14">
+        <span class="hint">1 = un día (08:00–16:00) · 5 = semana laboral · máx. 14</span>
       </div>
 
       <div class="field">
@@ -490,11 +490,11 @@
 </div>
 
 <script>
-const CLOSE_MIN = 480;
+const OPEN_DURATION = 480;
 
-function minToHHMM(min) {
-  const base = 8 * 60;
-  const total = base + min;
+function horaReal(minAbs, dia) {
+  const minWithinDay = minAbs - (dia - 1) * OPEN_DURATION;
+  const total = 8 * 60 + minWithinDay;
   const h = Math.floor(total / 60);
   const m = Math.floor(total % 60);
   return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
@@ -523,7 +523,7 @@ async function runSim() {
   const rawInicio = document.getElementById('inicio_mostrar').value.replace(',', '.');
 
   const params = {
-    tiempo_max:     parseInt(document.getElementById('tiempo_max').value) || 480,
+    dias:           parseInt(document.getElementById('dias').value) || 1,
     inicio_mostrar: parseFloat(rawInicio) || 0,
     cant_mostrar:   parseInt(document.getElementById('cant_mostrar').value) || 50,
   };
@@ -558,14 +558,14 @@ function renderResults(rows, lastRow, stats, params, totalRows) {
   const panel = document.getElementById('main-panel');
 
   // Stats cards
-  const finJornada = stats.hora_fin_jornada > CLOSE_MIN
-    ? `${minToHHMM(stats.hora_fin_jornada)} (+${(stats.hora_fin_jornada - CLOSE_MIN).toFixed(1)}')`
-    : minToHHMM(stats.hora_fin_jornada);
-
   let topHtml = `
-  <div class="section-title">Resultados de Simulación (${stats.total_iter.toLocaleString()} iteraciones)</div>
+  <div class="section-title">Resultados — ${stats.dias_simulados} día${stats.dias_simulados > 1 ? 's' : ''} (${stats.total_iter.toLocaleString()} iteraciones)</div>
 
   <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">Días simulados</div>
+      <div class="value">${stats.dias_simulados}</div>
+    </div>
     <div class="stat-card">
       <div class="label">Espera promedio Autos</div>
       <div class="value">${stats.prom_esp_autos.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
@@ -585,10 +585,6 @@ function renderResults(rows, lastRow, stats, params, totalRows) {
     <div class="stat-card warn">
       <div class="label">% Bloq. Frenos L2</div>
       <div class="value">${stats.pct_bloq_f2.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Fin de jornada</div>
-      <div class="value" style="font-size:1rem;">${finJornada}</div>
     </div>
     <div class="stat-card info">
       <div class="label">Autos atendidos</div>
@@ -616,9 +612,9 @@ function renderResults(rows, lastRow, stats, params, totalRows) {
   // Last row
   if (lastRow) {
     topHtml += `
-    <div class="section-title">Fila final (instante ${params.tiempo_max} min — solo objetos permanentes)</div>
+    <div class="section-title">Fila final — estado al finalizar la simulación</div>
     <div class="last-row">
-      <h4>⏹ Estado al cierre — T = ${lastRow.hora}' (${minToHHMM(lastRow.hora)})</h4>
+      <h4>⏹ Estado al cierre — Día ${lastRow.dia}, T = ${lastRow.hora}' (${horaReal(lastRow.hora, lastRow.dia)})</h4>
       <div class="last-row-grid">
         <div class="lr-item"><span class="k">Frenos L1: </span><span class="v">${lastRow.f1_estado}</span></div>
         <div class="lr-item"><span class="k">Frenos L2: </span><span class="v">${lastRow.f2_estado}</span></div>
@@ -646,6 +642,7 @@ function renderResults(rows, lastRow, stats, params, totalRows) {
       <thead>
         <tr>
           <th>#</th>
+          <th>Día</th>
           <th>Hora (min)</th>
           <th>Hora Real</th>
           <th>Evento</th>
@@ -682,8 +679,9 @@ function renderResults(rows, lastRow, stats, params, totalRows) {
 
       tableHtml += `<tr>
         <td class="iter-badge">${r.iter}</td>
+        <td class="iter-badge">${r.dia}</td>
         <td class="hora-cell">${r.hora}</td>
-        <td class="hora-cell" style="color:var(--muted);font-size:0.7rem;">${minToHHMM(r.hora)}</td>
+        <td class="hora-cell" style="color:var(--muted);font-size:0.7rem;">${horaReal(r.hora, r.dia)}</td>
         <td class="evt-cell">${r.evento}</td>
         <td><span class="badge ${f1cls}">${r.f1_estado}</span></td>
         <td class="num-cell" style="color:var(--muted)">${f1v}</td>
