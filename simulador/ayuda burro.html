@@ -1,0 +1,305 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.page{padding:1.5rem 0}
+h2{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:1rem}
+h3{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:.75rem}
+.section{margin-bottom:2rem}
+.label{font-size:12px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-green{background:#EAF3DE;color:#3B6D11}
+.badge-red{background:#FCEBEB;color:#A32D2D}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.badge-purple{background:#EEEDFE;color:#3C3489}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem}
+.metric-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem;text-align:center}
+.metric-val{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.metric-lbl{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.sep{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:1.5rem 0}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--color-text-secondary);background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:4px 10px;margin:3px}
+.arrow{font-size:18px;color:var(--color-text-secondary);display:flex;align-items:center;justify-content:center}
+.step-box{border-radius:var(--border-radius-md);padding:12px 14px;text-align:center;font-size:13px;font-weight:500}
+.step-libre{background:#EAF3DE;color:#3B6D11;border:1.5px solid #639922}
+.step-ocupado{background:#FAEEDA;color:#854F0B;border:1.5px solid #BA7517}
+.step-bloqueada{background:#FCEBEB;color:#A32D2D;border:1.5px solid #A32D2D}
+.step-cola{background:#EEEDFE;color:#3C3489;border:1.5px solid #534AB7}
+.step-neutral{background:var(--color-background-secondary);color:var(--color-text-primary);border:0.5px solid var(--color-border-tertiary)}
+.flow-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-green{background:#639922}
+.dot-amber{background:#BA7517}
+.dot-red{background:#A32D2D}
+.dot-blue{background:#378ADD}
+.leyenda{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem}
+.row-table{display:grid;grid-template-columns:60px 120px 90px 90px 90px 90px 80px 80px 100px;gap:4px;align-items:center;font-size:12px;padding:6px 8px;border-radius:6px}
+.row-header{background:var(--color-background-secondary);font-weight:500;font-size:11px;color:var(--color-text-secondary)}
+.row-even{background:var(--color-background-primary)}
+.row-odd{background:var(--color-background-secondary)}
+.cell{padding:2px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bloqueo-row{background:#FCEBEB!important;border:1px solid #F7C1C1}
+.params-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
+.param-item{display:flex;flex-direction:column;gap:4px}
+.param-item label{font-size:12px;color:var(--color-text-secondary)}
+.param-item span{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+</style>
+
+<div class="page">
+
+<div class="section">
+  <div class="label">El sistema</div>
+  <h2>Planta de revisión técnica vehicular</h2>
+
+  <div class="card" style="margin-bottom:1rem">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap">
+      <div class="tag"><i class="ti ti-clock" aria-hidden="true"></i> Abre 08:00 — cierra 16:00</div>
+      <div class="tag"><i class="ti ti-alert-circle" aria-hidden="true"></i> Si hay autos adentro, sigue hasta que salgan todos</div>
+    </div>
+
+    <div class="label">Flujo de un vehículo</div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:1rem">
+      <div class="step-box step-cola" style="min-width:90px">Cola<br><span style="font-size:11px;font-weight:400">espera aquí</span></div>
+      <div class="arrow">→</div>
+      <div class="step-box step-ocupado" style="min-width:90px">Frenos<br><span style="font-size:11px;font-weight:400">4–7 min</span></div>
+      <div class="arrow">→</div>
+      <div class="step-box step-ocupado" style="min-width:110px">Luces y emisiones<br><span style="font-size:11px;font-weight:400">6–10 min</span></div>
+      <div class="arrow">→</div>
+      <div class="step-box step-libre" style="min-width:70px">Sale<br><span style="font-size:11px;font-weight:400">listo</span></div>
+    </div>
+
+    <div class="label">Hay 2 líneas iguales funcionando en paralelo</div>
+    <div class="grid2">
+      <div style="border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:10px">
+        <div style="font-size:13px;font-weight:500;margin-bottom:8px">Línea 1</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <div class="step-box step-libre" style="flex:1;font-size:12px">Frenos 1</div>
+          <div class="arrow" style="font-size:14px">→</div>
+          <div class="step-box step-libre" style="flex:1;font-size:12px">Luces 1</div>
+        </div>
+      </div>
+      <div style="border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:10px">
+        <div style="font-size:13px;font-weight:500;margin-bottom:8px">Línea 2</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <div class="step-box step-libre" style="flex:1;font-size:12px">Frenos 2</div>
+          <div class="arrow" style="font-size:14px">→</div>
+          <div class="step-box step-libre" style="flex:1;font-size:12px">Luces 2</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="label">Llegadas</div>
+      <div class="flow-row"><div class="dot dot-blue"></div><span style="font-size:13px">🚗 Auto cada ~<strong>15 min</strong></span></div>
+      <div class="flow-row"><div class="dot dot-purple" style="background:#534AB7"></div><span style="font-size:13px">🚙 Camioneta cada ~<strong>30 min</strong></span></div>
+      <div style="margin-top:8px;padding:8px;background:var(--color-background-secondary);border-radius:6px;font-size:12px;color:var(--color-text-secondary)">
+        <i class="ti ti-star" style="color:#534AB7" aria-hidden="true"></i> Las camionetas tienen <strong>prioridad</strong> en la cola
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">El bloqueo 🔴</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Cuando Frenos termina pero Luces está ocupada:</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <div class="step-box step-bloqueada" style="flex:1;font-size:12px">Frenos<br>bloqueada</div>
+        <div class="arrow" style="font-size:14px">✗</div>
+        <div class="step-box step-ocupado" style="flex:1;font-size:12px">Luces<br>ocupada</div>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:#A32D2D">Nadie puede entrar a esa línea hasta que Luces se libere</div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<div class="section">
+  <div class="label">Los parámetros que pide el enunciado</div>
+  <h2>Valores parametrizables</h2>
+  <div class="card">
+    <div class="grid4" style="margin-bottom:1rem">
+      <div class="metric-card" style="border:2px solid #E24B4A">
+        <div class="metric-val" style="color:#A32D2D">X</div>
+        <div class="metric-lbl">Minutos a simular<br><span style="font-size:11px">(ej: 480 = 1 día)</span></div>
+      </div>
+      <div class="metric-card" style="border:2px solid #534AB7">
+        <div class="metric-val" style="color:#534AB7">i</div>
+        <div class="metric-lbl">Filas a mostrar<br><span style="font-size:11px">(máx 100.000)</span></div>
+      </div>
+      <div class="metric-card" style="border:2px solid #185FA5">
+        <div class="metric-val" style="color:#185FA5">j</div>
+        <div class="metric-lbl">Hora de inicio<br><span style="font-size:11px">(desde qué minuto)</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="font-size:16px">15/30<br>4-7 / 6-10</div>
+        <div class="metric-lbl">Tiempos medios<br><span style="font-size:11px">(llegadas y atención)</span></div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--color-text-secondary);padding:10px;background:var(--color-background-secondary);border-radius:6px">
+      <i class="ti ti-info-circle" aria-hidden="true"></i> El programa para cuando ocurra lo primero: llegó a <strong>X minutos</strong> o se generaron <strong>100.000 filas</strong>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<div class="section">
+  <div class="label">El vector de estado — así se ve la tabla</div>
+  <h2>Ejemplo de filas simuladas</h2>
+
+  <div class="leyenda">
+    <div style="display:flex;align-items:center;gap:5px;font-size:12px"><div class="dot dot-green"></div> Libre</div>
+    <div style="display:flex;align-items:center;gap:5px;font-size:12px"><div class="dot dot-amber"></div> Ocupado</div>
+    <div style="display:flex;align-items:center;gap:5px;font-size:12px"><div class="dot dot-red"></div> Bloqueada</div>
+    <div style="display:flex;align-items:center;gap:5px;font-size:12px"><div style="width:10px;height:10px;background:#FCEBEB;border:1px solid #F7C1C1;border-radius:2px"></div> Fila bloqueada</div>
+  </div>
+
+  <div style="overflow-x:auto">
+    <div class="row-table row-header">
+      <div class="cell">Hora</div>
+      <div class="cell">Evento</div>
+      <div class="cell">Frenos 1</div>
+      <div class="cell">Luces 1</div>
+      <div class="cell">Frenos 2</div>
+      <div class="cell">Luces 2</div>
+      <div class="cell">Cola A</div>
+      <div class="cell">Cola C</div>
+      <div class="cell">RND usado</div>
+    </div>
+
+    <div class="row-table row-even">
+      <div class="cell" style="font-weight:500">0.00</div>
+      <div class="cell"><span class="badge badge-blue">Llega auto</span></div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #1</span></div>
+      <div class="cell"><span class="badge badge-green">Libre</span></div>
+      <div class="cell"><span class="badge badge-green">Libre</span></div>
+      <div class="cell"><span class="badge badge-green">Libre</span></div>
+      <div class="cell">0</div>
+      <div class="cell">0</div>
+      <div class="cell" style="color:var(--color-text-secondary)">0.342</div>
+    </div>
+
+    <div class="row-table row-odd">
+      <div class="cell" style="font-weight:500">12.40</div>
+      <div class="cell"><span class="badge badge-purple">Llega camion.</span></div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #1</span></div>
+      <div class="cell"><span class="badge badge-green">Libre</span></div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #2</span></div>
+      <div class="cell"><span class="badge badge-green">Libre</span></div>
+      <div class="cell">0</div>
+      <div class="cell">0</div>
+      <div class="cell" style="color:var(--color-text-secondary)">0.781</div>
+    </div>
+
+    <div class="row-table row-even">
+      <div class="cell" style="font-weight:500">15.22</div>
+      <div class="cell" style="font-size:11px">Fin Frenos L1</div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #1</span></div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #1</span></div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #2</span></div>
+      <div class="cell"><span class="badge badge-green">Libre</span></div>
+      <div class="cell">0</div>
+      <div class="cell">0</div>
+      <div class="cell" style="color:var(--color-text-secondary)">0.543</div>
+    </div>
+
+    <div class="row-table bloqueo-row">
+      <div class="cell" style="font-weight:500">19.87</div>
+      <div class="cell" style="font-size:11px">Fin Frenos L2</div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #1</span></div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #1</span></div>
+      <div class="cell"><span class="badge badge-red">BLOQUEADA</span></div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #3</span></div>
+      <div class="cell">1</div>
+      <div class="cell">0</div>
+      <div class="cell" style="color:var(--color-text-secondary)">—</div>
+    </div>
+
+    <div class="row-table row-even">
+      <div class="cell" style="font-weight:500">23.15</div>
+      <div class="cell" style="font-size:11px">Fin Luces L2</div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #1</span></div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #1</span></div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #4</span></div>
+      <div class="cell"><span class="badge badge-amber">Ocup. #2</span></div>
+      <div class="cell">0</div>
+      <div class="cell">0</div>
+      <div class="cell" style="color:var(--color-text-secondary)">0.621</div>
+    </div>
+
+    <div class="row-table row-odd" style="opacity:.6">
+      <div class="cell" style="font-weight:500">...</div>
+      <div class="cell">...</div>
+      <div class="cell">...</div>
+      <div class="cell">...</div>
+      <div class="cell">...</div>
+      <div class="cell">...</div>
+      <div class="cell">...</div>
+      <div class="cell">...</div>
+      <div class="cell">...</div>
+    </div>
+  </div>
+
+  <div style="margin-top:10px;font-size:12px;color:var(--color-text-secondary);padding:8px 12px;background:var(--color-background-secondary);border-radius:6px">
+    <i class="ti ti-eye" aria-hidden="true"></i> Se muestran <strong>i filas</strong> a partir de la hora <strong>j</strong>. La fila roja = bloqueo activo.
+  </div>
+</div>
+
+<hr class="sep">
+
+<div class="section">
+  <div class="label">Lo que hay que calcular al final</div>
+  <h2>Las 3 respuestas que pide el enunciado</h2>
+  <div class="grid3">
+    <div class="card" style="border-top:3px solid #534AB7">
+      <div style="font-size:24px;margin-bottom:8px">⏱️</div>
+      <div style="font-size:14px;font-weight:500;margin-bottom:6px">Espera promedio en cola</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">Por cada tipo de vehículo</div>
+      <div style="background:var(--color-background-secondary);border-radius:6px;padding:8px;font-size:12px;font-family:var(--font-mono)">
+        suma_esperas / cant_atendidos
+      </div>
+    </div>
+    <div class="card" style="border-top:3px solid #A32D2D">
+      <div style="font-size:24px;margin-bottom:8px">🔴</div>
+      <div style="font-size:14px;font-weight:500;margin-bottom:6px">% tiempo bloqueada</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">Estación de Frenos</div>
+      <div style="background:var(--color-background-secondary);border-radius:6px;padding:8px;font-size:12px;font-family:var(--font-mono)">
+        t_bloqueada / t_total × 100
+      </div>
+    </div>
+    <div class="card" style="border-top:3px solid #3B6D11">
+      <div style="font-size:24px;margin-bottom:8px">🕐</div>
+      <div style="font-size:14px;font-weight:500;margin-bottom:6px">Hora fin de jornada</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">Cuando sale el último vehículo</div>
+      <div style="background:var(--color-background-secondary);border-radius:6px;padding:8px;font-size:12px;font-family:var(--font-mono)">
+        t del último Fin Luces
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<div class="section">
+  <div class="label">Estados posibles de cada estación</div>
+  <h2>Referencia de estados</h2>
+  <div class="grid3">
+    <div class="step-box step-libre" style="padding:16px">
+      <div style="font-size:16px;margin-bottom:4px">Libre</div>
+      <div style="font-size:12px;font-weight:400">No hay vehículo. Puede entrar el siguiente de la cola.</div>
+    </div>
+    <div class="step-box step-ocupado" style="padding:16px">
+      <div style="font-size:16px;margin-bottom:4px">Ocupado</div>
+      <div style="font-size:12px;font-weight:400">Hay un vehículo siendo revisado ahora mismo.</div>
+    </div>
+    <div class="step-box step-bloqueada" style="padding:16px">
+      <div style="font-size:16px;margin-bottom:4px">Bloqueada</div>
+      <div style="font-size:12px;font-weight:400">Terminó pero no puede avanzar. Nadie más puede entrar.</div>
+    </div>
+  </div>
+</div>
+
+</div>
