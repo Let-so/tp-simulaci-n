@@ -111,10 +111,10 @@ def run_simulation(dias: int, inicio_mostrar: float, cant_mostrar: int):
             candidates.append((t_llegada_auto,  EVT_LLEGADA_AUTO))
             candidates.append((t_llegada_camion, EVT_LLEGADA_CAMION))
         for f in frenos:
-            if f.estado != ESTADO_LIBRE:
+            if f.fin_atencion < INF:   # excluye BLOQUEADA (fin_atencion == INF)
                 candidates.append((f.fin_atencion, f"Fin Frenos L{f.id}"))
         for l in luces:
-            if l.estado != ESTADO_LIBRE:
+            if l.fin_atencion < INF:
                 candidates.append((l.fin_atencion, f"Fin Luces L{l.id}"))
         return min(candidates, key=lambda x: x[0]) if candidates else (INF, EVT_FIN_SIM)
 
@@ -158,12 +158,28 @@ def run_simulation(dias: int, inicio_mostrar: float, cant_mostrar: int):
             "prom_esp_camiones": round(suma_espera_camiones / camiones_atendidos, 4) if camiones_atendidos else 0,
             "t_bloq_f1": round(tiempo_bloqueada_f1, 4),
             "t_bloq_f2": round(tiempo_bloqueada_f2, 4),
-            "pct_bloq":  round((tiempo_bloqueada_f1 + tiempo_bloqueada_f2) / (2 * max(t, 1)) * 100, 2),
+            "pct_bloq_f1": round(tiempo_bloqueada_f1 / max(t, 1) * 100, 2),
+            "pct_bloq_f2": round(tiempo_bloqueada_f2 / max(t, 1) * 100, 2),
             "rnds": dict(rnds_usados),
         }
 
-    def intentar_siguiente_vehiculo(linea_idx):
+    def asignar_a_freno(v, idx):
+        """Asigna v al freno[idx] y acumula espera + conteo. Único lugar donde se cuenta."""
         nonlocal suma_espera_autos, autos_atendidos, suma_espera_camiones, camiones_atendidos
+        r, dur = tiempo_freno()
+        pending_rnds[f"rnd_freno_L{idx+1}"] = round(r, 6)
+        frenos[idx].estado       = ESTADO_OCUPADO
+        frenos[idx].vehiculo_id  = v.id
+        frenos[idx].fin_atencion = t + dur
+        espera = t - v.hora_inicio_espera   # 0 si fue directo, real si esperó en cola
+        if v.tipo == "Auto":
+            suma_espera_autos += espera
+            autos_atendidos   += 1
+        else:
+            suma_espera_camiones += espera
+            camiones_atendidos   += 1
+
+    def intentar_siguiente_vehiculo(linea_idx):
         f = frenos[linea_idx]
         if f.estado != ESTADO_LIBRE:
             return
@@ -174,18 +190,7 @@ def run_simulation(dias: int, inicio_mostrar: float, cant_mostrar: int):
         else:
             return
         v.hora_fin_espera = t
-        espera = t - v.hora_inicio_espera
-        if v.tipo == "Auto":
-            suma_espera_autos += espera
-            autos_atendidos   += 1
-        else:
-            suma_espera_camiones += espera
-            camiones_atendidos   += 1
-        r, dur = tiempo_freno()
-        pending_rnds[f"rnd_freno_L{linea_idx+1}"] = round(r, 6)
-        f.estado       = ESTADO_OCUPADO
-        f.vehiculo_id  = v.id
-        f.fin_atencion = t + dur
+        asignar_a_freno(v, linea_idx)
 
     # ─── Event loop ──────────────────────────────────────────────────────────
     while iter_count < 100000:
@@ -213,12 +218,8 @@ def run_simulation(dias: int, inicio_mostrar: float, cant_mostrar: int):
             asignado = False
             for idx in range(2):
                 if frenos[idx].estado == ESTADO_LIBRE:
-                    r, dur = tiempo_freno()
-                    pending_rnds[f"rnd_freno_L{idx+1}"] = round(r, 6)
-                    frenos[idx].estado       = ESTADO_OCUPADO
-                    frenos[idx].vehiculo_id  = v.id
-                    frenos[idx].fin_atencion = t + dur
-                    autos_atendidos += 1
+                    v.hora_fin_espera = t   # espera = 0 (va directo)
+                    asignar_a_freno(v, idx)
                     asignado = True
                     break
             if not asignado:
@@ -236,12 +237,8 @@ def run_simulation(dias: int, inicio_mostrar: float, cant_mostrar: int):
             asignado = False
             for idx in range(2):
                 if frenos[idx].estado == ESTADO_LIBRE:
-                    r, dur = tiempo_freno()
-                    pending_rnds[f"rnd_freno_L{idx+1}"] = round(r, 6)
-                    frenos[idx].estado       = ESTADO_OCUPADO
-                    frenos[idx].vehiculo_id  = v.id
-                    frenos[idx].fin_atencion = t + dur
-                    camiones_atendidos += 1
+                    v.hora_fin_espera = t   # espera = 0 (va directo)
+                    asignar_a_freno(v, idx)
                     asignado = True
                     break
             if not asignado:

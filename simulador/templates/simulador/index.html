@@ -272,9 +272,7 @@
   .prox-cell {
     color: var(--muted);
     font-size: 0.68rem;
-    max-width: 220px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    min-width: 300px;
   }
 
   /* estado badges */
@@ -658,7 +656,8 @@ function renderResults(rows, lastRow, stats, params, totalRows) {
           <th class="group-cola">Cola Cam.</th>
           <th class="group-acum">Esp. Autos</th>
           <th class="group-acum">Esp. Cam.</th>
-          <th class="group-acum">% Bloq</th>
+          <th class="group-acum">% Bloq F1</th>
+          <th class="group-acum">% Bloq F2</th>
           <th>Núm. Aleatorios</th>
           <th>Próximos eventos</th>
         </tr>
@@ -695,7 +694,8 @@ function renderResults(rows, lastRow, stats, params, totalRows) {
         <td class="num-cell">${r.cola_camiones}</td>
         <td class="num-cell">${r.prom_esp_autos}'</td>
         <td class="num-cell">${r.prom_esp_camiones}'</td>
-        <td class="num-cell">${r.pct_bloq}%</td>
+        <td class="num-cell">${r.pct_bloq_f1}%</td>
+        <td class="num-cell">${r.pct_bloq_f2}%</td>
         <td>${rndsHtml(r.rnds)}</td>
         <td class="prox-cell">${r.proximos}</td>
       </tr>`;
