@@ -21,25 +21,21 @@ EVT_FIN_SIM        = "Fin Simulación"
 
 # ─── Random generators ───────────────────────────────────────────────────────
 
-def next_auto(rnd=None):
-    if rnd is None:
-        rnd = random.random()
-    return rnd, round(-15 * math.log(1 - rnd), 4)
+def next_auto(rnd=None, media=15):
+    if rnd is None: rnd = random.random()
+    return rnd, round(-media * math.log(1 - rnd), 4)
 
-def next_camion(rnd=None):
-    if rnd is None:
-        rnd = random.random()
-    return rnd, round(-30 * math.log(1 - rnd), 4)
+def next_camion(rnd=None, media=30):
+    if rnd is None: rnd = random.random()
+    return rnd, round(-media * math.log(1 - rnd), 4)
 
-def tiempo_freno(rnd=None):
-    if rnd is None:
-        rnd = random.random()
-    return rnd, round(4 + rnd * 3, 4)
+def tiempo_freno(rnd=None, a=4, b=7):
+    if rnd is None: rnd = random.random()
+    return rnd, round(a + rnd * (b - a), 4)
 
-def tiempo_luces(rnd=None):
-    if rnd is None:
-        rnd = random.random()
-    return rnd, round(6 + rnd * 4, 4)
+def tiempo_luces(rnd=None, a=6, b=10):
+    if rnd is None: rnd = random.random()
+    return rnd, round(a + rnd * (b - a), 4)
 
 # ─── Data structures ─────────────────────────────────────────────────────────
 
@@ -67,7 +63,10 @@ class EstacionLuces:
 
 # ─── Main simulation ─────────────────────────────────────────────────────────
 
-def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int):
+def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
+                   media_auto=15, media_camion=30,
+                   freno_a=4, freno_b=7,
+                   luces_a=6, luces_b=10):
     """
     Simula `tiempo_max` minutos de trabajo en jornadas de 480 min (08:00–16:00).
     Si tiempo_max > 480 simula múltiples días automáticamente.
@@ -80,8 +79,8 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int):
     cola_autos: list[Vehiculo]    = []
     cola_camiones: list[Vehiculo] = []
 
-    rnd_la, dt_auto   = next_auto()
-    rnd_lc, dt_camion = next_camion()
+    rnd_la, dt_auto   = next_auto(media=media_auto)
+    rnd_lc, dt_camion = next_camion(media=media_camion)
     t_llegada_auto   = dt_auto
     t_llegada_camion = dt_camion
 
@@ -172,7 +171,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int):
     def asignar_a_freno(v, idx):
         """Asigna v al freno[idx] y acumula espera + conteo. Único lugar donde se cuenta."""
         nonlocal suma_espera_autos, autos_atendidos, suma_espera_camiones, camiones_atendidos
-        r, dur = tiempo_freno()
+        r, dur = tiempo_freno(a=freno_a, b=freno_b)
         pending_rnds[f"rnd_freno_L{idx+1}"] = round(r, 6)
         frenos[idx].estado       = ESTADO_OCUPADO
         frenos[idx].vehiculo_id  = v.id
@@ -217,7 +216,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int):
             vehiculo_counter += 1
             v = Vehiculo(vehiculo_counter, "Auto", t)
             v.hora_inicio_espera = t
-            rnd_la, dt = next_auto()
+            rnd_la, dt = next_auto(media=media_auto)
             pending_rnds["rnd_llegada_auto"] = round(rnd_la, 6)
             t_llegada_auto = t + dt
 
@@ -236,7 +235,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int):
             vehiculo_counter += 1
             v = Vehiculo(vehiculo_counter, "Camioneta", t)
             v.hora_inicio_espera = t
-            rnd_lc, dt = next_camion()
+            rnd_lc, dt = next_camion(media=media_camion)
             pending_rnds["rnd_llegada_camion"] = round(rnd_lc, 6)
             t_llegada_camion = t + dt
 
@@ -258,7 +257,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int):
             vid = f.vehiculo_id
 
             if l.estado == ESTADO_LIBRE:
-                r, dur = tiempo_luces()
+                r, dur = tiempo_luces(a=luces_a, b=luces_b)
                 pending_rnds[f"rnd_luces_L{idx+1}"] = round(r, 6)
                 l.estado       = ESTADO_OCUPADO
                 l.vehiculo_id  = vid
@@ -294,7 +293,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int):
                     t_inicio_bloqueo_f2 = None
 
                 vid_bloq = f.vehiculo_id
-                r, dur = tiempo_luces()
+                r, dur = tiempo_luces(a=luces_a, b=luces_b)
                 pending_rnds[f"rnd_luces_L{idx+1}"] = round(r, 6)
                 l.estado       = ESTADO_OCUPADO
                 l.vehiculo_id  = vid_bloq

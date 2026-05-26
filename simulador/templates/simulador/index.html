@@ -695,13 +695,39 @@
 
       <div class="param-group">
         <h3>Variables Aleatorias</h3>
-        <div class="formula-box" style="border-left-color: var(--accent); padding: 0.75rem 1rem">
-          <code>
-              <span>Llegada autos:</span> −15·ln(1−RND)<br />
-              <span>Llegada camionetas:</span> −30·ln(1−RND)<br />
-              <span>Frenos U(4,7):</span> 4 + RND·(7-4)<br />
-              <span>Luces U(6,10):</span> 6 + RND·(10-6)
-            </code>
+
+        <div class="field">
+          <label>Media llegada Autos (min)</label>
+          <input type="number" id="media_auto" value="15" min="0.1" step="0.1" />
+          <span class="hint">−media·ln(1−RND)</span>
+        </div>
+
+        <div class="field">
+          <label>Media llegada Camionetas (min)</label>
+          <input type="number" id="media_camion" value="30" min="0.1" step="0.1" />
+          <span class="hint">−media·ln(1−RND)</span>
+        </div>
+
+        <div class="field">
+          <label>Frenos — mínimo (min)</label>
+          <input type="number" id="freno_a" value="4" min="0" step="0.1" />
+        </div>
+
+        <div class="field">
+          <label>Frenos — máximo (min)</label>
+          <input type="number" id="freno_b" value="7" min="0" step="0.1" />
+          <span class="hint">U(a, b): a + RND·(b−a)</span>
+        </div>
+
+        <div class="field">
+          <label>Luces — mínimo (min)</label>
+          <input type="number" id="luces_a" value="6" min="0" step="0.1" />
+        </div>
+
+        <div class="field">
+          <label>Luces — máximo (min)</label>
+          <input type="number" id="luces_b" value="10" min="0" step="0.1" />
+          <span class="hint">U(a, b): a + RND·(b−a)</span>
         </div>
       </div>
 
@@ -793,11 +819,15 @@
         .value.replace(",", ".");
 
       const params = {
-        tiempo_max:
-          parseInt(document.getElementById("tiempo_max").value) || 0,
+        tiempo_max:     parseInt(document.getElementById("tiempo_max").value) || 0,
         inicio_mostrar: parseFloat(rawInicio) || 0,
-        cant_mostrar:
-          parseInt(document.getElementById("cant_mostrar").value) || 0,
+        cant_mostrar:   parseInt(document.getElementById("cant_mostrar").value) || 0,
+        media_auto:    parseFloat(document.getElementById("media_auto").value)   || 15,
+        media_camion:  parseFloat(document.getElementById("media_camion").value) || 30,
+        freno_a:       parseFloat(document.getElementById("freno_a").value)      || 4,
+        freno_b:       parseFloat(document.getElementById("freno_b").value)      || 7,
+        luces_a:       parseFloat(document.getElementById("luces_a").value)      || 6,
+        luces_b:       parseFloat(document.getElementById("luces_b").value)      || 10,
       };
 
       if (params.tiempo_max <= 0) {
