@@ -954,6 +954,28 @@
       }
 
       // Build table HTML separately so it can be placed in the bottom dock
+      const camionetaIds = [];
+      const autoIds = [];
+      const idsSeen = new Set();
+
+      for (const r of rows) {
+          for (const [idStr, veh] of Object.entries(r.vehiculos || {})) {
+              const id = parseInt(idStr);
+              if (!idsSeen.has(id)) {
+                  idsSeen.add(id);
+                  if (veh.tipo === "Camioneta") camionetaIds.push(id);
+                  else autoIds.push(id);
+              }
+          }
+      }
+      camionetaIds.sort((a, b) => a - b);
+      autoIds.sort((a, b) => a - b);
+
+      const colOrder = [
+          ...camionetaIds.map(id => ({ id, tipo: "Camioneta" })),
+          ...autoIds.map(id => ({ id, tipo: "Auto" })),
+      ];
+
       let tableHtml = "";
       if (rows.length === 0) {
         tableHtml = `<div class="empty"><div class="icon">📭</div><p>No hay filas para el rango solicitado.</p></div>`;
@@ -965,43 +987,68 @@
           (r) => r.cola_autos > 0 || r.cola_camiones > 0,
         ).length;
 
+        // ── Encabezados dinámicos de vehículos ──────────────────────────
+        const thVehRow1 = colOrder.map(col => {
+            const label = col.tipo === "Camioneta"
+                ? `🚙 Cam. #${col.id}`
+                : `🚗 Auto #${col.id}`;
+            const color = col.tipo === "Camioneta"
+                ? "rgba(167,139,250,0.10)"
+                : "rgba(0,119,255,0.08)";
+            return `<th colspan="2" style="text-align:center;border-left:2px solid var(--border);background:${color}">${label}</th>`;
+        }).join("");
+
+        const thVehRow2 = colOrder.map(() =>
+            `<th style="font-size:0.7rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
+            <th style="font-size:0.7rem;color:var(--muted)">Hora llegada</th>`
+        ).join("");
+        // ────────────────────────────────────────────────────────────────
+
         tableHtml = `
-    <div class="section-title">${rows.length} filas desde T=${params.inicio_mostrar}'</div>
-    <div style="font-size:0.85rem;color:var(--muted);margin:0.35rem 0 0.4rem 0;">Mostrando ${rows.length} de ${totalRows} filas — Iteraciones: ${stats.total_iter.toLocaleString()}</div>
-    <div style="display:flex;gap:12px;align-items:center;margin-bottom:0.6rem;flex-wrap:wrap;font-size:0.78rem;">
-      <span style="color:var(--bloq)">■ Bloqueada: <strong>${bloqRows}</strong> fila${bloqRows !== 1 ? "s" : ""}</span>
-      <span style="color:#a78bfa">■ Cola &gt;0: <strong>${colaRows}</strong> fila${colaRows !== 1 ? "s" : ""}</span>
-      <span style="color:var(--muted)">Sin color = flujo normal</span>
-    </div>
-    <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Día</th>
-          <th>Hora (min)</th>
-          <th>Hora Real</th>
-          <th>Evento</th>
-          <th class="group-frenos">F1 Estado</th>
-          <th class="group-frenos">F1 Veh / Fin</th>
-          <th class="group-frenos">F2 Estado</th>
-          <th class="group-frenos">F2 Veh / Fin</th>
-          <th class="group-luces">L1 Estado</th>
-          <th class="group-luces">L1 Veh / Fin</th>
-          <th class="group-luces">L2 Estado</th>
-          <th class="group-luces">L2 Veh / Fin</th>
-          <th class="group-cola">Cola Autos</th>
-          <th class="group-cola">Cola Cam.</th>
-          <th class="group-acum">Esp. Autos</th>
-          <th class="group-acum">Esp. Cam.</th>
-          <th class="group-acum">% Bloq F1</th>
-          <th class="group-acum">% Bloq F2</th>
-          <th>Núm. Aleatorios</th>
-          <th>Próximos eventos</th>
-        </tr>
-      </thead>
-      <tbody>
-    `;
+      <div class="section-title">${rows.length} filas desde T=${params.inicio_mostrar}'</div>
+      <div style="font-size:0.85rem;color:var(--muted);margin:0.35rem 0 0.4rem 0;">Mostrando ${rows.length} de ${totalRows} filas — Iteraciones: ${stats.total_iter.toLocaleString()}</div>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:0.6rem;flex-wrap:wrap;font-size:0.78rem;">
+        <span style="color:var(--bloq)">■ Bloqueada: <strong>${bloqRows}</strong> fila${bloqRows !== 1 ? "s" : ""}</span>
+        <span style="color:#a78bfa">■ Cola &gt;0: <strong>${colaRows}</strong> fila${colaRows !== 1 ? "s" : ""}</span>
+        <span style="color:var(--muted)">Sin color = flujo normal</span>
+        <span style="color:#fbbf24">■ SA_EF = atendido en Frenos</span>
+        <span style="color:var(--ocupado)">■ SA_EL = atendido en Luces</span>
+        <span style="color:var(--warn)">■ EA_B = bloqueado</span>
+        <span style="color:#a78bfa">■ EA_EF = esperando en cola</span>
+      </div>
+      <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th rowspan="2">#</th>
+            <th rowspan="2">Día</th>
+            <th rowspan="2">Hora (min)</th>
+            <th rowspan="2">Hora Real</th>
+            <th rowspan="2">Evento</th>
+            <th rowspan="2" class="group-frenos">F1 Estado</th>
+            <th rowspan="2" class="group-frenos">F1 Veh / Fin</th>
+            <th rowspan="2" class="group-frenos">F2 Estado</th>
+            <th rowspan="2" class="group-frenos">F2 Veh / Fin</th>
+            <th rowspan="2" class="group-luces">L1 Estado</th>
+            <th rowspan="2" class="group-luces">L1 Veh / Fin</th>
+            <th rowspan="2" class="group-luces">L2 Estado</th>
+            <th rowspan="2" class="group-luces">L2 Veh / Fin</th>
+            <th rowspan="2" class="group-cola">Cola Autos</th>
+            <th rowspan="2" class="group-cola">Cola Cam.</th>
+            <th rowspan="2" class="group-acum">Esp. Autos</th>
+            <th rowspan="2" class="group-acum">Esp. Cam.</th>
+            <th rowspan="2" class="group-acum">% Bloq F1</th>
+            <th rowspan="2" class="group-acum">% Bloq F2</th>
+            <th rowspan="2">Núm. Aleatorios</th>
+            <th rowspan="2">Próximos eventos</th>
+            ${thVehRow1}
+          </tr>
+          <tr>
+            ${thVehRow2}
+          </tr>
+        </thead>
+        <tbody>
+      `;
 
         for (const r of rows) {
           const f1v = r.f1_vid != null ? `#${r.f1_vid} →${r.f1_fin}'` : "—";
@@ -1010,48 +1057,58 @@
           const l2v = r.l2_vid != null ? `#${r.l2_vid} →${r.l2_fin}'` : "—";
 
           const f1cls =
-            r.f1_estado === "Libre"
-              ? "libre"
-              : r.f1_estado === "Ocupado"
-                ? "ocupado"
-                : "bloq";
+            r.f1_estado === "Libre" ? "libre" :
+            r.f1_estado === "Ocupado" ? "ocupado" : "bloq";
           const f2cls =
-            r.f2_estado === "Libre"
-              ? "libre"
-              : r.f2_estado === "Ocupado"
-                ? "ocupado"
-                : "bloq";
+            r.f2_estado === "Libre" ? "libre" :
+            r.f2_estado === "Ocupado" ? "ocupado" : "bloq";
           const l1cls = r.l1_estado === "Libre" ? "libre" : "ocupado";
           const l2cls = r.l2_estado === "Libre" ? "libre" : "ocupado";
 
-          const isBloq =
-            r.f1_estado === "Bloqueada" || r.f2_estado === "Bloqueada";
+          const isBloq = r.f1_estado === "Bloqueada" || r.f2_estado === "Bloqueada";
           const hasCola = r.cola_autos > 0 || r.cola_camiones > 0;
           const rowCls = isBloq ? "ev-bloq" : hasCola ? "ev-cola" : "";
 
+          // ── Celdas dinámicas por vehículo ──────────────────────────────
+          const vehCells = colOrder.map(col => {
+              const info = (r.vehiculos || {})[col.id];
+              if (!info) {
+                  return `<td style="border-left:2px solid var(--border);color:var(--muted);text-align:center">—</td><td style="color:var(--muted);text-align:center">—</td>`;
+              }
+              const estadoColor =
+                  info.estado.startsWith("SA_EF") ? "color:#fbbf24" :
+                  info.estado.startsWith("SA_EL") ? "color:var(--ocupado)" :
+                  info.estado.startsWith("EA_B")  ? "color:var(--warn)" :
+                  "color:#a78bfa";  // EA_EF
+              return `<td style="border-left:2px solid var(--border);${estadoColor};font-size:0.75rem;font-weight:600;text-align:center">${info.estado}</td>
+                      <td style="color:var(--muted);font-size:0.75rem;text-align:center">${info.hora_llegada ?? "—"}</td>`;
+          }).join("");
+          // ───────────────────────────────────────────────────────────────
+
           tableHtml += `<tr class="${rowCls}">
-        <td class="iter-badge">${r.iter}</td>
-        <td class="iter-badge">${r.dia}</td>
-        <td class="hora-cell">${r.hora}</td>
-        <td class="hora-cell" style="color:var(--muted);font-size:0.7rem;">${horaReal(r.hora, r.dia)}</td>
-        <td class="evt-cell">${r.evento}</td>
-        <td><span class="badge ${f1cls}">${r.f1_estado}</span></td>
-        <td class="num-cell" style="color:var(--muted)">${f1v}</td>
-        <td><span class="badge ${f2cls}">${r.f2_estado}</span></td>
-        <td class="num-cell" style="color:var(--muted)">${f2v}</td>
-        <td><span class="badge ${l1cls}">${r.l1_estado}</span></td>
-        <td class="num-cell" style="color:var(--muted)">${l1v}</td>
-        <td><span class="badge ${l2cls}">${r.l2_estado}</span></td>
-        <td class="num-cell" style="color:var(--muted)">${l2v}</td>
-        <td class="num-cell">${colaHtml(r.cola_autos, "🚗")}</td>
-        <td class="num-cell">${colaHtml(r.cola_camiones, "🚙")}</td>
-        <td class="num-cell">${r.prom_esp_autos}'</td>
-        <td class="num-cell">${r.prom_esp_camiones}'</td>
-        <td class="num-cell">${r.pct_bloq_f1}%</td>
-        <td class="num-cell">${r.pct_bloq_f2}%</td>
-        <td>${rndsHtml(r.rnds)}</td>
-        <td class="prox-cell">${proximosHtml(r.proximos)}</td>
-      </tr>`;
+            <td class="iter-badge">${r.iter}</td>
+            <td class="iter-badge">${r.dia}</td>
+            <td class="hora-cell">${r.hora}</td>
+            <td class="hora-cell" style="color:var(--muted);font-size:0.7rem;">${horaReal(r.hora, r.dia)}</td>
+            <td class="evt-cell">${r.evento}</td>
+            <td><span class="badge ${f1cls}">${r.f1_estado}</span></td>
+            <td class="num-cell" style="color:var(--muted)">${f1v}</td>
+            <td><span class="badge ${f2cls}">${r.f2_estado}</span></td>
+            <td class="num-cell" style="color:var(--muted)">${f2v}</td>
+            <td><span class="badge ${l1cls}">${r.l1_estado}</span></td>
+            <td class="num-cell" style="color:var(--muted)">${l1v}</td>
+            <td><span class="badge ${l2cls}">${r.l2_estado}</span></td>
+            <td class="num-cell" style="color:var(--muted)">${l2v}</td>
+            <td class="num-cell">${colaHtml(r.cola_autos, "🚗")}</td>
+            <td class="num-cell">${colaHtml(r.cola_camiones, "🚙")}</td>
+            <td class="num-cell">${r.prom_esp_autos}'</td>
+            <td class="num-cell">${r.prom_esp_camiones}'</td>
+            <td class="num-cell">${r.pct_bloq_f1}%</td>
+            <td class="num-cell">${r.pct_bloq_f2}%</td>
+            <td>${rndsHtml(r.rnds)}</td>
+            <td class="prox-cell">${proximosHtml(r.proximos)}</td>
+            ${vehCells}
+          </tr>`;
         }
 
         tableHtml += `</tbody></table></div>`;

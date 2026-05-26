@@ -85,6 +85,9 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     t_llegada_camion = dt_camion
 
     vehiculo_counter     = 0
+
+    registro_vehiculos: dict[int, Vehiculo] = {}
+
     autos_atendidos      = 0
     camiones_atendidos   = 0
     suma_espera_autos    = 0.0
@@ -137,6 +140,36 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
         return "<br>".join(evts) if evts else "—"
 
     def snapshot(evento, rnds_usados):
+
+        # ── Estado por vehículo ──────────────────────────────────────────
+        estados_vehiculos = {}
+
+        for v in cola_autos:
+            estados_vehiculos[v.id] = {"tipo": "Auto", "estado": "EA_EF", "hora_llegada": round(v.hora_llegada, 4)}
+        for v in cola_camiones:
+            estados_vehiculos[v.id] = {"tipo": "Camioneta", "estado": "EA_EF", "hora_llegada": round(v.hora_llegada, 4)}
+
+        for idx, f in enumerate(frenos):
+            if f.vehiculo_id is not None:
+                veh = registro_vehiculos.get(f.vehiculo_id)
+                estado_str = f"EA_B({idx+1})" if f.estado == ESTADO_BLOQUEADA else f"SA_EF({idx+1})"
+                estados_vehiculos[f.vehiculo_id] = {
+                    "tipo": veh.tipo if veh else "?",
+                    "estado": estado_str,
+                    "hora_llegada": round(veh.hora_llegada, 4) if veh else None,
+                }
+
+        for idx, l in enumerate(luces):
+            if l.vehiculo_id is not None:
+                veh = registro_vehiculos.get(l.vehiculo_id)
+                estados_vehiculos[l.vehiculo_id] = {
+                    "tipo": veh.tipo if veh else "?",
+                    "estado": f"SA_EL({idx+1})",
+                    "hora_llegada": round(veh.hora_llegada, 4) if veh else None,
+                }
+        # ────────────────────────────────────────────────────────────────
+
+
         return {
             "iter":  iter_count,
             "dia":   dia_actual,
@@ -166,6 +199,8 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
             "pct_bloq_f1": round(tiempo_bloqueada_f1 / max(t, 1) * 100, 2),
             "pct_bloq_f2": round(tiempo_bloqueada_f2 / max(t, 1) * 100, 2),
             "rnds": dict(rnds_usados),
+
+            "vehiculos": estados_vehiculos,
         }
 
     def asignar_a_freno(v, idx):
@@ -215,6 +250,9 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
         if evt_name == EVT_LLEGADA_AUTO and not cerrado:
             vehiculo_counter += 1
             v = Vehiculo(vehiculo_counter, "Auto", t)
+
+            registro_vehiculos[v.id] = v
+
             v.hora_inicio_espera = t
             rnd_la, dt = next_auto(media=media_auto)
             pending_rnds["rnd_llegada_auto"] = round(rnd_la, 6)
@@ -234,6 +272,9 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
         elif evt_name == EVT_LLEGADA_CAMION and not cerrado:
             vehiculo_counter += 1
             v = Vehiculo(vehiculo_counter, "Camioneta", t)
+
+            registro_vehiculos[v.id] = v
+
             v.hora_inicio_espera = t
             rnd_lc, dt = next_camion(media=media_camion)
             pending_rnds["rnd_llegada_camion"] = round(rnd_lc, 6)
