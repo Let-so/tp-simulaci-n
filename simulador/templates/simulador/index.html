@@ -1,643 +1,959 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulación RTV — UTN FRC</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulación RTV — UTN FRC</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap");
 
-  :root {
-    --bg: #0a0c10;
-    --surface: #111418;
-    --border: #1e2430;
-    --accent: #00e5a0;
-    --accent2: #0077ff;
-    --warn: #ff6b35;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --libre: #00e5a0;
-    --ocupado: #0077ff;
-    --bloq: #ff6b35;
-    --header-h: 64px;
-  }
+    :root {
+      --bg: #0a0c10;
+      --surface: #111418;
+      --border: #1e2430;
+      --accent: #00e5a0;
+      --accent2: #0077ff;
+      --warn: #ff6b35;
+      --text: #e2e8f0;
+      --muted: #abb7c7;
+      --libre: #00e5a0;
+      --ocupado: #0077ff;
+      --bloq: #ff6b35;
+      --header-h: 64px;
+    }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-  }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
+      min-height: 100vh;
+    }
 
-  /* ── Header ── */
-  header {
-    height: var(--header-h);
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    padding: 0 2rem;
-    gap: 1rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .logo {
-    font-family: 'Space Mono', monospace;
-    font-size: 1.1rem;
-    color: var(--accent);
-    letter-spacing: -0.03em;
-    white-space: nowrap;
-  }
-  .logo span { color: var(--muted); font-size: 0.75rem; display: block; letter-spacing: 0; }
-  header h1 {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--muted);
-    border-left: 1px solid var(--border);
-    padding-left: 1rem;
-    margin-left: 0.5rem;
-  }
+    /* ── Header ── */
+    header {
+      height: var(--header-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-  /* ── Layout ── */
-  .container {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 0;
-    height: calc(100vh - var(--header-h));
-  }
+    .logo {
+      font-family: "Space Mono", monospace;
+      font-size: 1.1rem;
+      color: var(--accent);
+      letter-spacing: -0.03em;
+      white-space: nowrap;
+    }
 
-  /* ── Sidebar ── */
-  aside {
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 1.5rem;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
+    .logo span {
+      color: var(--muted);
+      font-size: 0.75rem;
+      display: block;
+      letter-spacing: 0;
+    }
 
-  .param-group { display: flex; flex-direction: column; gap: 0.75rem; }
-  .param-group h3 {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 0.5rem;
-  }
+    header h1 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--muted);
+      border-left: 1px solid var(--border);
+      padding-left: 1rem;
+      margin-left: 0.5rem;
+    }
 
-  .field { display: flex; flex-direction: column; gap: 0.3rem; }
-  .field label { font-size: 0.8rem; color: var(--muted); }
-  .field input {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.85rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .field input:focus { border-color: var(--accent); }
-  .field .hint { font-size: 0.7rem; color: var(--muted); }
+    /* ── Layout ── */
+    .container {
+      display: grid;
+      grid-template-columns: 315px 1fr;
+      gap: 0;
+      height: calc(100vh - var(--header-h));
+    }
 
-  .btn-run {
-    background: var(--accent);
-    color: #000;
-    border: none;
-    padding: 0.75rem;
-    border-radius: 8px;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
-    letter-spacing: 0.05em;
-  }
-  .btn-run:hover { opacity: 0.88; }
-  .btn-run:active { transform: scale(0.98); }
-  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
+    /* ── Sidebar ── */
+    aside {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
 
-  /* ── Main panel ── */
-  main {
-    overflow: auto;
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
+    .param-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
 
-  /* ── Stats cards ── */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1rem;
-    align-items: start;
-  }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.25rem 1.5rem;
-    min-height: 84px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  .stat-card .label { font-size: 0.74rem; color: var(--muted); margin-bottom: 0.5rem; }
-  .stat-card .value {
-    font-family: 'Space Mono', monospace;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--accent);
-  }
-  .stat-card.warn .value { color: var(--warn); }
-  .stat-card.info .value { color: var(--accent2); }
+    .param-group h3 {
+      font-family: "Space Mono", monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
 
-  /* ── Section title ── */
-  .section-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
 
-  .results-top { display: flex; flex-direction: column; gap: 1rem; }
+    .field label {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
 
-  /* ── Last row ── */
-  .last-row {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--warn);
-    border-radius: 10px;
-    padding: 1rem 1.5rem;
-    margin-top: 0.6rem;
-  }
-  .last-row h4 {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--warn);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 0.9rem;
-  }
-  .last-row-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 0.9rem;
-  }
-  .lr-item { font-size: 0.8rem; }
-  .lr-item .k { color: var(--muted); }
-  .lr-item .v { font-family: 'Space Mono', monospace; color: var(--text); }
+    .field input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-family: "Space Mono", monospace;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
 
-  /* ── Table ── */
-  .table-wrap {
+    .field input:focus {
+      border-color: var(--accent);
+    }
+
+    .field .hint {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .btn-run {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-family: "Space Mono", monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition:
+        opacity 0.2s,
+        transform 0.1s;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-run:hover {
+      opacity: 0.88;
+    }
+
+    .btn-run:active {
+      transform: scale(0.98);
+    }
+
+    .btn-run:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ── Main panel ── */
+    main {
+      overflow: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ── Stats cards ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      min-height: 84px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .stat-card .label {
+      font-size: 0.74rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card .value {
+      font-family: "Space Mono", monospace;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-card.warn .value {
+      color: var(--warn);
+    }
+
+    .stat-card.info .value {
+      color: var(--accent2);
+    }
+
+    /* ── Section title ── */
+    .section-title {
+      font-family: "Space Mono", monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .results-top {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ── Last row ── */
+    .last-row {
+      background: #ff8f000a;
+      border: 1px solid #ff8b012e;
+      /* border-left: 3px solid var(--warn); */
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      margin-top: 0.6rem;
+    }
+
+    .last-row h4 {
+      font-family: "Space Mono", monospace;
+      font-size: 0.7rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.9rem;
+    }
+
+    .last-row-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.9rem;
+    }
+
+    .lr-item {
+      font-size: 0.8rem;
+    }
+
+    .lr-item .k {
+      color: var(--muted);
+    }
+
+    .lr-item .v {
+      font-family: "Space Mono", monospace;
+      color: var(--text);
+    }
+
+    /* DEBUG */
+    /* ── Table ── */
+    /* .table-wrap {
     overflow-x: auto;
     border: 1px solid var(--border);
     border-radius: 10px;
     background: var(--surface);
-  }
+  } */
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.75rem;
-    white-space: nowrap;
-  }
-
-  thead tr {
-    background: #151920;
-  }
-  th {
-    padding: 0.6rem 0.75rem;
-    text-align: left;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    background: #151920;
-    z-index: 5;
-  }
-  th.group-frenos { color: var(--warn); }
-  th.group-luces  { color: var(--accent2); }
-  th.group-cola   { color: #a78bfa; }
-  th.group-acum   { color: var(--accent); }
-
-  td {
-    padding: 0.45rem 0.75rem;
-    border-bottom: 1px solid #161b24;
-    vertical-align: middle;
-  }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(255,255,255,0.025); }
-
-  /* alternating */
-  tbody tr:nth-child(even) td { background: rgba(255,255,255,0.012); }
-
-  /* event highlighting */
-  tr.ev-bloq td { background: rgba(255,107,53,0.07) !important; border-bottom-color: rgba(255,107,53,0.15); }
-  tr.ev-bloq td:first-child { border-left: 2px solid var(--bloq); }
-  tr.ev-cola td { background: rgba(167,139,250,0.07) !important; border-bottom-color: rgba(167,139,250,0.15); }
-  tr.ev-cola td:first-child { border-left: 2px solid #a78bfa; }
-
-  .iter-badge {
-    font-family: 'Space Mono', monospace;
-    color: var(--muted);
-    font-size: 0.7rem;
-  }
-  .hora-cell {
-    font-family: 'Space Mono', monospace;
-    color: var(--accent);
-    font-weight: 700;
-  }
-  .evt-cell {
-    color: #fbbf24;
-    font-weight: 500;
-  }
-  .prox-cell {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem;
-    line-height: 1.7;
-    min-width: 200px;
-    white-space: normal;
-  }
-
-  /* estado badges */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.68rem;
-    font-family: 'Space Mono', monospace;
-    font-weight: 700;
-  }
-  .badge.libre    { background: rgba(0,229,160,0.12); color: var(--libre); }
-  .badge.ocupado  { background: rgba(0,119,255,0.15); color: var(--ocupado); }
-  .badge.bloq     { background: rgba(255,107,53,0.15); color: var(--bloq); }
-
-  .vid-tag {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-  }
-
-  .rnd-pill {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.62rem;
-    color: #a78bfa;
-    background: rgba(167,139,250,0.1);
-    padding: 0.1rem 0.35rem;
-    border-radius: 3px;
-    display: inline-block;
-    margin: 1px;
-  }
-  .num-cell {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    text-align: right;
-  }
-
-  /* ── Loading ── */
-  #loading {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    padding: 3rem;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.85rem;
-  }
-  .spinner {
-    width: 20px; height: 20px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── Empty state ── */
-  .empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    padding: 4rem;
-    color: var(--muted);
-    text-align: center;
-  }
-  .empty .icon { font-size: 2.5rem; opacity: 0.3; }
-  .empty p { font-size: 0.85rem; }
-
-  /* ── Error ── */
-  .error-box {
-    background: rgba(255,107,53,0.1);
-    border: 1px solid var(--warn);
-    border-radius: 8px;
-    padding: 1rem 1.25rem;
-    color: var(--warn);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.8rem;
-    white-space: pre-wrap;
-  }
-
-  /* ── Formulas panel ── */
-  .formula-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent2);
-    border-radius: 10px;
-    padding: 1rem 1.25rem;
-  }
-  .formula-box h4 {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--accent2);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 0.75rem;
-  }
-  .formula-box code {
-    display: block;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--text);
-    line-height: 1.8;
-  }
-  .formula-box code span { color: var(--accent); }
-
-  /* ── Bottom table dock ── */
-  .table-dock {
-    flex: 0 0 45vh;
-    border-top: 1px solid var(--border);
-    padding: 1rem 0.5rem 1.5rem 0.5rem;
-    overflow: auto;
-    background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
-  }
-
-  .dock-controls {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-    margin-bottom: 0.6rem;
-    color: var(--muted);
-    font-size: 0.9rem;
-  }
-  .dock-controls input[type=range] { width: 140px; }
-  .dock-controls button {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 0.35rem 0.6rem;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  .help-panel {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border);
-    padding: 0.75rem;
-    border-radius: 8px;
-    margin-bottom: 0.6rem;
-    color: var(--muted);
-    display: block;
-    font-size: 0.85rem;
-  }
-  td[contenteditable="true"]:focus { outline: 2px dashed rgba(0,229,160,0.15); }
-</style>
-</head>
-<body>
-
-<header>
-  <div class="logo">RTV SIM <span>UTN FRC — Simulación 4K2 — Grupo 11</span></div>
-  <h1>Planta de Revisión Técnica Vehicular</h1>
-</header>
-
-<div class="container">
-  <!-- ── Sidebar ── -->
-  <aside>
-    <div class="param-group">
-      <h3>Parámetros de Simulación</h3>
-
-      <div class="field">
-        <label>Tiempo máximo (X) — minutos</label>
-        <input type="number" id="tiempo_max" value="480" min="1">
-        <span class="hint">480 = 1 jornada · 960 = 2 días · 2400 = semana (5 días)</span>
-      </div>
-
-      <div class="field">
-        <label>Inicio visualización (j) — minuto absoluto</label>
-        <input type="number" id="inicio_mostrar" value="0" min="0" step="0.1">
-        <span class="hint">0 = desde el inicio · 480 = desde día 2</span>
-      </div>
-
-      <div class="field">
-        <label>Iteraciones a mostrar (i)</label>
-        <input type="number" id="cant_mostrar" value="50" min="1" max="100000">
-        <span class="hint">Máx 100 000 iteraciones totales</span>
-      </div>
-    </div>
-
-    <div class="param-group">
-      <h3>Variables Aleatorias</h3>
-      <div class="formula-box" style="border-left-color: var(--accent); padding: 0.75rem 1rem;">
-        <code>
-          <span>Llegada autos:</span> −15·ln(1−RND)<br>
-          <span>Llegada camionetas:</span> −30·ln(1−RND)<br>
-          <span>Frenos U(4,7):</span> 4 + RND·(7-4)<br>
-          <span>Luces U(6,10):</span> 6 + RND·(10-6)
-        </code>
-      </div>
-    </div>
-
-    <div class="param-group">
-      <h3>Resultados a obtener</h3>
-      <div style="font-size:0.78rem; color: var(--muted); line-height:1.7;">
-        • Tiempo promedio de espera por tipo<br>
-        • % tiempo estación frenos bloqueada<br>
-        • Hora real de fin de jornada
-      </div>
-    </div>
-
-    <button class="btn-run" id="btn-run" onclick="runSim()">▶ SIMULAR</button>
-  </aside>
-
-  <!-- ── Main ── -->
-  <main id="main-panel">
-    <div class="empty" id="empty-state">
-      <div class="icon">🚗</div>
-      <p>Configurá los parámetros y presioná <strong>SIMULAR</strong> para iniciar.</p>
-    </div>
-  </main>
-</div>
-
-<script>
-const OPEN_DURATION = 480;
-
-function horaReal(minAbs, dia) {
-  const minWithinDay = minAbs - (dia - 1) * OPEN_DURATION;
-  const total = 8 * 60 + minWithinDay;
-  const h = Math.floor(total / 60);
-  const m = Math.floor(total % 60);
-  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-}
-
-function estadoBadge(est, vid, fin) {
-  const cls = est === 'Libre' ? 'libre' : est === 'Ocupado' ? 'ocupado' : 'bloq';
-  const vidStr = vid != null ? `<span class="vid-tag"> #${vid}</span>` : '';
-  const finStr = fin !== '—' ? `<span class="vid-tag"> →${fin}'</span>` : '';
-  return `<span class="badge ${cls}">${est}</span>${vidStr}${finStr}`;
-}
-
-function rndsHtml(rnds) {
-  if (!rnds || !Object.keys(rnds).length) return '<span style="color:var(--muted)">—</span>';
-  return Object.entries(rnds).map(([k,v]) =>
-    `<span class="rnd-pill" title="${k}">${v}</span>`
-  ).join('');
-}
-
-function colaHtml(n, icon) {
-  if (n === 0) return '<span style="color:var(--muted)">—</span>';
-  const shown = Math.min(n, 6);
-  let s = icon.repeat(shown);
-  if (n > 6) s += `<span style="font-size:0.65rem;vertical-align:middle"> +${n - 6}</span>`;
-  return `<span title="${n} en cola" style="letter-spacing:1px;font-size:0.9rem">${s}</span>`;
-}
-
-function proximosHtml(proximos) {
-  if (!proximos || proximos === '—') return '<span style="color:var(--muted)">—</span>';
-  return proximos.split(' | ').map(e => {
-    const at = e.lastIndexOf('@');
-    if (at === -1) return `<div>${e}</div>`;
-    const name = e.slice(0, at);
-    const t = e.slice(at + 1);
-    return `<div><span style="color:var(--text)">${name}</span><span style="color:var(--accent)"> @${t}'</span></div>`;
-  }).join('');
-}
-
-async function runSim() {
-  const btn = document.getElementById('btn-run');
-
-  // Support both "1.6" and "1,6" (locale decimal separator)
-  const rawInicio = document.getElementById('inicio_mostrar').value.replace(',', '.');
-
-  const params = {
-    tiempo_max:     parseInt(document.getElementById('tiempo_max').value) || 0,
-    inicio_mostrar: parseFloat(rawInicio) || 0,
-    cant_mostrar:   parseInt(document.getElementById('cant_mostrar').value) || 0,
-  };
-
-  if (params.tiempo_max <= 0) {
-    renderError('Tiempo máximo (X) debe ser mayor que 0.');
-    return;
-  }
-  if (params.cant_mostrar <= 0) {
-    renderError('Iteraciones a mostrar (i) debe ser mayor que 0.');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = '⏳ Simulando…';
-
-    try {
-    const res = await fetch('/simulate/', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(params),
-    });
-    const data = await res.json();
-
-    if (data.error) {
-      renderError(data.error + '\n' + (data.trace||''));
-    } else {
-      renderResults(data.rows, data.last_row, data.stats, params, data.total_rows);
+    .table-wrap {
+      overflow-x: auto;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      max-height: 100%;
+      display: block;
     }
-  } catch(e) {
-    renderError(e.toString());
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '▶ SIMULAR';
-  }
-}
 
-function renderError(msg) {
-  document.getElementById('main-panel').innerHTML =
-    `<div class="error-box">❌ Error:\n${msg}</div>`;
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
 
-function renderResults(rows, lastRow, stats, params, totalRows) {
-  const panel = document.getElementById('main-panel');
+    thead tr {
+      background: #151920;
+    }
 
-  // Stats cards
-  let topHtml = `
-  <div class="section-title">Resultados — ${stats.dias_simulados} día${stats.dias_simulados > 1 ? 's' : ''} (${stats.total_iter.toLocaleString()} iteraciones)</div>
+    th {
+      padding: 0.6rem 0.75rem;
+      text-align: left;
+      font-family: "Space Mono", monospace;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: #151920;
+      z-index: 5;
+    }
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="label">Días simulados</div>
-      <div class="value">${stats.dias_simulados}</div>
+    th.group-frenos {
+      color: var(--warn);
+    }
+
+    th.group-luces {
+      color: var(--accent2);
+    }
+
+    th.group-cola {
+      color: #a78bfa;
+    }
+
+    th.group-acum {
+      color: var(--accent);
+    }
+
+    td {
+      padding: 0.45rem 0.75rem;
+      border-bottom: 1px solid #161b24;
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    /* alternating */
+    tbody tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.012);
+    }
+
+    /* event highlighting */
+    tr.ev-bloq td {
+      background: rgba(255, 107, 53, 0.07) !important;
+      border-bottom-color: rgba(255, 107, 53, 0.15);
+    }
+
+    tr.ev-bloq td:first-child {
+      border-left: 2px solid var(--bloq);
+    }
+
+    tr.ev-cola td {
+      background: rgba(167, 139, 250, 0.07) !important;
+      border-bottom-color: rgba(167, 139, 250, 0.15);
+    }
+
+    tr.ev-cola td:first-child {
+      border-left: 2px solid #a78bfa;
+    }
+
+    .iter-badge {
+      font-family: "Space Mono", monospace;
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+
+    .hora-cell {
+      font-family: "Space Mono", monospace;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .evt-cell {
+      color: #fbbf24;
+      font-weight: 500;
+    }
+
+    .prox-cell {
+      font-family: "Space Mono", monospace;
+      font-size: 0.65rem;
+      line-height: 1.7;
+      min-width: 200px;
+      white-space: normal;
+    }
+
+    /* estado badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-family: "Space Mono", monospace;
+      font-weight: 700;
+    }
+
+    .badge.libre {
+      background: rgba(0, 229, 160, 0.12);
+      color: var(--libre);
+    }
+
+    .badge.ocupado {
+      background: rgba(0, 119, 255, 0.15);
+      color: var(--ocupado);
+    }
+
+    .badge.bloq {
+      background: rgba(255, 107, 53, 0.15);
+      color: var(--bloq);
+    }
+
+    .vid-tag {
+      font-family: "Space Mono", monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .rnd-pill {
+      font-family: "Space Mono", monospace;
+      font-size: 0.62rem;
+      color: #a78bfa;
+      background: rgba(167, 139, 250, 0.1);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      display: inline-block;
+      margin: 1px;
+    }
+
+    .num-cell {
+      font-family: "Space Mono", monospace;
+      font-size: 0.72rem;
+      text-align: right;
+    }
+
+    /* ── Loading ── */
+    #loading {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 3rem;
+      color: var(--muted);
+      font-family: "Space Mono", monospace;
+      font-size: 0.85rem;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ── Empty state ── */
+    .empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 4rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty .icon {
+      font-size: 2.5rem;
+      opacity: 0.3;
+    }
+
+    .empty p {
+      font-size: 0.85rem;
+    }
+
+    /* ── Error ── */
+    .error-box {
+      background: rgba(255, 107, 53, 0.1);
+      border: 1px solid var(--warn);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      color: var(--warn);
+      font-family: "Space Mono", monospace;
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+    }
+
+    /* ── Formulas panel ── */
+    .formula-box {
+      background: #0053c114;
+      border: 1px solid #0659ff2b;
+      /* border-left: 3px solid var(--accent2); */
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+    }
+
+    .formula-box h4 {
+      font-family: "Space Mono", monospace;
+      font-size: 0.7rem;
+      color: var(--accent2);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+
+    .formula-box code {
+      display: block;
+      font-family: "Space Mono", monospace;
+      font-size: 0.75rem;
+      color: var(--text);
+      line-height: 1.8;
+    }
+
+    .formula-box code span {
+      color: var(--accent);
+    }
+
+    /* ── Bottom table dock ── */
+    .table-dock {
+      flex: 0 0 45vh;
+      border-top: 1px solid var(--border);
+      padding: 1rem 0.5rem 1.5rem 0.5rem;
+      overflow: hidden;
+      background: linear-gradient(180deg,
+          rgba(255, 255, 255, 0.01),
+          transparent);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dock-controls {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 0.6rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .dock-controls input[type="range"] {
+      width: 140px;
+    }
+
+    .dock-controls button {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .help-panel {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 0.6rem;
+      color: var(--muted);
+      display: block;
+      font-size: 0.85rem;
+    }
+
+    .table-wrap::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .table-wrap::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+      opacity: 0.5;
+    }
+
+    .table-dock::-webkit-scrollbar {
+      display: none;
+    }
+
+    .table-dock {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      overflow-y: auto;
+    }
+
+    tr.row-selected td {
+      background: rgba(250, 204, 21, 0.18) !important;
+      outline: 2px solid #fbbf24;
+      outline-offset: -1px;
+    }
+    tr.row-selected:hover td {
+      background: rgba(250, 204, 21, 0.25) !important;
+    }
+
+    aside::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    aside::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    aside::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+      opacity: 0.5;
+    }
+
+    aside::-webkit-scrollbar-thumb:hover {
+      opacity: 0.8;
+    }
+
+    aside {
+      scrollbar-color: var(--border) transparent;
+      scrollbar-width: thin;
+    }
+
+    /* Hide main scrollbar but keep scroll functionality */
+    main::-webkit-scrollbar {
+      display: none;
+    }
+
+    main {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    main::-webkit-scrollbar-track {
+      display: none;
+    }
+
+    html main {
+      -webkit-overflow-scrolling: touch;
+    }
+
+    td[contenteditable="true"]:focus {
+      outline: 2px dashed rgba(0, 229, 160, 0.15);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      RTV SIM <span>UTN FRC — Simulación 4K2 — Grupo 11</span>
     </div>
-    <div class="stat-card">
-      <div class="label">Espera promedio Autos</div>
-      <div class="value">${stats.prom_esp_autos.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
+    <h1>Planta de Revisión Técnica Vehicular</h1>
+  </header>
+
+  <div class="container">
+    <!-- ── Sidebar ── -->
+    <aside>
+      <div class="param-group">
+        <h3>Parámetros de Simulación</h3>
+
+        <div class="field">
+          <label>Tiempo máximo (X) — minutos</label>
+          <input type="number" id="tiempo_max" value="480" min="1" />
+          <span class="hint">480 = 1 jornada · 960 = 2 días · 2400 = semana (5 días)</span>
+        </div>
+
+        <div class="field">
+          <label>Inicio visualización (j) — minuto absoluto</label>
+          <input type="number" id="inicio_mostrar" value="0" min="0" step="0.1" />
+          <span class="hint">0 = desde el inicio · 480 = desde día 2</span>
+        </div>
+
+        <div class="field">
+          <label>Iteraciones a mostrar (i)</label>
+          <input type="number" id="cant_mostrar" value="50" min="1" max="100000" />
+          <span class="hint">Máx 100 000 iteraciones totales</span>
+        </div>
+      </div>
+
+      <div class="param-group">
+        <h3>Variables Aleatorias</h3>
+
+        <div class="field">
+          <label>Media llegada Autos (min)</label>
+          <input type="number" id="media_auto" value="15" min="0.1" step="0.1" />
+          <span class="hint">−media·ln(1−RND)</span>
+        </div>
+
+        <div class="field">
+          <label>Media llegada Camionetas (min)</label>
+          <input type="number" id="media_camion" value="30" min="0.1" step="0.1" />
+          <span class="hint">−media·ln(1−RND)</span>
+        </div>
+
+        <div class="field">
+          <label>Frenos — mínimo (min)</label>
+          <input type="number" id="freno_a" value="4" min="0" step="0.1" />
+        </div>
+
+        <div class="field">
+          <label>Frenos — máximo (min)</label>
+          <input type="number" id="freno_b" value="7" min="0" step="0.1" />
+          <span class="hint">U(a, b): a + RND·(b−a)</span>
+        </div>
+
+        <div class="field">
+          <label>Luces — mínimo (min)</label>
+          <input type="number" id="luces_a" value="6" min="0" step="0.1" />
+        </div>
+
+        <div class="field">
+          <label>Luces — máximo (min)</label>
+          <input type="number" id="luces_b" value="10" min="0" step="0.1" />
+          <span class="hint">U(a, b): a + RND·(b−a)</span>
+        </div>
+      </div>
+
+      <div class="param-group">
+        <h3>Resultados a obtener</h3>
+        <div style="font-size: 0.78rem; color: var(--muted); line-height: 1.7">
+          • Tiempo promedio de espera por tipo<br />
+          • % tiempo estación frenos bloqueada<br />
+          • Hora real de fin de jornada
+        </div>
+      </div>
+
+      <button class="btn-run" id="btn-run" onclick="runSim()">
+        ▶ SIMULAR
+      </button>
+    </aside>
+
+    <!-- ── Main ── -->
+    <main id="main-panel">
+      <div class="empty" id="empty-state">
+        <div class="icon">🚗</div>
+        <p>
+          Configurá los parámetros y presioná <strong>SIMULAR</strong> para
+          iniciar.
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const OPEN_DURATION = 480;
+
+    function horaReal(minAbs, dia) {
+      const minWithinDay = minAbs - (dia - 1) * OPEN_DURATION;
+      const total = 8 * 60 + minWithinDay;
+      const h = Math.floor(total / 60);
+      const m = Math.floor(total % 60);
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    }
+
+    function estadoBadge(est, vid, fin) {
+      const cls =
+        est === "Libre" ? "libre" : est === "Ocupado" ? "ocupado" : "bloq";
+      const vidStr =
+        vid != null ? `<span class="vid-tag"> #${vid}</span>` : "";
+      const finStr =
+        fin !== "—" ? `<span class="vid-tag"> →${fin}'</span>` : "";
+      return `<span class="badge ${cls}">${est}</span>${vidStr}${finStr}`;
+    }
+
+    function rndsHtml(rnds) {
+      if (!rnds || !Object.keys(rnds).length)
+        return '<span style="color:var(--muted)">—</span>';
+      return Object.entries(rnds)
+        .map(([k, v]) => `<span class="rnd-pill" title="${k}">${v}</span>`)
+        .join("");
+    }
+
+    function colaHtml(n, icon) {
+      if (n === 0) return '<span style="color:var(--muted)">—</span>';
+      const shown = Math.min(n, 6);
+      let s = icon.repeat(shown);
+      if (n > 6)
+        s += `<span style="font-size:0.65rem;vertical-align:middle"> +${n - 6}</span>`;
+      return `<span title="${n} en cola" style="letter-spacing:1px;font-size:0.9rem">${s}</span>`;
+    }
+
+    function proximosHtml(proximos) {
+      if (!proximos || proximos === "—")
+        return '<span style="color:var(--muted)">—</span>';
+      return proximos
+        .split("<br>")
+        .map((e) => {
+          const at = e.lastIndexOf("@");
+          if (at === -1) return `<div>${e}</div>`;
+          const name = e.slice(0, at).trim();
+          const t = e.slice(at + 1).trim();
+          return `<div><span style="color:var(--text)">${name}</span><span style="color:var(--accent)"> @${t}'</span></div>`;
+        })
+        .join("");
+    }
+
+    async function runSim() {
+      const btn = document.getElementById("btn-run");
+
+      // Support both "1.6" and "1,6" (locale decimal separator)
+      const rawInicio = document
+        .getElementById("inicio_mostrar")
+        .value.replace(",", ".");
+
+      const params = {
+        tiempo_max:     parseInt(document.getElementById("tiempo_max").value) || 0,
+        inicio_mostrar: parseFloat(rawInicio) || 0,
+        cant_mostrar:   parseInt(document.getElementById("cant_mostrar").value) || 0,
+        media_auto:    parseFloat(document.getElementById("media_auto").value)   || 15,
+        media_camion:  parseFloat(document.getElementById("media_camion").value) || 30,
+        freno_a:       parseFloat(document.getElementById("freno_a").value)      || 4,
+        freno_b:       parseFloat(document.getElementById("freno_b").value)      || 7,
+        luces_a:       parseFloat(document.getElementById("luces_a").value)      || 6,
+        luces_b:       parseFloat(document.getElementById("luces_b").value)      || 10,
+      };
+
+      if (params.tiempo_max <= 0) {
+        renderError("Tiempo máximo (X) debe ser mayor que 0.");
+        return;
+      }
+      if (params.cant_mostrar <= 0) {
+        renderError("Iteraciones a mostrar (i) debe ser mayor que 0.");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "⏳ Simulando…";
+
+      try {
+        const res = await fetch("/simulate/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(params),
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          renderError(data.error + "\n" + (data.trace || ""));
+        } else {
+          renderResults(
+            data.rows,
+            data.last_row,
+            data.stats,
+            params,
+            data.total_rows,
+          );
+        }
+      } catch (e) {
+        renderError(e.toString());
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "▶ SIMULAR";
+      }
+    }
+
+    function renderError(msg) {
+      document.getElementById("main-panel").innerHTML =
+        `<div class="error-box">❌ Error:\n${msg}</div>`;
+    }
+
+    function renderResults(rows, lastRow, stats, params, totalRows) {
+      const panel = document.getElementById("main-panel");
+
+      // Stats cards
+      let topHtml = `
+  <div class="section-title">Resultados — ${stats.dias_simulados} día${stats.dias_simulados > 1 ? "s" : ""} (${stats.total_iter.toLocaleString()} iteraciones)</div>
+
+  <div style="display:grid;gap:12px;margin-bottom:1rem;">
+
+    <!-- Fila 1: días y fin jornada -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="stat-card" style="display:flex;flex-direction:column;gap:4px">
+        <div class="label">Días simulados</div>
+        <div class="value">${stats.dias_simulados}</div>
+      </div>
+      <div class="stat-card" style="display:flex;flex-direction:column;gap:4px">
+        <div class="label">Fin de jornada real</div>
+        <div class="value" style="font-size:0.95rem;">Día ${stats.dia_fin} — ${horaReal(stats.hora_fin_sim, stats.dia_fin)}</div>
+      </div>
     </div>
-    <div class="stat-card info">
-      <div class="label">Espera promedio Camionetas</div>
-      <div class="value">${stats.prom_esp_camiones.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
+
+    <!-- Fila 2: autos y camionetas -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+      <!-- Bloque Autos -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="stat-card info" style="display:flex;flex-direction:column;gap:4px">
+          <div class="label">Autos atendidos</div>
+          <div class="value">${stats.total_autos}</div>
+        </div>
+        <div class="stat-card" style="display:flex;flex-direction:column;gap:4px">
+          <div class="label">Espera prom. Autos</div>
+          <div class="value">${stats.prom_esp_autos.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
+        </div>
+      </div>
+
+      <!-- Bloque Camionetas -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="stat-card info" style="display:flex;flex-direction:column;gap:4px">
+          <div class="label">Camionetas atendidas</div>
+          <div class="value">${stats.total_camiones}</div>
+        </div>
+        <div class="stat-card info" style="display:flex;flex-direction:column;gap:4px">
+          <div class="label">Espera prom. Camionetas</div>
+          <div class="value">${stats.prom_esp_camiones.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
+        </div>
+      </div>
+
     </div>
-    <div class="stat-card warn">
-      <div class="label">% Bloq. Frenos (promedio)</div>
-      <div class="value">${stats.pct_bloq_total.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+
+    <!-- Fila 3: bloqueos -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="stat-card warn" style="display:flex;flex-direction:column;gap:4px">
+        <div class="label">% Bloq. Frenos (promedio)</div>
+        <div class="value">${stats.pct_bloq_total.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+      </div>
+      <div class="stat-card warn" style="display:flex;flex-direction:column;gap:4px">
+        <div class="label">% Bloq. Frenos L1</div>
+        <div class="value">${stats.pct_bloq_f1.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+      </div>
+      <div class="stat-card warn" style="display:flex;flex-direction:column;gap:4px">
+        <div class="label">% Bloq. Frenos L2</div>
+        <div class="value">${stats.pct_bloq_f2.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+      </div>
     </div>
-    <div class="stat-card warn">
-      <div class="label">% Bloq. Frenos L1</div>
-      <div class="value">${stats.pct_bloq_f1.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
-    </div>
-    <div class="stat-card warn">
-      <div class="label">% Bloq. Frenos L2</div>
-      <div class="value">${stats.pct_bloq_f2.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Fin de jornada real</div>
-      <div class="value" style="font-size:0.95rem;">Día ${stats.dia_fin} — ${horaReal(stats.hora_fin_sim, stats.dia_fin)}</div>
-    </div>
-    <div class="stat-card info">
-      <div class="label">Autos atendidos</div>
-      <div class="value">${stats.total_autos}</div>
-    </div>
-    <div class="stat-card info">
-      <div class="label">Camionetas atendidas</div>
-      <div class="value">${stats.total_camiones}</div>
-    </div>
+
   </div>
   `;
 
-  // Formulas explanation
-  topHtml += `
+      // Formulas explanation
+      topHtml += `
   <div class="formula-box">
     <h4>Fórmulas de resultados</h4>
     <code>
@@ -648,9 +964,9 @@ function renderResults(rows, lastRow, stats, params, totalRows) {
   </div>
   `;
 
-  // Last row
-  if (lastRow) {
-    topHtml += `
+      // Last row
+      if (lastRow) {
+        topHtml += `
     <div class="section-title">Fila final — estado al finalizar la simulación</div>
     <div class="last-row">
       <h4>⏹ Estado al cierre — Día ${lastRow.dia}, T = ${lastRow.hora}' (${horaReal(lastRow.hora, lastRow.dia)})</h4>
@@ -666,102 +982,251 @@ function renderResults(rows, lastRow, stats, params, totalRows) {
       </div>
     </div>
     `;
-  }
+      }
+    
+      const camionetaIds = [];
+      const autoIds = [];
+      const idsSeen = new Set();
 
-  // Build table HTML separately so it can be placed in the bottom dock
-  let tableHtml = '';
-  if (rows.length === 0) {
-    tableHtml = `<div class="empty"><div class="icon">📭</div><p>No hay filas para el rango solicitado.</p></div>`;
-  } else {
-    const bloqRows = rows.filter(r => r.f1_estado === 'Bloqueada' || r.f2_estado === 'Bloqueada').length;
-    const colaRows = rows.filter(r => r.cola_autos > 0 || r.cola_camiones > 0).length;
+      for (const r of rows) {
+          for (const [idStr, veh] of Object.entries(r.vehiculos || {})) {
+              if (!idsSeen.has(idStr)) {
+                  idsSeen.add(idStr);
+                  if (veh.tipo === "Camioneta") camionetaIds.push(idStr);
+                  else autoIds.push(idStr);
+              }
+          }
+      }
 
-    tableHtml = `
-    <div class="section-title">${rows.length} filas desde T=${params.inicio_mostrar}'</div>
-    <div style="font-size:0.85rem;color:var(--muted);margin:0.35rem 0 0.4rem 0;">Mostrando ${rows.length} de ${totalRows} filas — Iteraciones: ${stats.total_iter.toLocaleString()}</div>
-    <div style="display:flex;gap:12px;align-items:center;margin-bottom:0.6rem;flex-wrap:wrap;font-size:0.78rem;">
-      <span style="color:var(--bloq)">■ Bloqueada: <strong>${bloqRows}</strong> fila${bloqRows !== 1 ? 's' : ''}</span>
-      <span style="color:#a78bfa">■ Cola &gt;0: <strong>${colaRows}</strong> fila${colaRows !== 1 ? 's' : ''}</span>
-      <span style="color:var(--muted)">Sin color = flujo normal</span>
-    </div>
-    <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Día</th>
-          <th>Hora (min)</th>
-          <th>Hora Real</th>
-          <th>Evento</th>
-          <th class="group-frenos">F1 Estado</th>
-          <th class="group-frenos">F1 Veh / Fin</th>
-          <th class="group-frenos">F2 Estado</th>
-          <th class="group-frenos">F2 Veh / Fin</th>
-          <th class="group-luces">L1 Estado</th>
-          <th class="group-luces">L1 Veh / Fin</th>
-          <th class="group-luces">L2 Estado</th>
-          <th class="group-luces">L2 Veh / Fin</th>
-          <th class="group-cola">Cola Autos</th>
-          <th class="group-cola">Cola Cam.</th>
-          <th class="group-acum">Esp. Autos</th>
-          <th class="group-acum">Esp. Cam.</th>
-          <th class="group-acum">% Bloq F1</th>
-          <th class="group-acum">% Bloq F2</th>
-          <th>Núm. Aleatorios</th>
-          <th>Próximos eventos</th>
-        </tr>
-      </thead>
-      <tbody>
-    `;
+      camionetaIds.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+      autoIds.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
-    for (const r of rows) {
-      const f1v = r.f1_vid != null ? `#${r.f1_vid} →${r.f1_fin}'` : '—';
-      const f2v = r.f2_vid != null ? `#${r.f2_vid} →${r.f2_fin}'` : '—';
-      const l1v = r.l1_vid != null ? `#${r.l1_vid} →${r.l1_fin}'` : '—';
-      const l2v = r.l2_vid != null ? `#${r.l2_vid} →${r.l2_fin}'` : '—';
+      const colOrder = [
+          ...camionetaIds.map(id => ({ id, tipo: "Camioneta" })),
+          ...autoIds.map(id => ({ id, tipo: "Auto" })),
+      ];
 
-      const f1cls = r.f1_estado === 'Libre' ? 'libre' : r.f1_estado === 'Ocupado' ? 'ocupado' : 'bloq';
-      const f2cls = r.f2_estado === 'Libre' ? 'libre' : r.f2_estado === 'Ocupado' ? 'ocupado' : 'bloq';
-      const l1cls = r.l1_estado === 'Libre' ? 'libre' : 'ocupado';
-      const l2cls = r.l2_estado === 'Libre' ? 'libre' : 'ocupado';
+      let tableHtml = "";
+      if (rows.length === 0) {
+        tableHtml = `<div class="empty"><div class="icon">📭</div><p>No hay filas para el rango solicitado.</p></div>`;
+      } else {
+        const bloqRows = rows.filter(
+          (r) => r.f1_estado === "Bloqueada" || r.f2_estado === "Bloqueada",
+        ).length;
+        const colaRows = rows.filter(
+          (r) => r.cola_autos > 0 || r.cola_camiones > 0,
+        ).length;
 
-      const isBloq = r.f1_estado === 'Bloqueada' || r.f2_estado === 'Bloqueada';
-      const hasCola = r.cola_autos > 0 || r.cola_camiones > 0;
-      const rowCls = isBloq ? 'ev-bloq' : hasCola ? 'ev-cola' : '';
+        // ── Encabezados dinámicos de vehículos ──────────────────────────
+        const thVehRow1 = colOrder.map(col => {
+            const label = col.tipo === "Camioneta"
+                ? `🚙 ${col.id}`
+                : `🚗 ${col.id}`;
+            const color = col.tipo === "Camioneta"
+                ? "rgba(167,139,250,0.10)"
+                : "rgba(0,119,255,0.08)";
+            return `<th colspan="2" style="text-align:center;border-left:2px solid var(--border);background:${color}">${label}</th>`;
+        }).join("");
 
-      tableHtml += `<tr class="${rowCls}">
-        <td class="iter-badge">${r.iter}</td>
-        <td class="iter-badge">${r.dia}</td>
-        <td class="hora-cell">${r.hora}</td>
-        <td class="hora-cell" style="color:var(--muted);font-size:0.7rem;">${horaReal(r.hora, r.dia)}</td>
-        <td class="evt-cell">${r.evento}</td>
-        <td><span class="badge ${f1cls}">${r.f1_estado}</span></td>
-        <td class="num-cell" style="color:var(--muted)">${f1v}</td>
-        <td><span class="badge ${f2cls}">${r.f2_estado}</span></td>
-        <td class="num-cell" style="color:var(--muted)">${f2v}</td>
-        <td><span class="badge ${l1cls}">${r.l1_estado}</span></td>
-        <td class="num-cell" style="color:var(--muted)">${l1v}</td>
-        <td><span class="badge ${l2cls}">${r.l2_estado}</span></td>
-        <td class="num-cell" style="color:var(--muted)">${l2v}</td>
-        <td class="num-cell">${colaHtml(r.cola_autos, '🚗')}</td>
-        <td class="num-cell">${colaHtml(r.cola_camiones, '🚙')}</td>
-        <td class="num-cell">${r.prom_esp_autos}'</td>
-        <td class="num-cell">${r.prom_esp_camiones}'</td>
-        <td class="num-cell">${r.pct_bloq_f1}%</td>
-        <td class="num-cell">${r.pct_bloq_f2}%</td>
-        <td>${rndsHtml(r.rnds)}</td>
-        <td class="prox-cell">${proximosHtml(r.proximos)}</td>
-      </tr>`;
-    }
+        const thVehRow2 = colOrder.map(() =>
+            `<th style="font-size:0.7rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
+            <th style="font-size:0.7rem;color:var(--muted)">Hora llegada</th>`
+        ).join("");
+        // ────────────────────────────────────────────────────────────────
 
-    tableHtml += `</tbody></table></div>`;
-  }
+        tableHtml = `
+      <div class="section-title">${rows.length} filas desde T=${params.inicio_mostrar}'</div>
+      <div style="font-size:0.85rem;color:var(--muted);margin:0.35rem 0 0.4rem 0;">Mostrando ${rows.length} de ${totalRows} filas — Iteraciones: ${stats.total_iter.toLocaleString()}</div>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:0.6rem;flex-wrap:wrap;font-size:0.78rem;">
+        <span style="color:var(--bloq)">■ Bloqueada: <strong>${bloqRows}</strong> fila${bloqRows !== 1 ? "s" : ""}</span>
+        <span style="color:#a78bfa">■ Cola &gt;0: <strong>${colaRows}</strong> fila${colaRows !== 1 ? "s" : ""}</span>
+        <span style="color:var(--muted)">Sin color = flujo normal</span>
+        <span style="color:#fbbf24">■ SA_EF = atendido en Frenos</span>
+        <span style="color:var(--ocupado)">■ SA_EL = atendido en Luces</span>
+        <span style="color:var(--warn)">■ EA_B = bloqueado</span>
+        <span style="color:#a78bfa">■ EA_EF = esperando en cola</span>
+      </div>
+      <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3">#</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3">Día</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3">Hora (min)</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3">Hora Real</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3">Evento</th>
 
-  panel.innerHTML = `
+            <!-- Llegada Autos -->
+            <th colspan="3" style="position:sticky;top:0;z-index:3;text-align:center;background:rgba(0,119,255,0.12);border-left:2px solid var(--border)">Llegada Autos</th>
+
+            <!-- Llegada Camionetas -->
+            <th colspan="3" style="position:sticky;top:0;z-index:3;text-align:center;background:rgba(167,139,250,0.12);border-left:2px solid var(--border)">Llegada Camionetas</th>
+
+            <!-- Freno 1 -->
+            <th colspan="4" class="group-frenos" style="position:sticky;top:0;z-index:3;text-align:center;border-left:2px solid var(--border)">Estación Freno 1</th>
+
+            <!-- Luces 1 -->
+            <th colspan="4" class="group-luces" style="position:sticky;top:0;z-index:3;text-align:center;border-left:2px solid var(--border)">Estación Luces 1</th>
+
+            <!-- Freno 2 -->
+            <th colspan="4" class="group-frenos" style="position:sticky;top:0;z-index:3;text-align:center;border-left:2px solid var(--border)">Estación Freno 2</th>
+
+            <!-- Luces 2 -->
+            <th colspan="4" class="group-luces" style="position:sticky;top:0;z-index:3;text-align:center;border-left:2px solid var(--border)">Estación Luces 2</th>
+
+            <th rowspan="2" class="group-cola" style="position:sticky;top:0;z-index:3">Cola Autos</th>
+            <th rowspan="2" class="group-cola" style="position:sticky;top:0;z-index:3">Cola Cam.</th>
+            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3">Esp. Autos</th>
+            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3">Esp. Cam.</th>
+            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3">% Bloq F1</th>
+            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3">% Bloq F2</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3">Próximos eventos</th>
+            ${thVehRow1}
+          </tr>
+          <tr>
+            <!-- Llegada Autos -->
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted);border-left:2px solid var(--border)">RND</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted)">T entre llegadas</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted)">Próx. llegada</th>
+
+            <!-- Llegada Camionetas -->
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted);border-left:2px solid var(--border)">RND</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted)">T entre llegadas</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted)">Próx. llegada</th>
+
+            <!-- Freno 1 -->
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:#fbbf24">RND</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted)">T aten.</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted)">Fin</th>
+
+            <!-- Luces 1 -->
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:#a78bfa">RND</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted)">T aten.</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted)">Fin</th>
+
+            <!-- Freno 2 -->
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:#fbbf24">RND</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted)">T aten.</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted)">Fin</th>
+
+            <!-- Luces 2 -->
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:#a78bfa">RND</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted)">T aten.</th>
+            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.7rem;color:var(--muted)">Fin</th>
+
+            ${thVehRow2}
+          </tr>
+        </thead>
+        <tbody>
+      `;
+
+        for (const r of rows) {
+          const f1v = r.f1_vid != null ? `#${r.f1_vid} →${r.f1_fin}'` : "—";
+          const f2v = r.f2_vid != null ? `#${r.f2_vid} →${r.f2_fin}'` : "—";
+          const l1v = r.l1_vid != null ? `#${r.l1_vid} →${r.l1_fin}'` : "—";
+          const l2v = r.l2_vid != null ? `#${r.l2_vid} →${r.l2_fin}'` : "—";
+
+          const rnd = r.rnds || {};
+          const rndF1  = rnd["rnd_freno_L1"]         != null ? `<span class="rnd-pill">${rnd["rnd_freno_L1"]}</span>`         : "—";
+          const rndF2  = rnd["rnd_freno_L2"]         != null ? `<span class="rnd-pill">${rnd["rnd_freno_L2"]}</span>`         : "—";
+          const rndL1  = rnd["rnd_luces_L1"]         != null ? `<span class="rnd-pill">${rnd["rnd_luces_L1"]}</span>`         : "—";
+          const rndL2  = rnd["rnd_luces_L2"]         != null ? `<span class="rnd-pill">${rnd["rnd_luces_L2"]}</span>`         : "—";
+          const rndLA  = rnd["rnd_llegada_auto"]     != null ? `<span class="rnd-pill">${rnd["rnd_llegada_auto"]}</span>`     : "—";
+          const rndLC  = rnd["rnd_llegada_camion"]   != null ? `<span class="rnd-pill">${rnd["rnd_llegada_camion"]}</span>`   : "—";
+
+          const f1cls =
+            r.f1_estado === "Libre" ? "libre" :
+            r.f1_estado === "Ocupado" ? "ocupado" : "bloq";
+          const f2cls =
+            r.f2_estado === "Libre" ? "libre" :
+            r.f2_estado === "Ocupado" ? "ocupado" : "bloq";
+          const l1cls = r.l1_estado === "Libre" ? "libre" : "ocupado";
+          const l2cls = r.l2_estado === "Libre" ? "libre" : "ocupado";
+
+          const isBloq = r.f1_estado === "Bloqueada" || r.f2_estado === "Bloqueada";
+          const hasCola = r.cola_autos > 0 || r.cola_camiones > 0;
+          const rowCls = isBloq ? "ev-bloq" : hasCola ? "ev-cola" : "";
+
+          // ── Celdas dinámicas por vehículo ──────────────────────────────
+          const vehCells = colOrder.map(col => {
+              const info = (r.vehiculos || {})[col.id];
+              if (!info) {
+                  return `<td style="border-left:2px solid var(--border);color:var(--muted);text-align:center">—</td><td style="color:var(--muted);text-align:center">—</td>`;
+              }
+              const estadoColor =
+                  info.estado.startsWith("SA_EF") ? "color:#fbbf24" :
+                  info.estado.startsWith("SA_EL") ? "color:var(--ocupado)" :
+                  info.estado.startsWith("EA_B")  ? "color:var(--warn)" :
+                  "color:#a78bfa";  // EA_EF
+              return `<td style="border-left:2px solid var(--border);${estadoColor};font-size:0.75rem;font-weight:600;text-align:center">${info.estado}</td>
+                      <td style="color:var(--muted);font-size:0.75rem;text-align:center">${info.hora_llegada ?? "—"}</td>`;
+          }).join("");
+          // ───────────────────────────────────────────────────────────────
+
+          tableHtml += `<tr class="${rowCls}" onclick="toggleRowSelect(this)" style="cursor:pointer">
+            <td class="iter-badge">${r.iter}</td>
+            <td class="iter-badge">${r.dia}</td>
+            <td class="hora-cell">${r.hora}</td>
+            <td class="hora-cell" style="color:var(--muted);font-size:0.7rem;">${horaReal(r.hora, r.dia)}</td>
+            <td class="evt-cell">${r.evento}</td>
+
+            <!-- Llegada Autos -->
+            <td class="num-cell" style="border-left:2px solid var(--border)">${rndLA}</td>
+            <td class="num-cell">${rnd["dt_llegada_auto"] ?? "—"}</td>
+            <td class="num-cell">${r.t_llegada_auto != null ? r.t_llegada_auto : "—"}</td>
+
+            <!-- Llegada Camionetas -->
+            <td class="num-cell" style="border-left:2px solid var(--border)">${rndLC}</td>
+            <td class="num-cell">${rnd["dt_llegada_camion"] ?? "—"}</td>
+            <td class="num-cell">${r.t_llegada_camion != null ? r.t_llegada_camion : "—"}</td>
+
+            <!-- Freno 1 -->
+            <td style="border-left:2px solid var(--border)"><span class="badge ${f1cls}">${r.f1_estado}</span></td>
+            <td class="num-cell">${rndF1}</td>
+            <td class="num-cell">${rnd["dur_freno_L1"] ?? "—"}</td>
+            <td class="num-cell" style="color:var(--muted)">${r.f1_fin}</td>
+
+            <!-- Luces 1 -->
+            <td style="border-left:2px solid var(--border)"><span class="badge ${l1cls}">${r.l1_estado}</span></td>
+            <td class="num-cell">${rndL1}</td>
+            <td class="num-cell">${rnd["dur_luces_L1"] ?? "—"}</td>
+            <td class="num-cell" style="color:var(--muted)">${r.l1_fin}</td>
+
+            <!-- Freno 2 -->
+            <td style="border-left:2px solid var(--border)"><span class="badge ${f2cls}">${r.f2_estado}</span></td>
+            <td class="num-cell">${rndF2}</td>
+            <td class="num-cell">${rnd["dur_freno_L2"] ?? "—"}</td>
+            <td class="num-cell" style="color:var(--muted)">${r.f2_fin}</td>
+
+            <!-- Luces 2 -->
+            <td style="border-left:2px solid var(--border)"><span class="badge ${l2cls}">${r.l2_estado}</span></td>
+            <td class="num-cell">${rndL2}</td>
+            <td class="num-cell">${rnd["dur_luces_L2"] ?? "—"}</td>
+            <td class="num-cell" style="color:var(--muted)">${r.l2_fin}</td>
+
+            <td class="num-cell">${colaHtml(r.cola_autos, "🚗")}</td>
+            <td class="num-cell">${colaHtml(r.cola_camiones, "🚙")}</td>
+            <td class="num-cell">${r.prom_esp_autos}'</td>
+            <td class="num-cell">${r.prom_esp_camiones}'</td>
+            <td class="num-cell">${r.pct_bloq_f1}%</td>
+            <td class="num-cell">${r.pct_bloq_f2}%</td>
+            <td class="prox-cell">${proximosHtml(r.proximos)}</td>
+            ${vehCells}
+          </tr>`;
+        }
+
+        tableHtml += `</tbody></table></div>`;
+      }
+
+      panel.innerHTML = `
     <div class="results-top">${topHtml}</div>
     <div class="dock-controls">
-      <label>Altura: <input id="dock-height" type="range" min="20" max="80" value="45" oninput="applyDockHeight(this.value)"></label>
-      <button id="toggle-edit" data-enabled="0" onclick="toggleEditable()">Editable: OFF</button>
+      <label>Altura: <input id="dock-height" type="range" min="20" max="90" value="75" oninput="applyDockHeight(this.value)"></label>
+      <button id="toggle-edit" data-enabled="0" onclick="toggleEditable()">Editable: NO</button>
       <button onclick="exportCSV()">Exportar CSV</button>
     </div>
     <div class="help-panel">
@@ -775,276 +1240,640 @@ function renderResults(rows, lastRow, stats, params, totalRows) {
     </div>
     <div class="table-dock" style="flex: 0 0 45vh">${tableHtml}</div>
   `;
-}
-
-function applyDockHeight(v) {
-  const dock = document.querySelector('.table-dock');
-  if (!dock) return;
-  const vh = parseInt(v, 10) || 45;
-  dock.style.flex = `0 0 ${vh}vh`;
-}
-
-function toggleEditable() {
-  const btn = document.getElementById('toggle-edit');
-  const enabled = !(btn && btn.dataset.enabled === '1');
-  if (btn) { btn.dataset.enabled = enabled ? '1' : '0'; btn.textContent = enabled ? 'Editable: ON' : 'Editable: OFF'; }
-  const tds = document.querySelectorAll('.table-wrap table tbody td');
-  tds.forEach(td => {
-    // avoid making status badges editable
-    if (td.querySelector('.badge')) return;
-    td.contentEditable = enabled;
-  });
-}
-
-function exportCSV() {
-  const table = document.querySelector('.table-wrap table');
-  if (!table) return alert('No hay tabla para exportar');
-  const rows = [];
-  const headers = Array.from(table.querySelectorAll('thead th')).map(h => h.innerText.trim());
-  rows.push(headers.join(','));
-  for (const tr of table.querySelectorAll('tbody tr')) {
-    const cols = Array.from(tr.querySelectorAll('td')).map(td => '"' + td.innerText.replace(/"/g,'""').trim() + '"');
-    rows.push(cols.join(','));
-  }
-  const csv = rows.join('\n');
-  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'simulacion_filas.csv';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
-function toggleHelp(show) {
-  const hp = document.querySelector('.help-panel');
-  if (!hp) return;
-  hp.style.display = show ? 'block' : 'none';
-}
-
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    for (const cookie of document.cookie.split(';')) {
-      const c = cookie.trim();
-      if (c.startsWith(name + '=')) {
-        cookieValue = decodeURIComponent(c.substring(name.length + 1));
-        break;
-      }
+      const dockHeightInput = document.getElementById("dock-height");
+      dockHeightInput.value = 90;
+      applyDockHeight(90);
     }
-  }
-  return cookieValue;
-}
-</script>
 
-<!-- ── Sección de ayuda ──────────────────────────────────────────────────── -->
-<section id="ayuda">
-<style>
-  #ayuda {
-    background: var(--surface);
-    border-top: 2px solid var(--border);
-    padding: 2rem 2.5rem;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-  }
-  #ayuda h2 { font-size:18px;font-weight:500;color:var(--text);margin-bottom:1rem }
-  #ayuda .ay-section { margin-bottom:2rem }
-  #ayuda .ay-label { font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;font-family:'Space Mono',monospace }
-  #ayuda .ay-badge { display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500 }
-  #ayuda .badge-green  { background:rgba(0,229,160,0.15);color:var(--libre) }
-  #ayuda .badge-red    { background:rgba(255,107,53,0.15);color:var(--warn) }
-  #ayuda .badge-amber  { background:rgba(251,191,36,0.12);color:#fbbf24 }
-  #ayuda .badge-blue   { background:rgba(0,119,255,0.15);color:var(--ocupado) }
-  #ayuda .badge-purple { background:rgba(167,139,250,0.12);color:#a78bfa }
-  #ayuda .ay-card { background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem }
-  #ayuda .metric-card { background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center }
-  #ayuda .metric-val { font-size:22px;font-weight:700;color:var(--accent);font-family:'Space Mono',monospace }
-  #ayuda .metric-lbl { font-size:12px;color:var(--muted);margin-top:4px }
-  #ayuda .ay-grid2 { display:grid;grid-template-columns:1fr 1fr;gap:12px }
-  #ayuda .ay-grid3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px }
-  #ayuda .ay-grid4 { display:grid;grid-template-columns:repeat(4,1fr);gap:10px }
-  #ayuda .ay-sep { border:none;border-top:1px solid var(--border);margin:1.5rem 0 }
-  #ayuda .ay-tag { display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 10px;margin:3px }
-  #ayuda .ay-arrow { font-size:18px;color:var(--muted);display:flex;align-items:center;justify-content:center }
-  #ayuda .step-box { border-radius:8px;padding:12px 14px;text-align:center;font-size:13px;font-weight:600 }
-  #ayuda .step-libre     { background:rgba(0,229,160,0.12);color:var(--libre);border:1.5px solid var(--libre) }
-  #ayuda .step-ocupado   { background:rgba(251,191,36,0.12);color:#fbbf24;border:1.5px solid #fbbf24 }
-  #ayuda .step-bloqueada { background:rgba(255,107,53,0.15);color:var(--warn);border:1.5px solid var(--warn) }
-  #ayuda .step-cola      { background:rgba(167,139,250,0.12);color:#a78bfa;border:1.5px solid #a78bfa }
-  #ayuda .flow-row { display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px }
-  #ayuda .dot { width:10px;height:10px;border-radius:50%;flex-shrink:0 }
-  #ayuda .dot-green  { background:var(--libre) }
-  #ayuda .dot-amber  { background:#fbbf24 }
-  #ayuda .dot-red    { background:var(--warn) }
-  #ayuda .dot-blue   { background:var(--ocupado) }
-  #ayuda .dot-purple { background:#a78bfa }
-  #ayuda .leyenda { display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1rem;font-size:12px }
-  #ayuda .ej-table { display:grid;grid-template-columns:60px 130px 90px 90px 90px 90px 60px 60px 100px;gap:4px;align-items:center;font-size:12px;padding:6px 8px;border-radius:6px;white-space:nowrap }
-  #ayuda .ej-header { background:var(--bg);font-weight:700;font-size:11px;color:var(--muted);font-family:'Space Mono',monospace }
-  #ayuda .ej-even { background:rgba(255,255,255,0.02) }
-  #ayuda .ej-odd  { background:rgba(255,255,255,0.01) }
-  #ayuda .ej-bloq { background:rgba(255,107,53,0.08)!important;border:1px solid rgba(255,107,53,0.3) }
-  #ayuda .ej-cell { padding:2px 4px;overflow:hidden;text-overflow:ellipsis }
-  #ayuda .mono { font-family:'Space Mono',monospace;font-size:12px;background:var(--bg);border-radius:6px;padding:8px;color:var(--accent) }
-  @media (max-width:900px) {
-    #ayuda .ay-grid2, #ayuda .ay-grid3, #ayuda .ay-grid4 { grid-template-columns:1fr }
-    #ayuda { padding:1.5rem 1rem }
-  }
-</style>
+    function applyDockHeight(v) {
+      const dock = document.querySelector(".table-dock");
+      if (!dock) return;
+      const vh = parseInt(v, 10) || 45;
+      dock.style.flex = `0 0 ${vh}vh`;
+    }
 
-<div style="max-width:1100px;margin:0 auto">
+    function toggleEditable() {
+      const btn = document.getElementById("toggle-edit");
+      const enabled = !(btn && btn.dataset.enabled === "1");
+      if (btn) {
+        btn.dataset.enabled = enabled ? "1" : "0";
+        btn.textContent = enabled ? "Editable: SI" : "Editable: NO";
+      }
+      const tds = document.querySelectorAll(".table-wrap table tbody td");
+      tds.forEach((td) => {
+        // avoid making status badges editable
+        if (td.querySelector(".badge")) return;
+        td.contentEditable = enabled;
+      });
+    }
 
-  <!-- Encabezado ayuda -->
-  <div style="margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
-    <div class="ay-label">Guía del simulador</div>
-    <h2 style="font-size:1.4rem;color:var(--accent)">Planta de Revisión Técnica Vehicular</h2>
-  </div>
+    function exportCSV() {
+      const table = document.querySelector(".table-wrap table");
+      if (!table) return alert("No hay tabla para exportar");
+      const rows = [];
+      const headers = Array.from(table.querySelectorAll("thead th")).map(
+        (h) => h.innerText.trim(),
+      );
+      rows.push(headers.join(","));
+      for (const tr of table.querySelectorAll("tbody tr")) {
+        const cols = Array.from(tr.querySelectorAll("td")).map(
+          (td) => '"' + td.innerText.replace(/"/g, '""').trim() + '"',
+        );
+        rows.push(cols.join(","));
+      }
+      const csv = rows.join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "simulacion_filas.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
 
-  <!-- El sistema -->
-  <div class="ay-section">
-    <div class="ay-label">El sistema</div>
-    <div class="ay-card" style="margin-bottom:1rem">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap">
-        <div class="ay-tag">🕗 Abre 08:00 — cierra 16:00</div>
-        <div class="ay-tag">⚠️ Si hay autos adentro, sigue hasta que salgan todos</div>
+    function toggleHelp(show) {
+      const hp = document.querySelector(".help-panel");
+      if (!hp) return;
+      hp.style.display = show ? "block" : "none";
+    }
+
+    function toggleRowSelect(tr) {
+      tr.classList.toggle("row-selected");
+    }
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        for (const cookie of document.cookie.split(";")) {
+          const c = cookie.trim();
+          if (c.startsWith(name + "=")) {
+            cookieValue = decodeURIComponent(c.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  </script>
+
+  <!-- ── Sección de ayuda ──────────────────────────────────────────────────── -->
+  <section id="ayuda">
+    <style>
+      #ayuda {
+        background: var(--surface);
+        border-top: 2px solid var(--border);
+        padding: 2rem 2.5rem;
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+      }
+
+      #ayuda h2 {
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--text);
+        margin-bottom: 1rem;
+      }
+
+      #ayuda .ay-section {
+        margin-bottom: 2rem;
+      }
+
+      #ayuda .ay-label {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+        font-family: "Space Mono", monospace;
+      }
+
+      #ayuda .ay-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      #ayuda .badge-green {
+        background: rgba(0, 229, 160, 0.15);
+        color: var(--libre);
+      }
+
+      #ayuda .badge-red {
+        background: rgba(255, 107, 53, 0.15);
+        color: var(--warn);
+      }
+
+      #ayuda .badge-amber {
+        background: rgba(251, 191, 36, 0.12);
+        color: #fbbf24;
+      }
+
+      #ayuda .badge-blue {
+        background: rgba(0, 119, 255, 0.15);
+        color: var(--ocupado);
+      }
+
+      #ayuda .badge-purple {
+        background: rgba(167, 139, 250, 0.12);
+        color: #a78bfa;
+      }
+
+      #ayuda .ay-card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+      }
+
+      #ayuda .metric-card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      #ayuda .metric-val {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--accent);
+        font-family: "Space Mono", monospace;
+      }
+
+      #ayuda .metric-lbl {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      #ayuda .ay-grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      #ayuda .ay-grid3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+      }
+
+      #ayuda .ay-grid4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      #ayuda .ay-sep {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 1.5rem 0;
+      }
+
+      #ayuda .ay-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--muted);
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 4px 10px;
+        margin: 3px;
+      }
+
+      #ayuda .ay-arrow {
+        font-size: 18px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #ayuda .step-box {
+        border-radius: 8px;
+        padding: 12px 14px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      #ayuda .step-libre {
+        background: rgba(0, 229, 160, 0.12);
+        color: var(--libre);
+        border: 1.5px solid var(--libre);
+      }
+
+      #ayuda .step-ocupado {
+        background: rgba(251, 191, 36, 0.12);
+        color: #fbbf24;
+        border: 1.5px solid #fbbf24;
+      }
+
+      #ayuda .step-bloqueada {
+        background: rgba(255, 107, 53, 0.15);
+        color: var(--warn);
+        border: 1.5px solid var(--warn);
+      }
+
+      #ayuda .step-cola {
+        background: rgba(167, 139, 250, 0.12);
+        color: #a78bfa;
+        border: 1.5px solid #a78bfa;
+      }
+
+      #ayuda .flow-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        font-size: 13px;
+      }
+
+      #ayuda .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      #ayuda .dot-green {
+        background: var(--libre);
+      }
+
+      #ayuda .dot-amber {
+        background: #fbbf24;
+      }
+
+      #ayuda .dot-red {
+        background: var(--warn);
+      }
+
+      #ayuda .dot-blue {
+        background: var(--ocupado);
+      }
+
+      #ayuda .dot-purple {
+        background: #a78bfa;
+      }
+
+      #ayuda .leyenda {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 1rem;
+        font-size: 12px;
+      }
+
+      #ayuda .ej-table {
+        display: grid;
+        grid-template-columns: 60px 130px 90px 90px 90px 90px 60px 60px 100px;
+        gap: 4px;
+        align-items: center;
+        font-size: 12px;
+        padding: 6px 8px;
+        border-radius: 6px;
+        white-space: nowrap;
+      }
+
+      #ayuda .ej-header {
+        background: var(--bg);
+        font-weight: 700;
+        font-size: 11px;
+        color: var(--muted);
+        font-family: "Space Mono", monospace;
+      }
+
+      #ayuda .ej-even {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      #ayuda .ej-odd {
+        background: rgba(255, 255, 255, 0.01);
+      }
+
+      #ayuda .ej-bloq {
+        background: rgba(255, 107, 53, 0.08) !important;
+        border: 1px solid rgba(255, 107, 53, 0.3);
+      }
+
+      #ayuda .ej-cell {
+        padding: 2px 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      #ayuda .mono {
+        font-family: "Space Mono", monospace;
+        font-size: 12px;
+        background: var(--bg);
+        border-radius: 6px;
+        padding: 8px;
+        color: var(--accent);
+      }
+
+      @media (max-width: 900px) {
+
+        #ayuda .ay-grid2,
+        #ayuda .ay-grid3,
+        #ayuda .ay-grid4 {
+          grid-template-columns: 1fr;
+        }
+
+        #ayuda {
+          padding: 1.5rem 1rem;
+        }
+      }
+    </style>
+
+    <div style="max-width: 1100px; margin: 0 auto">
+      <!-- Encabezado ayuda -->
+      <div style="
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+          ">
+        <div class="ay-label">Guía del simulador</div>
+        <h2 style="font-size: 1.4rem; color: var(--accent)">
+          Planta de Revisión Técnica Vehicular
+        </h2>
       </div>
-      <div class="ay-label" style="margin-bottom:.6rem">Flujo de un vehículo</div>
-      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:1rem">
-        <div class="step-box step-cola" style="min-width:90px">Cola<br><span style="font-size:11px;font-weight:400">espera aquí</span></div>
-        <div class="ay-arrow">→</div>
-        <div class="step-box step-ocupado" style="min-width:90px">Frenos<br><span style="font-size:11px;font-weight:400">4–7 min</span></div>
-        <div class="ay-arrow">→</div>
-        <div class="step-box step-ocupado" style="min-width:110px">Luces y emisiones<br><span style="font-size:11px;font-weight:400">6–10 min</span></div>
-        <div class="ay-arrow">→</div>
-        <div class="step-box step-libre" style="min-width:70px">Sale<br><span style="font-size:11px;font-weight:400">listo</span></div>
-      </div>
-      <div class="ay-label" style="margin-bottom:.6rem">2 líneas en paralelo</div>
-      <div class="ay-grid2">
-        <div style="border:1px solid var(--border);border-radius:8px;padding:10px">
-          <div style="font-size:13px;font-weight:500;margin-bottom:8px;color:var(--muted)">Línea 1</div>
-          <div style="display:flex;gap:6px;align-items:center">
-            <div class="step-box step-libre" style="flex:1;font-size:12px">Frenos 1</div>
-            <div class="ay-arrow" style="font-size:14px">→</div>
-            <div class="step-box step-libre" style="flex:1;font-size:12px">Luces 1</div>
+
+      <!-- El sistema -->
+      <div class="ay-section">
+        <div class="ay-label">El sistema</div>
+        <div class="ay-card" style="margin-bottom: 1rem">
+          <div style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 1rem;
+                flex-wrap: wrap;
+              ">
+            <div class="ay-tag">🕗 Abre 08:00 — cierra 16:00</div>
+            <div class="ay-tag">
+              ⚠️ Si hay autos adentro, sigue hasta que salgan todos
+            </div>
+          </div>
+          <div class="ay-label" style="margin-bottom: 0.6rem">
+            Flujo de un vehículo
+          </div>
+          <div style="
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                flex-wrap: wrap;
+                margin-bottom: 1rem;
+              ">
+            <div class="step-box step-cola" style="min-width: 90px">
+              Cola<br /><span style="font-size: 11px; font-weight: 400">espera aquí</span>
+            </div>
+            <div class="ay-arrow">→</div>
+            <div class="step-box step-ocupado" style="min-width: 90px">
+              Frenos<br /><span style="font-size: 11px; font-weight: 400">4–7 min</span>
+            </div>
+            <div class="ay-arrow">→</div>
+            <div class="step-box step-ocupado" style="min-width: 110px">
+              Luces y emisiones<br /><span style="font-size: 11px; font-weight: 400">6–10 min</span>
+            </div>
+            <div class="ay-arrow">→</div>
+            <div class="step-box step-libre" style="min-width: 70px">
+              Sale<br /><span style="font-size: 11px; font-weight: 400">listo</span>
+            </div>
+          </div>
+          <div class="ay-label" style="margin-bottom: 0.6rem">
+            2 líneas en paralelo
+          </div>
+          <div class="ay-grid2">
+            <div style="
+                  border: 1px solid var(--border);
+                  border-radius: 8px;
+                  padding: 10px;
+                ">
+              <div style="
+                    font-size: 13px;
+                    font-weight: 500;
+                    margin-bottom: 8px;
+                    color: var(--muted);
+                  ">
+                Línea 1
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center">
+                <div class="step-box step-libre" style="flex: 1; font-size: 12px">
+                  Frenos 1
+                </div>
+                <div class="ay-arrow" style="font-size: 14px">→</div>
+                <div class="step-box step-libre" style="flex: 1; font-size: 12px">
+                  Luces 1
+                </div>
+              </div>
+            </div>
+            <div style="
+                  border: 1px solid var(--border);
+                  border-radius: 8px;
+                  padding: 10px;
+                ">
+              <div style="
+                    font-size: 13px;
+                    font-weight: 500;
+                    margin-bottom: 8px;
+                    color: var(--muted);
+                  ">
+                Línea 2
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center">
+                <div class="step-box step-libre" style="flex: 1; font-size: 12px">
+                  Frenos 2
+                </div>
+                <div class="ay-arrow" style="font-size: 14px">→</div>
+                <div class="step-box step-libre" style="flex: 1; font-size: 12px">
+                  Luces 2
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div style="border:1px solid var(--border);border-radius:8px;padding:10px">
-          <div style="font-size:13px;font-weight:500;margin-bottom:8px;color:var(--muted)">Línea 2</div>
-          <div style="display:flex;gap:6px;align-items:center">
-            <div class="step-box step-libre" style="flex:1;font-size:12px">Frenos 2</div>
-            <div class="ay-arrow" style="font-size:14px">→</div>
-            <div class="step-box step-libre" style="flex:1;font-size:12px">Luces 2</div>
+        <div class="ay-grid2">
+          <div class="ay-card">
+            <div class="ay-label">Llegadas</div>
+            <div class="flow-row">
+              <div class="dot dot-blue"></div>
+              <span>🚗 Auto cada ~<strong>15 min</strong> (exponencial)</span>
+            </div>
+            <div class="flow-row">
+              <div class="dot dot-purple"></div>
+              <span>🚙 Camioneta cada ~<strong>30 min</strong>
+                (exponencial)</span>
+            </div>
+            <div style="
+                  margin-top: 8px;
+                  padding: 8px;
+                  background: rgba(167, 139, 250, 0.08);
+                  border-radius: 6px;
+                  font-size: 12px;
+                  color: #a78bfa;
+                ">
+              ★ Las camionetas tienen <strong>prioridad</strong> en la cola
+            </div>
+          </div>
+          <div class="ay-card">
+            <div class="ay-label">El bloqueo 🔴</div>
+            <div style="font-size: 12px; color: var(--muted); margin-bottom: 8px">
+              Cuando Frenos termina pero Luces está ocupada:
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center">
+              <div class="step-box step-bloqueada" style="flex: 1; font-size: 12px">
+                Frenos<br />bloqueada
+              </div>
+              <div class="ay-arrow" style="font-size: 14px">✗</div>
+              <div class="step-box step-ocupado" style="flex: 1; font-size: 12px">
+                Luces<br />ocupada
+              </div>
+            </div>
+            <div style="margin-top: 8px; font-size: 12px; color: var(--warn)">
+              Nadie puede entrar a esa línea hasta que Luces se libere
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="ay-sep" />
+
+      <!-- Parámetros -->
+      <div class="ay-section">
+        <div class="ay-label">Parámetros del enunciado</div>
+        <h2>Valores configurables</h2>
+        <div class="ay-card">
+          <div class="ay-grid4" style="margin-bottom: 1rem">
+            <div class="metric-card" style="border: 2px solid var(--warn)">
+              <div class="metric-val" style="color: var(--warn)">X</div>
+              <div class="metric-lbl">
+                Minutos a simular<br /><span style="font-size: 11px">(ej: 480 = 1 día)</span>
+              </div>
+            </div>
+            <div class="metric-card" style="border: 2px solid #a78bfa">
+              <div class="metric-val" style="color: #a78bfa">i</div>
+              <div class="metric-lbl">
+                Filas a mostrar<br /><span style="font-size: 11px">(máx 100.000)</span>
+              </div>
+            </div>
+            <div class="metric-card" style="border: 2px solid var(--ocupado)">
+              <div class="metric-val" style="color: var(--ocupado)">j</div>
+              <div class="metric-lbl">
+                Minuto de inicio<br /><span style="font-size: 11px">(desde qué fila mostrar)</span>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" style="font-size: 15px; color: var(--muted)">
+                15/30<br />4‑7 / 6‑10
+              </div>
+              <div class="metric-lbl">
+                Tiempos medios<br /><span style="font-size: 11px">(llegadas y atención)</span>
+              </div>
+            </div>
+          </div>
+          <div style="
+                font-size: 13px;
+                color: var(--muted);
+                padding: 10px;
+                background: var(--bg);
+                border-radius: 6px;
+                border: 1px solid var(--border);
+              ">
+            ℹ️ La simulación para cuando ocurre lo primero: llega a
+            <strong style="color: var(--text)">X minutos</strong> o se generan
+            <strong style="color: var(--text)">100.000 iteraciones</strong>
+          </div>
+        </div>
+      </div>
+
+      <hr class="ay-sep" />
+
+      <!-- Las 3 respuestas -->
+      <div class="ay-section">
+        <div class="ay-label">Lo que hay que calcular</div>
+        <h2>Las 3 respuestas que pide el enunciado</h2>
+        <div class="ay-grid3">
+          <div class="ay-card" style="border-top: 3px solid #a78bfa">
+            <div style="font-size: 24px; margin-bottom: 8px">⏱️</div>
+            <div style="font-size: 14px; font-weight: 500; margin-bottom: 6px">
+              Espera promedio en cola
+            </div>
+            <div style="
+                  font-size: 12px;
+                  color: var(--muted);
+                  margin-bottom: 10px;
+                ">
+              Por tipo de vehículo (autos y camionetas por separado)
+            </div>
+            <div class="mono">suma_esperas / cant_atendidos</div>
+          </div>
+          <div class="ay-card" style="border-top: 3px solid var(--warn)">
+            <div style="font-size: 24px; margin-bottom: 8px">🔴</div>
+            <div style="font-size: 14px; font-weight: 500; margin-bottom: 6px">
+              % tiempo bloqueada
+            </div>
+            <div style="
+                  font-size: 12px;
+                  color: var(--muted);
+                  margin-bottom: 10px;
+                ">
+              Estación de Frenos (F1 y F2 por separado)
+            </div>
+            <div class="mono">t_bloqueada / X × 100</div>
+          </div>
+          <div class="ay-card" style="border-top: 3px solid var(--libre)">
+            <div style="font-size: 24px; margin-bottom: 8px">🕐</div>
+            <div style="font-size: 14px; font-weight: 500; margin-bottom: 6px">
+              Hora fin de jornada
+            </div>
+            <div style="
+                  font-size: 12px;
+                  color: var(--muted);
+                  margin-bottom: 10px;
+                ">
+              Instante en que sale el último vehículo del sistema
+            </div>
+            <div class="mono">t del último Fin Luces</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="ay-sep" />
+
+      <!-- Estados -->
+      <div class="ay-section">
+        <div class="ay-label">Referencia de estados</div>
+        <h2>Estados posibles de cada estación</h2>
+        <div class="ay-grid3">
+          <div class="step-box step-libre" style="padding: 16px">
+            <div style="font-size: 16px; margin-bottom: 4px">Libre</div>
+            <div style="font-size: 12px; font-weight: 400">
+              No hay vehículo. Puede entrar el siguiente de la cola.
+            </div>
+          </div>
+          <div class="step-box step-ocupado" style="padding: 16px">
+            <div style="font-size: 16px; margin-bottom: 4px">Ocupado</div>
+            <div style="font-size: 12px; font-weight: 400">
+              Hay un vehículo siendo revisado ahora mismo.
+            </div>
+          </div>
+          <div class="step-box step-bloqueada" style="padding: 16px">
+            <div style="font-size: 16px; margin-bottom: 4px">Bloqueada</div>
+            <div style="font-size: 12px; font-weight: 400">
+              Terminó frenos pero Luces está ocupada. Nadie más puede entrar.
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="ay-grid2">
-      <div class="ay-card">
-        <div class="ay-label">Llegadas</div>
-        <div class="flow-row"><div class="dot dot-blue"></div><span>🚗 Auto cada ~<strong>15 min</strong> (exponencial)</span></div>
-        <div class="flow-row"><div class="dot dot-purple"></div><span>🚙 Camioneta cada ~<strong>30 min</strong> (exponencial)</span></div>
-        <div style="margin-top:8px;padding:8px;background:rgba(167,139,250,0.08);border-radius:6px;font-size:12px;color:#a78bfa">
-          ★ Las camionetas tienen <strong>prioridad</strong> en la cola
-        </div>
-      </div>
-      <div class="ay-card">
-        <div class="ay-label">El bloqueo 🔴</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Cuando Frenos termina pero Luces está ocupada:</div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <div class="step-box step-bloqueada" style="flex:1;font-size:12px">Frenos<br>bloqueada</div>
-          <div class="ay-arrow" style="font-size:14px">✗</div>
-          <div class="step-box step-ocupado" style="flex:1;font-size:12px">Luces<br>ocupada</div>
-        </div>
-        <div style="margin-top:8px;font-size:12px;color:var(--warn)">Nadie puede entrar a esa línea hasta que Luces se libere</div>
-      </div>
-    </div>
-  </div>
-
-  <hr class="ay-sep">
-
-  <!-- Parámetros -->
-  <div class="ay-section">
-    <div class="ay-label">Parámetros del enunciado</div>
-    <h2>Valores configurables</h2>
-    <div class="ay-card">
-      <div class="ay-grid4" style="margin-bottom:1rem">
-        <div class="metric-card" style="border:2px solid var(--warn)">
-          <div class="metric-val" style="color:var(--warn)">X</div>
-          <div class="metric-lbl">Minutos a simular<br><span style="font-size:11px">(ej: 480 = 1 día)</span></div>
-        </div>
-        <div class="metric-card" style="border:2px solid #a78bfa">
-          <div class="metric-val" style="color:#a78bfa">i</div>
-          <div class="metric-lbl">Filas a mostrar<br><span style="font-size:11px">(máx 100.000)</span></div>
-        </div>
-        <div class="metric-card" style="border:2px solid var(--ocupado)">
-          <div class="metric-val" style="color:var(--ocupado)">j</div>
-          <div class="metric-lbl">Minuto de inicio<br><span style="font-size:11px">(desde qué fila mostrar)</span></div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-val" style="font-size:15px;color:var(--muted)">15/30<br>4‑7 / 6‑10</div>
-          <div class="metric-lbl">Tiempos medios<br><span style="font-size:11px">(llegadas y atención)</span></div>
-        </div>
-      </div>
-      <div style="font-size:13px;color:var(--muted);padding:10px;background:var(--bg);border-radius:6px;border:1px solid var(--border)">
-        ℹ️ La simulación para cuando ocurre lo primero: llega a <strong style="color:var(--text)">X minutos</strong> o se generan <strong style="color:var(--text)">100.000 iteraciones</strong>
-      </div>
-    </div>
-  </div>
-
-  <hr class="ay-sep">
-
-  <!-- Las 3 respuestas -->
-  <div class="ay-section">
-    <div class="ay-label">Lo que hay que calcular</div>
-    <h2>Las 3 respuestas que pide el enunciado</h2>
-    <div class="ay-grid3">
-      <div class="ay-card" style="border-top:3px solid #a78bfa">
-        <div style="font-size:24px;margin-bottom:8px">⏱️</div>
-        <div style="font-size:14px;font-weight:500;margin-bottom:6px">Espera promedio en cola</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Por tipo de vehículo (autos y camionetas por separado)</div>
-        <div class="mono">suma_esperas / cant_atendidos</div>
-      </div>
-      <div class="ay-card" style="border-top:3px solid var(--warn)">
-        <div style="font-size:24px;margin-bottom:8px">🔴</div>
-        <div style="font-size:14px;font-weight:500;margin-bottom:6px">% tiempo bloqueada</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Estación de Frenos (F1 y F2 por separado)</div>
-        <div class="mono">t_bloqueada / X × 100</div>
-      </div>
-      <div class="ay-card" style="border-top:3px solid var(--libre)">
-        <div style="font-size:24px;margin-bottom:8px">🕐</div>
-        <div style="font-size:14px;font-weight:500;margin-bottom:6px">Hora fin de jornada</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Instante en que sale el último vehículo del sistema</div>
-        <div class="mono">t del último Fin Luces</div>
-      </div>
-    </div>
-  </div>
-
-  <hr class="ay-sep">
-
-  <!-- Estados -->
-  <div class="ay-section">
-    <div class="ay-label">Referencia de estados</div>
-    <h2>Estados posibles de cada estación</h2>
-    <div class="ay-grid3">
-      <div class="step-box step-libre" style="padding:16px">
-        <div style="font-size:16px;margin-bottom:4px">Libre</div>
-        <div style="font-size:12px;font-weight:400">No hay vehículo. Puede entrar el siguiente de la cola.</div>
-      </div>
-      <div class="step-box step-ocupado" style="padding:16px">
-        <div style="font-size:16px;margin-bottom:4px">Ocupado</div>
-        <div style="font-size:12px;font-weight:400">Hay un vehículo siendo revisado ahora mismo.</div>
-      </div>
-      <div class="step-box step-bloqueada" style="padding:16px">
-        <div style="font-size:16px;margin-bottom:4px">Bloqueada</div>
-        <div style="font-size:12px;font-weight:400">Terminó frenos pero Luces está ocupada. Nadie más puede entrar.</div>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /max-width -->
-</section>
-
+    <!-- /max-width -->
+  </section>
 </body>
+
 </html>
