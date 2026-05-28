@@ -126,24 +126,28 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     def proximos_eventos():
         evts = []
         if not cerrado:
-            evts.append(f"{EVT_LLEGADA_AUTO}-{t_llegada_auto:.2f}")
-            evts.append(f"{EVT_LLEGADA_CAMION}-{t_llegada_camion:.2f}")
+            evts.append(f"{EVT_LLEGADA_AUTO}@{t_llegada_auto:.2f}")
+            evts.append(f"{EVT_LLEGADA_CAMION}@{t_llegada_camion:.2f}")
         for f in frenos:
             if f.fin_atencion < INF:
-                evts.append(f"Fin Frenos L{f.id}-{f.fin_atencion:.2f}")
+                evts.append(f"Fin Frenos L{f.id}@{f.fin_atencion:.2f}")
         for l in luces:
             if l.fin_atencion < INF:
-                evts.append(f"Fin Luces L{l.id}-{l.fin_atencion:.2f}")
+                evts.append(f"Fin Luces L{l.id}@{l.fin_atencion:.2f}")
         return "<br>".join(evts) if evts else "—"
 
     def snapshot(evento, rnds_usados):
         estados_vehiculos = {}
 
-        for v in cola_autos:
+        # 1. Agregamos SOLO los primeros 3 autos de la cola
+        for v in cola_autos[:3]:
             estados_vehiculos[v.id] = {"tipo": "Auto", "estado": "EA_EF", "hora_llegada": round(v.hora_llegada, 4)}
-        for v in cola_camiones:
+            
+        # 2. Agregamos SOLO las primeras 3 camionetas de la cola
+        for v in cola_camiones[:3]:
             estados_vehiculos[v.id] = {"tipo": "Camioneta", "estado": "EA_EF", "hora_llegada": round(v.hora_llegada, 4)}
 
+        # 3. Frenos (los que se están atendiendo)
         for idx, f in enumerate(frenos):
             if f.vehiculo_id is not None:
                 veh = registro_vehiculos.get(f.vehiculo_id)
@@ -154,6 +158,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
                     "hora_llegada": round(veh.hora_llegada, 4) if veh else None,
                 }
 
+        # 4. Luces (los que se están atendiendo)
         for idx, l in enumerate(luces):
             if l.vehiculo_id is not None:
                 veh = registro_vehiculos.get(l.vehiculo_id)
@@ -162,7 +167,6 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
                     "estado": f"SA_EL({idx+1})",
                     "hora_llegada": round(veh.hora_llegada, 4) if veh else None,
                 }
-
         return {
             "iter":  iter_count,
             "dia":   dia_actual,
@@ -248,8 +252,6 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
 
         if not cerrado and t_next >= day_close:
             cerrado = True
-            t_next = day_close   
-            evt_name = "Cierre"
 
         t = t_next
         iter_count += 1
@@ -394,4 +396,4 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
 
     display_rows = [r for r in rows if r["hora"] >= inicio_mostrar][:cant_mostrar]
     last_row = rows[-1] if rows else None
-    return display_rows, last_row, stats, rows
+    return display_rows, last_row, stats

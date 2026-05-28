@@ -30,7 +30,7 @@ def simulate(request):
         cant_mostrar   = max(1, min(cant_mostrar, 100000))
         inicio_mostrar = max(0.0, inicio_mostrar)
 
-        display_rows, last_row, stats, all_rows = run_simulation(
+        display_rows, last_row, stats = run_simulation(
             tiempo_max, inicio_mostrar, cant_mostrar,
             media_auto=media_auto, media_camion=media_camion,
             freno_a=freno_a, freno_b=freno_b,
@@ -41,7 +41,7 @@ def simulate(request):
             'rows':       display_rows,
             'last_row':   last_row,
             'stats':      stats,
-            'total_rows': len(all_rows),
+            'total_rows': 100000,
         })
     except Exception as e:
         import traceback

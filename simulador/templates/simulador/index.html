@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Simulación RTV — UTN FRC</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/clusterize.js/0.18.0/clusterize.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clusterize.js/0.18.0/clusterize.min.js"></script>
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap");
 
@@ -1038,7 +1040,7 @@
     function renderResults(rows, lastRow, stats, params, totalRows) {
       const panel = document.getElementById("main-panel");
 
-      // ── 1. Stats cards y Fórmulas ──
+      // ── 1. Stats cards ──
       let topHtml = `
       <div class="section-title">Resultados — ${stats.dias_simulados} día${stats.dias_simulados > 1 ? "s" : ""} (${stats.total_iter.toLocaleString()} iteraciones)</div>
       <div style="display:grid;gap:12px;margin-bottom:1rem;">
@@ -1117,6 +1119,7 @@
       }
 
       let tableHtml = "";
+      const filasArray = []; 
 
       if (rows.length === 0) {
         tableHtml = `<div class="empty"><div class="icon">📭</div><p>No hay filas para el rango solicitado.</p></div>`;
@@ -1124,76 +1127,75 @@
         const bloqRows = rows.filter(r => r.f1_estado === "Bloqueada" || r.f2_estado === "Bloqueada").length;
         const colaRows = rows.filter(r => r.cola_autos > 0 || r.cola_camiones > 0).length;
 
-        // ── 2. Encabezados Fijos ──
-        tableHtml = `
+        // ── 2. Encabezados Fijos listos para Clusterize ──
+        let tableHeaderHtml = `
       <div class="section-title">${rows.length} filas desde T=${params.inicio_mostrar}'</div>
       <div style="font-size:0.85rem;color:var(--muted);margin:0.35rem 0 0.4rem 0;">Mostrando ${rows.length} de ${totalRows} filas — Iteraciones: ${stats.total_iter.toLocaleString()}</div>
       <div style="display:flex;gap:12px;align-items:center;margin-bottom:0.6rem;flex-wrap:wrap;font-size:0.78rem;">
         <span style="color:var(--bloq)">■ Bloqueada: <strong>${bloqRows}</strong> fila${bloqRows !== 1 ? "s" : ""}</span>
         <span style="color:#a78bfa">■ Cola &gt;0: <strong>${colaRows}</strong> fila${colaRows !== 1 ? "s" : ""}</span>
       </div>
-      <div class="table-wrap">
+      <div id="scrollArea" class="table-wrap clusterize-scroll" style="max-height: 500px;">
       <table>
         <thead>
           <tr>
-            <th rowspan="2" style="position:sticky;top:0;z-index:3">#</th>
-            <th rowspan="2" style="position:sticky;top:0;z-index:3">Día</th>
-            <th rowspan="2" style="position:sticky;top:0;z-index:3">Hora (min)</th>
-            <th rowspan="2" style="position:sticky;top:0;z-index:3">Hora Real</th>
-            <th rowspan="2" style="position:sticky;top:0;z-index:3">Evento</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px">#</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px">Día</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px">Hora (min)</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px">Hora Real</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px">Evento</th>
 
-            <th colspan="3" style="position:sticky;top:0;z-index:3;text-align:center;background:rgba(0,119,255,0.12);font-size:0.75rem;border-left:2px solid var(--border)">Llegada Autos</th>
-            <th colspan="3" style="position:sticky;top:0;z-index:3;text-align:center;background:rgba(167,139,250,0.12);font-size:0.75rem;border-left:2px solid var(--border)">Llegada Camionetas</th>
+            <th colspan="3" style="position:sticky;top:0;z-index:3;height:33px;text-align:center;background:rgba(0,119,255,0.12);font-size:0.75rem;border-left:2px solid var(--border)">Llegada Autos</th>
+            <th colspan="3" style="position:sticky;top:0;z-index:3;height:33px;text-align:center;background:rgba(167,139,250,0.12);font-size:0.75rem;border-left:2px solid var(--border)">Llegada Camionetas</th>
 
-            <th colspan="4" class="group-frenos" style="position:sticky;top:0;z-index:3;text-align:center;font-size:0.75rem;background:#3b2724;border-left:2px solid var(--border)">Estación Freno 1</th>
-            <th colspan="4" class="group-luces" style="position:sticky;top:0;z-index:3;text-align:center;font-size:0.75rem;background:#3b2724;border-left:2px solid var(--border)">Estación Luces 1</th>
-            <th colspan="4" class="group-frenos" style="position:sticky;top:0;z-index:3;text-align:center;font-size:0.75rem;background:#254e53;border-left:2px solid var(--border)">Estación Freno 2</th>
-            <th colspan="4" class="group-luces" style="position:sticky;top:0;z-index:3;text-align:center;font-size:0.75rem;background:#254e53;border-left:2px solid var(--border)">Estación Luces 2</th>
+            <th colspan="4" class="group-frenos" style="position:sticky;top:0;z-index:3;height:33px;text-align:center;font-size:0.75rem;background:#3b2724;border-left:2px solid var(--border)">Estación Freno 1</th>
+            <th colspan="4" class="group-luces" style="position:sticky;top:0;z-index:3;height:33px;text-align:center;font-size:0.75rem;background:#3b2724;border-left:2px solid var(--border)">Estación Luces 1</th>
+            <th colspan="4" class="group-frenos" style="position:sticky;top:0;z-index:3;height:33px;text-align:center;font-size:0.75rem;background:#254e53;border-left:2px solid var(--border)">Estación Freno 2</th>
+            <th colspan="4" class="group-luces" style="position:sticky;top:0;z-index:3;height:33px;text-align:center;font-size:0.75rem;background:#254e53;border-left:2px solid var(--border)">Estación Luces 2</th>
 
-            <th rowspan="2" class="group-cola" style="position:sticky;top:0;z-index:3">Cola Autos</th>
-            <th rowspan="2" class="group-cola" style="position:sticky;top:0;z-index:3">Cola Cam.</th>
-            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3">Esp. Autos</th>
-            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3">Esp. Cam.</th>
-            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3">% Bloq F1</th>
-            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3">% Bloq F2</th>
-            <th rowspan="2" style="position:sticky;top:0;z-index:3;font-size:0.75rem;">Próximos eventos</th>
+            <th rowspan="2" class="group-cola" style="position:sticky;top:0;z-index:3;height:33px">Cola Autos</th>
+            <th rowspan="2" class="group-cola" style="position:sticky;top:0;z-index:3;height:33px">Cola Cam.</th>
+            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3;height:33px">Esp. Autos</th>
+            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3;height:33px">Esp. Cam.</th>
+            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3;height:33px">% Bloq F1</th>
+            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3;height:33px">% Bloq F2</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px;font-size:0.75rem;">Próximos eventos</th>
             
-            <th rowspan="2" style="position:sticky;top:0;z-index:3;font-size:0.75rem; border-left:2px solid var(--accent); color:var(--text); text-align:left; padding-left:1rem;">Vehículos Activos en Sistema</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px;font-size:0.75rem; border-left:2px solid var(--accent); color:var(--text); text-align:left; padding-left:1rem;">Vehículos Activos en Sistema</th>
           </tr>
           <tr>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">RND</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted)">T entre llegadas</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted)">Próx. llegada</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">RND</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted)">T entre llegadas</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted)">Próx. llegada</th>
 
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">RND</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted)">T entre llegadas</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted)">Próx. llegada</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">RND</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted)">T entre llegadas</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted)">Próx. llegada</th>
 
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:#fbbf24">RND</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted)">T aten.</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted)">Fin</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:#fbbf24">RND</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted)">T aten.</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted)">Fin</th>
 
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:#a78bfa">RND</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted)">T aten.</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted)">Fin</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:#a78bfa">RND</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted)">T aten.</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted)">Fin</th>
 
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:#fbbf24">RND</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted)">T aten.</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted)">Fin</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:#fbbf24">RND</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted)">T aten.</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted)">Fin</th>
 
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:#a78bfa">RND</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted)">T aten.</th>
-            <th style="position:sticky;top:var(--th1-h, 33px);z-index:2;font-size:0.75rem;color:var(--muted)">Fin</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">Estado</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:#a78bfa">RND</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted)">T aten.</th>
+            <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted)">Fin</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="contentArea" class="clusterize-content">
       `;
 
-        // Pequeña función auxiliar para armar el diseño de un Badge individual
         const createBadge = (id, veh) => {
             const isCamioneta = veh.tipo === "Camioneta";
             const icon = isCamioneta ? "🚙" : "🚗";
@@ -1203,18 +1205,14 @@
                                 veh.estado.startsWith("SA_EL") ? "color:var(--ocupado)" : 
                                 veh.estado.startsWith("EA_B")  ? "color:var(--warn)" : "color:#a78bfa";
             
-            return `<span style="display:inline-flex; align-items:center; border:1px solid ${border}; background:${bg}; padding:2px 6px; border-radius:6px; font-size:0.7rem; white-space:nowrap; margin:2px;">
-                ${icon} #${id} <span style="margin:0 4px; ${estadoColor}; font-weight:bold;">${veh.estado}</span> <span style="color:var(--muted); font-size:0.65rem;">Hora llegada: ${veh.hora_llegada}</span>
+            // Shrink=0 garantiza que mantengan su tamaño original en la fila horizontal
+            return `<span style="display:inline-flex; align-items:center; border:1px solid ${border}; background:${bg}; padding:2px 6px; border-radius:6px; font-size:0.7rem; white-space:nowrap; flex-shrink:0;">
+                ${icon} #${id} <span style="margin:0 4px; ${estadoColor}; font-weight:bold;">${veh.estado}</span> <span style="color:var(--muted); font-size:0.65rem;">(@${veh.hora_llegada})</span>
             </span>`;
         };
 
-        // ── 3. Bucle cargando las filas ──
+        // ── 3. Bucle cargando las filas al Array de Clusterize ──
         for (const r of rows) {
-          const f1v = r.f1_vid != null ? `#${r.f1_vid} →${r.f1_fin}'` : "—";
-          const f2v = r.f2_vid != null ? `#${r.f2_vid} →${r.f2_fin}'` : "—";
-          const l1v = r.l1_vid != null ? `#${r.l1_vid} →${r.l1_fin}'` : "—";
-          const l2v = r.l2_vid != null ? `#${r.l2_vid} →${r.l2_fin}'` : "—";
-
           const rnd = r.rnds || {};
           const rndF1  = rnd["rnd_freno_L1"] != null ? `<span class="rnd-pill">${rnd["rnd_freno_L1"]}</span>` : "—";
           const rndF2  = rnd["rnd_freno_L2"] != null ? `<span class="rnd-pill">${rnd["rnd_freno_L2"]}</span>` : "—";
@@ -1232,128 +1230,410 @@
           const hasCola = r.cola_autos > 0 || r.cola_camiones > 0;
           const rowCls = isBloq ? "ev-bloq" : hasCola ? "ev-cola" : "";
 
-          // ── LÓGICA DE VEHÍCULOS EXPANDIBLE (ACORDEÓN) ──
+          // ── LÓGICA CON ALTURA FIJA PARA CLUSTERIZE ──
+// ── LÓGICA DE VEHÍCULOS (SOLO 3 Y 3 + ESTACIONES) SIN SCROLL ──
           const vehiculosArr = Object.entries(r.vehiculos || {});
           let celdaVehiculos = "";
 
           if (vehiculosArr.length === 0) {
               celdaVehiculos = `<td style="border-left:2px solid var(--accent); color:var(--muted); text-align:center;">—</td>`;
           } else {
-              // 1. Clasificamos los vehículos
-              const atendidos = vehiculosArr.filter(([_, v]) => v.estado !== "EA_EF"); // Los que están en estaciones
-              const colaCamiones = vehiculosArr.filter(([_, v]) => v.tipo === "Camioneta" && v.estado === "EA_EF");
-              const colaAutos = vehiculosArr.filter(([_, v]) => v.tipo === "Auto" && v.estado === "EA_EF");
+              const atendidos = vehiculosArr.filter(([_, v]) => v.estado !== "EA_EF");
+              const enCola = vehiculosArr.filter(([_, v]) => v.estado === "EA_EF");
 
-              // 2. Separamos los visibles (Todos los atendidos + 3 primeros de cada cola)
-              const visiblesCamiones = colaCamiones.slice(0, 3);
-              const visiblesAutos = colaAutos.slice(0, 3);
-              
-              // 3. Separamos los ocultos (Los que quedaron de las colas a partir de la posición 3)
-              const ocultosCamiones = colaCamiones.slice(3);
-              const ocultosAutos = colaAutos.slice(3);
+              let todosHtml = [...atendidos, ...enCola].map(([id, veh]) => createBadge(id, veh)).join("");
 
-              // 4. Transformamos las listas a strings de HTML usando la función auxiliar
-              let visiblesHtml = [...atendidos, ...visiblesCamiones, ...visiblesAutos].map(([id, veh]) => createBadge(id, veh)).join("");
-              let ocultosHtml = [...ocultosCamiones, ...ocultosAutos].map(([id, veh]) => createBadge(id, veh)).join("");
+              // Calculamos cuántos quedaron afuera matemáticamente
+              const mostradosEnCola = enCola.length;
+              const totalesEnCola = r.cola_autos + r.cola_camiones;
+              const ocultos = totalesEnCola - mostradosEnCola;
 
-              // Calculamos si quedaron autos en la matriz de python que no viajaron en el JSON por memoria
-              const ocultosMatematica = r.cola_camiones + r.cola_autos - visiblesCamiones.length - visiblesAutos.length;
-
-              // Si hay autos ocultos, le agregamos el botón de resumen al final de los visibles
-              if (ocultosMatematica > 0) {
-                  const textoHint = ocultosHtml.length > 0 ? "Click para expandir " : "Omitidos por Python";
-                  visiblesHtml += `<span style="display:inline-flex; align-items:center; border:1px dashed var(--muted); background:rgba(255,255,255,0.05); color:var(--muted); padding:2px 6px; border-radius:6px; font-size:0.75rem; white-space:nowrap; margin:2px;">
-                      + ${ocultosMatematica} esperando (${textoHint})
+              if (ocultos > 0) {
+                  todosHtml += `<span style="display:inline-flex; align-items:center; border:1px dashed var(--muted); background:rgba(255,255,255,0.05); color:var(--muted); padding:2px 6px; border-radius:6px; font-size:0.7rem; white-space:nowrap; margin:2px;">
+                      + ${ocultos} esperando
                   </span>`;
-              } 
-
-              // 5. Armamos la celda. Si hay ocultos armamos un <details> (expandible), si no, un div normal
-              if (ocultosHtml.length > 0) {
-                  celdaVehiculos = `
-                  <td style="border-left:2px solid var(--accent); max-width: 480px; padding: 0.3rem 0.5rem; vertical-align:middle;">
-                      <details style="cursor:pointer;" title="Haz click para ver todos los vehículos en cola">
-                          <summary style="list-style:none; outline:none; display:flex; flex-wrap:wrap;">
-                              ${visiblesHtml}
-                          </summary>
-                          <div style="display:flex; flex-wrap:wrap; margin-top:0.4rem; padding-top:0.4rem; border-top:1px dashed var(--border);">
-                              ${ocultosHtml}
-                          </div>
-                      </details>
-                  </td>`;
-              } else {
-                  celdaVehiculos = `
-                  <td style="border-left:2px solid var(--accent); max-width: 480px; padding: 0.3rem 0.5rem; vertical-align:middle;">
-                      <div style="display:flex; flex-wrap:wrap;">
-                          ${visiblesHtml}
-                      </div>
-                  </td>`;
               }
+
+              // Inyectamos en un DIV centrado, sin barras de scroll, cortando lo que exceda los 46px
+              celdaVehiculos = `
+              <td style="border-left:2px solid var(--accent); max-width: 450px; padding: 0;">
+                  <div style="display:flex; flex-wrap:wrap; overflow:hidden; gap:4px; padding:0 0.5rem; height:46px; align-content:center;">
+                      ${todosHtml}
+                  </div>
+              </td>`;
           }
 
-          // Sumamos la fila directo al HTML
-          tableHtml += `<tr class="${rowCls}" onclick="toggleRowSelect(this)" style="cursor:pointer">
-            <td class="iter-badge">${r.iter}</td>
-            <td class="iter-badge">${r.dia}</td>
-            <td class="hora-cell">${r.hora}</td>
-            <td class="hora-cell" style="color:var(--muted);font-size:0.7rem;">${horaReal(r.hora, r.dia)}</td>
-            <td class="evt-cell">${r.evento}</td>
-            <td class="num-cell" style="border-left:2px solid var(--border)">${rndLA}</td>
-            <td class="num-cell">${rnd["dt_llegada_auto"] ?? "—"}</td>
-            <td class="num-cell">${r.t_llegada_auto != null ? r.t_llegada_auto : "—"}</td>
-            <td class="num-cell" style="border-left:2px solid var(--border)">${rndLC}</td>
-            <td class="num-cell">${rnd["dt_llegada_camion"] ?? "—"}</td>
-            <td class="num-cell">${r.t_llegada_camion != null ? r.t_llegada_camion : "—"}</td>
-            <td style="border-left:2px solid var(--border)"><span class="badge ${f1cls}">${r.f1_estado}</span></td>
-            <td class="num-cell">${rndF1}</td>
-            <td class="num-cell">${rnd["dur_freno_L1"] ?? "—"}</td>
-            <td class="num-cell" style="color:var(--muted)">${r.f1_fin}</td>
-            <td style="border-left:2px solid var(--border)"><span class="badge ${l1cls}">${r.l1_estado}</span></td>
-            <td class="num-cell">${rndL1}</td>
-            <td class="num-cell">${rnd["dur_luces_L1"] ?? "—"}</td>
-            <td class="num-cell" style="color:var(--muted)">${r.l1_fin}</td>
-            <td style="border-left:2px solid var(--border)"><span class="badge ${f2cls}">${r.f2_estado}</span></td>
-            <td class="num-cell">${rndF2}</td>
-            <td class="num-cell">${rnd["dur_freno_L2"] ?? "—"}</td>
-            <td class="num-cell" style="color:var(--muted)">${r.f2_fin}</td>
-            <td style="border-left:2px solid var(--border)"><span class="badge ${l2cls}">${r.l2_estado}</span></td>
-            <td class="num-cell">${rndL2}</td>
-            <td class="num-cell">${rnd["dur_luces_L2"] ?? "—"}</td>
-            <td class="num-cell" style="color:var(--muted)">${r.l2_fin}</td>
-            <td class="num-cell">${colaHtml(r.cola_autos, "🚗")}</td>
-            <td class="num-cell">${colaHtml(r.cola_camiones, "🚙")}</td>
-            <td class="num-cell">${r.prom_esp_autos}'</td>
-            <td class="num-cell">${r.prom_esp_camiones}'</td>
-            <td class="num-cell">${r.pct_bloq_f1}%</td>
-            <td class="num-cell">${r.pct_bloq_f2}%</td>
-            <td class="prox-cell">${proximosHtml(r.proximos)}</td>
+          filasArray.push(`<tr class="${rowCls}" onclick="toggleRowSelect(this)" style="cursor:pointer">
+            <td class="iter-badge" style="height:46px; vertical-align:middle;">${r.iter}</td>
+            <td class="iter-badge" style="vertical-align:middle;">${r.dia}</td>
+            <td class="hora-cell" style="vertical-align:middle;">${r.hora}</td>
+            <td class="hora-cell" style="color:var(--muted);font-size:0.7rem;vertical-align:middle;">${horaReal(r.hora, r.dia)}</td>
+            <td class="evt-cell" style="vertical-align:middle;">${r.evento}</td>
+            <td class="num-cell" style="border-left:2px solid var(--border);vertical-align:middle;">${rndLA}</td>
+            <td class="num-cell" style="vertical-align:middle;">${rnd["dt_llegada_auto"] ?? "—"}</td>
+            <td class="num-cell" style="vertical-align:middle;">${r.t_llegada_auto != null ? r.t_llegada_auto : "—"}</td>
+            <td class="num-cell" style="border-left:2px solid var(--border);vertical-align:middle;">${rndLC}</td>
+            <td class="num-cell" style="vertical-align:middle;">${rnd["dt_llegada_camion"] ?? "—"}</td>
+            <td class="num-cell" style="vertical-align:middle;">${r.t_llegada_camion != null ? r.t_llegada_camion : "—"}</td>
+            <td style="border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${f1cls}">${r.f1_estado}</span></td>
+            <td class="num-cell" style="vertical-align:middle;">${rndF1}</td>
+            <td class="num-cell" style="vertical-align:middle;">${rnd["dur_freno_L1"] ?? "—"}</td>
+            <td class="num-cell" style="color:var(--muted);vertical-align:middle;">${r.f1_fin}</td>
+            <td style="border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${l1cls}">${r.l1_estado}</span></td>
+            <td class="num-cell" style="vertical-align:middle;">${rndL1}</td>
+            <td class="num-cell" style="vertical-align:middle;">${rnd["dur_luces_L1"] ?? "—"}</td>
+            <td class="num-cell" style="color:var(--muted);vertical-align:middle;">${r.l1_fin}</td>
+            <td style="border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${f2cls}">${r.f2_estado}</span></td>
+            <td class="num-cell" style="vertical-align:middle;">${rndF2}</td>
+            <td class="num-cell" style="vertical-align:middle;">${rnd["dur_freno_L2"] ?? "—"}</td>
+            <td class="num-cell" style="color:var(--muted);vertical-align:middle;">${r.f2_fin}</td>
+            <td style="border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${l2cls}">${r.l2_estado}</span></td>
+            <td class="num-cell" style="vertical-align:middle;">${rndL2}</td>
+            <td class="num-cell" style="vertical-align:middle;">${rnd["dur_luces_L2"] ?? "—"}</td>
+            <td class="num-cell" style="color:var(--muted);vertical-align:middle;">${r.l2_fin}</td>
+            <td class="num-cell" style="vertical-align:middle;">${colaHtml(r.cola_autos, "🚗")}</td>
+            <td class="num-cell" style="vertical-align:middle;">${colaHtml(r.cola_camiones, "🚙")}</td>
+            <td class="num-cell" style="vertical-align:middle;">${r.prom_esp_autos}'</td>
+            <td class="num-cell" style="vertical-align:middle;">${r.prom_esp_camiones}'</td>
+            <td class="num-cell" style="vertical-align:middle;">${r.pct_bloq_f1}%</td>
+            <td class="num-cell" style="vertical-align:middle;">${r.pct_bloq_f2}%</td>
+            
+            <td class="prox-cell" style="padding: 0;">
+                <div style="height: 46px; overflow-y: auto; display:flex; flex-direction:column; justify-content:center; padding: 0 0.5rem; scrollbar-width: none;">
+                    ${proximosHtml(r.proximos)}
+                </div>
+            </td>
             ${celdaVehiculos}
-          </tr>`;
+          </tr>`);
         }
 
-        tableHtml += `</tbody></table></div>`;
+        tableHtml = tableHeaderHtml + `</tbody></table></div>`;
       }
 
-      // ── 4. Inyectamos en el DOM ──
-      panel.innerHTML = `
-        <div class="results-top">${topHtml}</div>
-        <div class="dock-controls">
-          <label>Altura: <input id="dock-height" type="range" min="20" max="90" value="75" oninput="applyDockHeight(this.value)"></label>
-          <button id="toggle-edit" data-enabled="0" onclick="toggleEditable()">Editable: NO</button>
-          <button onclick="exportCSV()">Exportar CSV</button>
+      // ── 4. Inyectamos la estructura base en el DOM ──
+          panel.innerHTML = `
+      <div class="results-top">${topHtml}</div>
+      <div class="dock-controls">
+        <label>Altura: <input id="dock-height" type="range" min="20" max="90" value="75" oninput="applyDockHeight(this.value)"></label>
+        <button id="toggle-edit" data-enabled="0" onclick="toggleEditable()">Editable: NO</button>
+        <button onclick="exportCSV()">Exportar CSV</button>
+      </div>
+      <div class="help-panel">
+        <ul style="margin-top:0.25rem;line-height:1.5;margin-bottom:0;list-style:disc;padding-left:1rem;">
+          <li><strong>Hora (min)</strong>: instante desde la apertura (8:00 = 0).</li>
+          <li><strong>Evento</strong>: acción que ocurrió en ese instante.</li>
+          <li><strong>F1 / F2 / L1 / L2</strong>: estado y vehículo atendido (si aplica).</li>
+          <li><strong>Cola Autos / Cam.</strong>: cantidad de vehículos esperando.</li>
+          <li><strong>Esp. Autos / Esp. Cam.</strong>: espera promedio acumulada.</li>
+        </ul>
+      </div>
+      <div class="table-dock" style="flex:0 0 45vh">${tableHtml}</div>
+
+      <div class="ayuda-wrap">
+
+        <div class="ayuda-section">
+          <div class="ayuda-section-label">Análisis del sistema</div>
+          <h2>Objetos, eventos y colas</h2>
+
+          <div class="ayuda-block">
+            <h3>Objetos permanentes</h3>
+            <table class="ayuda-table">
+              <tr><th>Objeto</th><th>Estados posibles</th></tr>
+              <tr><td>Frenos 1 / Frenos 2</td><td>Libre — Ocupado — Bloqueada</td></tr>
+              <tr><td>Luces 1 / Luces 2</td><td>Libre — Ocupado</td></tr>
+            </table>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>Objetos temporales</h3>
+            <table class="ayuda-table">
+              <tr><th>Objeto</th><th>Atributos</th><th>Estados posibles</th></tr>
+              <tr><td>Auto</td><td>hora de llegada</td><td>En cola — En Frenos(i) — Bloqueado(i) — En Luces(i)</td></tr>
+              <tr><td>Camioneta</td><td>hora de llegada</td><td>En cola — En Frenos(i) — Bloqueado(i) — En Luces(i)</td></tr>
+            </table>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>Eventos</h3>
+            <table class="ayuda-table">
+              <tr><th>Evento</th><th>Genera próximo evento en…</th></tr>
+              <tr><td>Llegada Auto</td><td><code>t + (−15 · ln(1 − RND))</code></td></tr>
+              <tr><td>Llegada Camioneta</td><td><code>t + (−30 · ln(1 − RND))</code></td></tr>
+              <tr><td>Fin Frenos (i)</td><td>Si Luces libre: <code>t + (4 + RND · 3)</code> para Luces</td></tr>
+              <tr><td>Fin Luces (i)</td><td>Si había bloqueado: <code>t + (6 + RND · 4)</code> para nueva Luces</td></tr>
+              <tr><td>Cierre</td><td>t = 480 min (fijo)</td></tr>
+            </table>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>Cola</h3>
+            <p>Una sola cola con prioridad. Las camionetas siempre se atienden antes que los autos, sin importar el orden de llegada. Dentro de cada tipo: FIFO.</p>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>Variables aleatorias y fórmulas</h3>
+            <table class="ayuda-table">
+              <tr><th>Variable</th><th>Distribución</th><th>Fórmula</th></tr>
+              <tr><td>Entre llegadas — autos</td><td>Exponencial negativa (μ = 15)</td><td><code>−15 · ln(1 − RND)</code></td></tr>
+              <tr><td>Entre llegadas — camionetas</td><td>Exponencial negativa (μ = 30)</td><td><code>−30 · ln(1 − RND)</code></td></tr>
+              <tr><td>Tiempo en Frenos</td><td>Uniforme U(4, 7)</td><td><code>4 + RND · (7 − 4)</code></td></tr>
+              <tr><td>Tiempo en Luces</td><td>Uniforme U(6, 10)</td><td><code>6 + RND · (10 − 6)</code></td></tr>
+            </table>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>Variables auxiliares</h3>
+            <table class="ayuda-table">
+              <tr><th>Variable</th><th>Para qué se usa</th></tr>
+              <tr><td><code>suma_espera_autos</code></td><td>Calcular tiempo promedio de espera de autos</td></tr>
+              <tr><td><code>suma_espera_camiones</code></td><td>Calcular tiempo promedio de espera de camionetas</td></tr>
+              <tr><td><code>autos_atendidos</code></td><td>Divisor del promedio de espera</td></tr>
+              <tr><td><code>camiones_atendidos</code></td><td>Divisor del promedio de espera</td></tr>
+              <tr><td><code>tiempo_bloqueada_f1 / f2</code></td><td>Calcular % tiempo Frenos bloqueada</td></tr>
+              <tr><td><code>t_inicio_bloqueo_f1 / f2</code></td><td>Cronómetro de inicio del bloqueo</td></tr>
+            </table>
+          </div>
         </div>
-        <div class="help-panel">
-          <ul style="margin-top:0.25rem;line-height:1.5;margin-bottom:0;list-style:disc;padding-left:1rem;">
-            <li><strong>Hora (min)</strong>: instante desde la apertura (8:00 = 0).</li>
-            <li><strong>Evento</strong>: acción que ocurrió en ese instante.</li>
-            <li><strong>F1 / F2 / L1 / L2</strong>: estado y vehículo atendido (si aplica).</li>
-            <li><strong>Cola Autos / Cam.</strong>: cantidad de vehículos esperando.</li>
-            <li><strong>Esp. Autos / Esp. Cam.</strong>: espera promedio acumulada.</li>
-          </ul>
+
+        <div class="ayuda-section">
+          <div class="ayuda-section-label">Consigna</div>
+          <h2>Qué modela el sistema</h2>
+
+          <div class="ayuda-block">
+            <h3>Flujo de un vehículo</h3>
+            <div class="ayuda-flow">
+              <div class="ayuda-fbox">Cola<small>camionetas primero</small></div>
+              <span class="ayuda-arrow">→</span>
+              <div class="ayuda-fbox">Frenos 1<small>U(4, 7) min</small></div>
+              <span class="ayuda-arrow">→</span>
+              <div class="ayuda-fbox">Luces 1<small>U(6, 10) min</small></div>
+              <span class="ayuda-arrow">→</span>
+              <div class="ayuda-fbox g">Sale</div>
+            </div>
+            <div class="ayuda-flow">
+              <div style="width:120px"></div>
+              <div class="ayuda-fbox">Frenos 2<small>U(4, 7) min</small></div>
+              <span class="ayuda-arrow">→</span>
+              <div class="ayuda-fbox">Luces 2<small>U(6, 10) min</small></div>
+              <span class="ayuda-arrow">→</span>
+              <div class="ayuda-fbox g">Sale</div>
+            </div>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>Los 3 resultados que pide el enunciado</h3>
+            <ul class="ayuda-ul">
+              <li>Tiempo promedio de espera en cola — por tipo (autos vs camionetas)</li>
+              <li>Porcentaje de tiempo que Frenos estuvo bloqueada</li>
+              <li>Hora real de fin de jornada — último vehículo sale después de las 16:00</li>
+            </ul>
+          </div>
         </div>
-        <div class="table-dock" style="flex:0 0 45vh">${tableHtml}</div>
-        
-        <div class="ayuda-wrap">${document.querySelector('.ayuda-wrap') ? document.querySelector('.ayuda-wrap').innerHTML : ''}</div>
-      `;
+
+        <div class="ayuda-section">
+          <div class="ayuda-section-label">Distribuciones</div>
+          <h2>De la fórmula al código</h2>
+
+          <div class="ayuda-block">
+            <h3>Llegadas — Exponencial negativa</h3>
+            <p>Los tiempos entre llegadas siguen una distribución exponencial negativa. La fórmula es la transformada inversa:</p>
+            <pre>X = −media · ln(1 − RND)
+
+<span class="hl-a">def next_auto(rnd=None, media=15):</span>
+    if rnd is None: rnd = random.random()
+    return rnd, round(<span class="hl-a">-media * math.log(1 - rnd)</span>, 4)
+
+<span class="hl-a">def next_camion(rnd=None, media=30):</span>
+    if rnd is None: rnd = random.random()
+    return rnd, round(<span class="hl-a">-media * math.log(1 - rnd)</span>, 4)</pre>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>Tiempos de servicio — Uniforme</h3>
+            <p>Frenos y Luces usan distribución uniforme:</p>
+            <pre>X = a + RND · (b − a)
+
+<span class="hl-g">def tiempo_freno(rnd=None, a=4, b=7):</span>
+    if rnd is None: rnd = random.random()
+    return rnd, round(<span class="hl-g">a + rnd * (b - a)</span>, 4)
+
+<span class="hl-g">def tiempo_luces(rnd=None, a=6, b=10):</span>
+    if rnd is None: rnd = random.random()
+    return rnd, round(<span class="hl-g">a + rnd * (b - a)</span>, 4)</pre>
+          </div>
+        </div>
+
+        <div class="ayuda-section">
+          <div class="ayuda-section-label">Prioridad</div>
+          <h2>Cómo las camionetas van antes</h2>
+
+          <div class="ayuda-block">
+            <h3>Matemáticamente</h3>
+            <p>La prioridad no es una distribución ni una fórmula — es una regla de despacho del sistema de colas. Se llama disciplina de cola con prioridad no apropiativa: cuando un servidor se libera, no se elige al que llegó primero sino al de mayor prioridad. Los tiempos de llegada y servicio se generan igual con sus distribuciones; lo que cambia es únicamente el criterio de selección al desencolar.</p>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>En el código — dos listas separadas</h3>
+            <p>No es una sola lista ordenada. Son dos listas. La prioridad se aplica en el momento de sacar, no de encolar.</p>
+            <pre>cola_autos:    list[Vehiculo] = []
+cola_camiones: list[Vehiculo] = []</pre>
+            <p style="margin-top:0.75rem;">Al encolar, cada vehículo va a su lista según su tipo. Al desencolar, siempre se mira primero <code>cola_camiones</code>:</p>
+            <pre><span class="hl-a">if cola_camiones:</span>
+    v = cola_camiones.pop(0)
+<span class="hl-a">elif cola_autos:</span>
+    v = cola_autos.pop(0)</pre>
+            <div class="ayuda-note amber">El <code>elif</code> es la clave — un auto solo sale si y solo si no hay ninguna camioneta esperando. No importa cuánto tiempo lleva esperando el auto. Mientras haya una camioneta en <code>cola_camiones</code>, el auto se queda.</div>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>Función <code>intentar_siguiente_vehiculo()</code></h3>
+            <p>Se ejecuta cada vez que una línea queda libre.</p>
+            <pre>def intentar_siguiente_vehiculo(linea_idx):
+    f = frenos[linea_idx]
+    if f.estado != ESTADO_LIBRE:
+        return
+    <span class="hl-a">if cola_camiones:</span>
+        v = cola_camiones.pop(0)
+    <span class="hl-a">elif cola_autos:</span>
+        v = cola_autos.pop(0)
+    else:
+        return
+    asignar_a_freno(v, linea_idx)</pre>
+            <div class="ayuda-note green">Se llama en dos momentos: al terminar Fin Frenos (si Luces estaba libre) y al terminar Fin Luces (si Frenos estaba bloqueada). En ambos casos respeta la prioridad.</div>
+          </div>
+        </div>
+
+        <div class="ayuda-section">
+          <div class="ayuda-section-label">Bloqueo</div>
+          <h2>Qué pasa cuando Luces está ocupada</h2>
+
+          <div class="ayuda-block">
+            <h3>Evento Fin Frenos — dos caminos</h3>
+            <div class="ayuda-flow" style="margin-bottom:0.75rem;">
+              <div class="ayuda-fbox g">Luces libre</div>
+              <span class="ayuda-arrow">→</span>
+              <p style="margin:0;font-size:0.78rem;color:var(--muted);">vehículo pasa, Frenos queda Libre, entra siguiente de cola</p>
+            </div>
+            <div class="ayuda-flow" style="margin-bottom:0.75rem;">
+              <div class="ayuda-fbox r">Luces ocupada</div>
+              <span class="ayuda-arrow">→</span>
+              <p style="margin:0;font-size:0.78rem;color:var(--muted);">Frenos pasa a BLOQUEADA, se guarda <code>t_inicio_bloqueo</code></p>
+            </div>
+            <pre>if l.estado == ESTADO_LIBRE:
+    r, dur = tiempo_luces(a=luces_a, b=luces_b)
+    l.estado       = ESTADO_OCUPADO
+    l.fin_atencion = t + dur
+    f.estado       = ESTADO_LIBRE
+    <span class="hl-g">intentar_siguiente_vehiculo(idx)</span>
+else:
+    <span class="hl-r">f.estado = ESTADO_BLOQUEADA</span>
+    <span class="hl-r">t_inicio_bloqueo_f1 = t</span></pre>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>Evento Fin Luces — desbloqueo</h3>
+            <p>El vehículo sale del sistema. Si Frenos estaba bloqueada, se acumula el tiempo y el vehículo bloqueado pasa a Luces.</p>
+            <pre>l.estado = ESTADO_LIBRE
+
+if f.estado == ESTADO_BLOQUEADA:
+    <span class="hl-a">tiempo_bloqueada_f1 += t - t_inicio_bloqueo_f1</span>
+    t_inicio_bloqueo_f1 = None
+    l.estado       = ESTADO_OCUPADO
+    l.fin_atencion = t + dur
+    f.estado       = ESTADO_LIBRE
+    <span class="hl-g">intentar_siguiente_vehiculo(idx)</span></pre>
+            <div class="ayuda-note blue">La destrucción del vehículo es implícita: <code>l.vehiculo_id = None</code>. El objeto deja de ser referenciado y el snapshot ya no lo muestra.</div>
+          </div>
+        </div>
+
+        <div class="ayuda-section">
+          <div class="ayuda-section-label">Estadísticas</div>
+          <h2>Dónde y cómo se calculan</h2>
+
+          <div class="ayuda-block">
+            <h3>Los 6 acumuladores</h3>
+            <pre>autos_atendidos      = 0
+camiones_atendidos   = 0
+suma_espera_autos    = 0.0
+suma_espera_camiones = 0.0
+tiempo_bloqueada_f1  = 0.0
+tiempo_bloqueada_f2  = 0.0</pre>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>La espera se acumula en <code>asignar_a_freno()</code></h3>
+            <p>En el momento en que el vehículo empieza a ser atendido en Frenos.</p>
+            <pre><span class="hl-a">espera = t - v.hora_inicio_espera</span>
+if v.tipo == "Auto":
+    suma_espera_autos += espera
+    autos_atendidos   += 1
+else:
+    suma_espera_camiones += espera
+    camiones_atendidos   += 1</pre>
+            <div class="ayuda-note amber">Si el vehículo entra directo sin esperar, <code>t == hora_inicio_espera</code> y la espera es 0.</div>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>Cálculo final</h3>
+            <div class="ayuda-grid2">
+              <div class="ayuda-mini">
+                <div class="ayuda-mini-label">Espera promedio por tipo</div>
+                <p><code>suma_espera_autos / autos_atendidos</code></p>
+              </div>
+              <div class="ayuda-mini">
+                <div class="ayuda-mini-label">% tiempo Frenos bloqueada</div>
+                <p><code>tiempo_bloqueada_f1 / X × 100</code></p>
+              </div>
+            </div>
+            <div class="ayuda-mini" style="margin-top:0.75rem;">
+              <div class="ayuda-mini-label">Hora real de fin de jornada</div>
+              <p>El valor de <code>t</code> en el último evento procesado</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ayuda-section">
+          <div class="ayuda-section-label">Cierre</div>
+          <h2>Cierre a las 16:00</h2>
+
+          <div class="ayuda-block">
+            <h3>La variable <code>cerrado</code></h3>
+            <p>Antes de procesar cada evento, el sistema evalúa si ya se llegó al cierre:</p>
+            <pre>if not cerrado and t_next >= day_close:
+    <span class="hl-a">cerrado = True</span>
+
+if not cerrado:
+    candidates.append((t_llegada_auto,  EVT_LLEGADA_AUTO))
+    candidates.append((t_llegada_camion, EVT_LLEGADA_CAMION))</pre>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>¿Cuándo termina la simulación?</h3>
+            <p>Cuando no queda ningún vehículo activo en el sistema.</p>
+            <pre>if cerrado:
+    any_active = (
+        any(f.estado != ESTADO_LIBRE for f in frenos) or
+        any(l.estado != ESTADO_LIBRE for l in luces) or
+        bool(cola_autos) or bool(cola_camiones)
+    )
+    if not any_active:
+        break</pre>
+            <div class="ayuda-note green">El sistema no se corta a las 16:00. Se corta cuando sale el último vehículo que estaba dentro o en cola al dar las 16:00. Ese instante es la hora real de fin de jornada.</div>
+          </div>
+        </div>
+
+      </div>
+    `;
+    
+
+      // ── 5. Activamos el motor de Clusterize ──
+      if (filasArray.length > 0) {
+        new Clusterize({
+          rows: filasArray,
+          scrollId: 'scrollArea',
+          contentId: 'contentArea'
+        });
+      }
 
       const dockHeightInput = document.getElementById("dock-height");
       if(dockHeightInput) dockHeightInput.value = 90;
