@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 # ─── Constants ───────────────────────────────────────────────────────────────
-OPEN_DURATION = 479   # minutos por jornada (08:00–16:00)
+OPEN_DURATION = 480   # minutos por jornada (08:00–16:00)
 INF = float('inf')
 
 ESTADO_LIBRE     = "Libre"
@@ -126,14 +126,14 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     def proximos_eventos():
         evts = []
         if not cerrado:
-            evts.append(f"{EVT_LLEGADA_AUTO}@{t_llegada_auto:.2f}")
-            evts.append(f"{EVT_LLEGADA_CAMION}@{t_llegada_camion:.2f}")
+            evts.append(f"{EVT_LLEGADA_AUTO}-{t_llegada_auto:.2f}")
+            evts.append(f"{EVT_LLEGADA_CAMION}-{t_llegada_camion:.2f}")
         for f in frenos:
             if f.fin_atencion < INF:
-                evts.append(f"Fin Frenos L{f.id}@{f.fin_atencion:.2f}")
+                evts.append(f"Fin Frenos L{f.id}-{f.fin_atencion:.2f}")
         for l in luces:
             if l.fin_atencion < INF:
-                evts.append(f"Fin Luces L{l.id}@{l.fin_atencion:.2f}")
+                evts.append(f"Fin Luces L{l.id}-{l.fin_atencion:.2f}")
         return "<br>".join(evts) if evts else "—"
 
     def snapshot(evento, rnds_usados):
@@ -248,6 +248,8 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
 
         if not cerrado and t_next >= day_close:
             cerrado = True
+            t_next = day_close   
+            evt_name = "Cierre"
 
         t = t_next
         iter_count += 1
