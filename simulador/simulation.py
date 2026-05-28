@@ -253,7 +253,8 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
         t_next, evt_name = min_event()
         if t_next == INF:
             break
-        
+        if t_next >= tiempo_max:
+            break
         # 1. FORZAR EL EVENTO DE CIERRE A LA HORA EXACTA (ej: 480, 960, etc.)
         if not cerrado and t_next >= day_close:
             cerrado = True
@@ -395,11 +396,14 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
         # ── Fin de jornada / simulación ───────────────────────────────────
         
     # ── Final stats ───────────────────────────────────────────────────────
-    denom_bloq = max(tiempo_max, 1)
+    denom_bloq = max(t, 1)
+    dia_target = dia_actual - 1 if dia_actual > 1 else 1
+    filas_dia = [r for r in rows if r["dia"] == dia_target]
+    fila_fin = filas_dia[-1] if filas_dia else rows[-1]
     stats = {
         "dias_simulados":    dia_actual,
-        "hora_fin_sim":      round(t, 2),
-        "dia_fin":           dia_actual,
+        "hora_fin_sim":      round(fila_fin["hora"], 2),
+        "dia_fin":           fila_fin["dia"],
         "prom_esp_autos":    round(suma_espera_autos    / autos_atendidos,    4) if autos_atendidos    else 0,
         "prom_esp_camiones": round(suma_espera_camiones / camiones_atendidos, 4) if camiones_atendidos else 0,
         "pct_bloq_f1":       round(tiempo_bloqueada_f1 / denom_bloq * 100, 2),

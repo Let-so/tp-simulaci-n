@@ -23,6 +23,7 @@
       --ocupado: #0077ff;
       --bloq: #ff6b35;
       --header-h: 64px;
+      --scroll: #dbdbdb;
     }
 
     * {
@@ -600,11 +601,13 @@
     }
 
     .table-wrap::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 3px;
+      background: var(--scroll);
+      border-radius: 1px;
       opacity: 0.5;
     }
-
+    .table-wrap::-webkit-scrollbar-thumb:hover {
+      background: var(--accent2);
+    }
     .table-dock::-webkit-scrollbar {
       display: none;
     }
