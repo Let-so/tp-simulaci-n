@@ -613,6 +613,15 @@
       overflow-y: auto;
     }
 
+    tr.row-selected td {
+      background: rgba(250, 204, 21, 0.18) !important;
+      outline: 2px solid #fbbf24;
+      outline-offset: -1px;
+    }
+    tr.row-selected:hover td {
+      background: rgba(250, 204, 21, 0.25) !important;
+    }
+
     aside::-webkit-scrollbar {
       width: 6px;
     }
@@ -1137,7 +1146,7 @@
           }).join("");
           // ───────────────────────────────────────────────────────────────
 
-          tableHtml += `<tr class="${rowCls}">
+          tableHtml += `<tr class="${rowCls}" onclick="toggleRowSelect(this)" style="cursor:pointer">
             <td class="iter-badge">${r.iter}</td>
             <td class="iter-badge">${r.dia}</td>
             <td class="hora-cell">${r.hora}</td>
@@ -1267,6 +1276,10 @@
       const hp = document.querySelector(".help-panel");
       if (!hp) return;
       hp.style.display = show ? "block" : "none";
+    }
+
+    function toggleRowSelect(tr) {
+      tr.classList.toggle("row-selected");
     }
 
     function getCookie(name) {
