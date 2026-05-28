@@ -182,7 +182,7 @@
     /* ── Stats cards ── */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1rem;
       align-items: stretch;
     }
@@ -896,6 +896,18 @@
       <div class="value">${stats.dias_simulados}</div>
     </div>
     <div class="stat-card">
+      <div class="label">Fin de jornada real</div>
+      <div class="value" style="font-size:0.95rem;">Día ${stats.dia_fin} — ${horaReal(stats.hora_fin_sim, stats.dia_fin)}</div>
+    </div>
+    <div class="stat-card info">
+      <div class="label">Autos atendidos</div>
+      <div class="value">${stats.total_autos}</div>
+    </div>
+    <div class="stat-card info">
+      <div class="label">Camionetas atendidas</div>
+      <div class="value">${stats.total_camiones}</div>
+    </div>
+    <div class="stat-card">
       <div class="label">Espera promedio Autos</div>
       <div class="value">${stats.prom_esp_autos.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
     </div>
@@ -914,18 +926,6 @@
     <div class="stat-card warn">
       <div class="label">% Bloq. Frenos L2</div>
       <div class="value">${stats.pct_bloq_f2.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Fin de jornada real</div>
-      <div class="value" style="font-size:0.95rem;">Día ${stats.dia_fin} — ${horaReal(stats.hora_fin_sim, stats.dia_fin)}</div>
-    </div>
-    <div class="stat-card info">
-      <div class="label">Autos atendidos</div>
-      <div class="value">${stats.total_autos}</div>
-    </div>
-    <div class="stat-card info">
-      <div class="label">Camionetas atendidas</div>
-      <div class="value">${stats.total_camiones}</div>
     </div>
   </div>
   `;
