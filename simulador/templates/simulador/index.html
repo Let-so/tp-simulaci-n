@@ -968,16 +968,15 @@
 
       for (const r of rows) {
           for (const [idStr, veh] of Object.entries(r.vehiculos || {})) {
-              const id = parseInt(idStr);
+              const id = idStr;
               if (!idsSeen.has(id)) {
                   idsSeen.add(id);
-                  if (veh.tipo === "Camioneta") camionetaIds.push(id);
-                  else autoIds.push(id);
               }
           }
       }
-      camionetaIds.sort();
-      autoIds.sort();
+      
+      camionetaIds.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+      autoIds.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
       const colOrder = [
           ...camionetaIds.map(id => ({ id, tipo: "Camioneta" })),
