@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 # ─── Constants ───────────────────────────────────────────────────────────────
-OPEN_DURATION = 480   # minutos por jornada (08:00–16:00)
+OPEN_DURATION = 479   # minutos por jornada (08:00–16:00)
 INF = float('inf')
 
 ESTADO_LIBRE     = "Libre"
