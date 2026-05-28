@@ -94,7 +94,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
 
 
     vehiculo_counter     = 0
-    iter_count       = 0
+    iter_count           = 0
 
     registro_vehiculos: dict[int, Vehiculo] = {}
 
@@ -108,15 +108,26 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     t_inicio_bloqueo_f2  = None
 
     t          = 0.0
-    iter_count = 0
     dia_actual = 1
-    # day_close: minuto absoluto en que el día actual deja de aceptar llegadas
     day_close  = float(min(OPEN_DURATION, tiempo_max))
     cerrado    = False
 
     rows: list[dict] = []
     pending_rnds: dict = {}
 
+    rnd_la, dt_auto   = next_auto(media=media_auto)
+    rnd_lc, dt_camion = next_camion(media=media_camion)
+    t_llegada_auto   = dt_auto
+    t_llegada_camion = dt_camion
+
+    # ── Fila 0: Inicio de simulación ──────────────────────────────────────
+    iter_count = 1
+    pending_rnds = {
+        "rnd_llegada_auto":   round(rnd_la, 6),
+        "rnd_llegada_camion": round(rnd_lc, 6),
+    }
+    rows.append(snapshot("Inicio Simulación", pending_rnds))
+    pending_rnds = {}
     # ── Inner helpers ──────────────────────────────────────────────────────
 
     def min_event():
