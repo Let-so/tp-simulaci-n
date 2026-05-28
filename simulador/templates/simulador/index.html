@@ -961,8 +961,7 @@
     </div>
     `;
       }
-
-      // Build table HTML separately so it can be placed in the bottom dock
+    
       const camionetaIds = [];
       const autoIds = [];
       const idsSeen = new Set();
@@ -977,8 +976,8 @@
               }
           }
       }
-      camionetaIds.sort((a, b) => a - b);
-      autoIds.sort((a, b) => a - b);
+      camionetaIds.sort();
+      autoIds.sort();
 
       const colOrder = [
           ...camionetaIds.map(id => ({ id, tipo: "Camioneta" })),
@@ -999,8 +998,8 @@
         // ── Encabezados dinámicos de vehículos ──────────────────────────
         const thVehRow1 = colOrder.map(col => {
             const label = col.tipo === "Camioneta"
-                ? `🚙 Cam. #${col.id}`
-                : `🚗 Auto #${col.id}`;
+                ? `🚙 ${col.id}`
+                : `🚗 ${col.id}`;
             const color = col.tipo === "Camioneta"
                 ? "rgba(167,139,250,0.10)"
                 : "rgba(0,119,255,0.08)";

@@ -41,7 +41,7 @@ def tiempo_luces(rnd=None, a=6, b=10):
 
 @dataclass
 class Vehiculo:
-    id: int
+    id: str
     tipo: str
     hora_llegada: float
     hora_inicio_espera: float = 0.0
@@ -79,7 +79,8 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     cola_autos: list[Vehiculo]    = []
     cola_camiones: list[Vehiculo] = []
 
-    vehiculo_counter     = 0
+    auto_counter     = 0
+    camion_counter   = 0
     iter_count           = 0
 
     registro_vehiculos: dict[int, Vehiculo] = {}
@@ -253,8 +254,8 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
 
         # ── Llegada Auto ──────────────────────────────────────────────────
         if evt_name == EVT_LLEGADA_AUTO and not cerrado:
-            vehiculo_counter += 1
-            v = Vehiculo(vehiculo_counter, "Auto", t)
+            auto_counter += 1
+            v = Vehiculo(f"A{auto_counter}", "Auto", t)
             registro_vehiculos[v.id] = v
             v.hora_inicio_espera = t
             rnd_la, dt = next_auto(media=media_auto)
@@ -274,8 +275,8 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
 
         # ── Llegada Camioneta ─────────────────────────────────────────────
         elif evt_name == EVT_LLEGADA_CAMION and not cerrado:
-            vehiculo_counter += 1
-            v = Vehiculo(vehiculo_counter, "Camioneta", t)
+            camion_counter += 1
+            v = Vehiculo(f"C{camion_counter}", "Camioneta", t)
             registro_vehiculos[v.id] = v
             v.hora_inicio_espera = t
             rnd_lc, dt = next_camion(media=media_camion)
