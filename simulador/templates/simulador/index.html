@@ -890,43 +890,65 @@
       let topHtml = `
   <div class="section-title">Resultados — ${stats.dias_simulados} día${stats.dias_simulados > 1 ? "s" : ""} (${stats.total_iter.toLocaleString()} iteraciones)</div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="label">Días simulados</div>
-      <div class="value">${stats.dias_simulados}</div>
+  <div style="display:grid;gap:12px;margin-bottom:1rem;">
+
+    <!-- Fila 1: días y fin jornada -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="stat-card" style="display:flex;flex-direction:column;gap:4px">
+        <div class="label">Días simulados</div>
+        <div class="value">${stats.dias_simulados}</div>
+      </div>
+      <div class="stat-card" style="display:flex;flex-direction:column;gap:4px">
+        <div class="label">Fin de jornada real</div>
+        <div class="value" style="font-size:0.95rem;">Día ${stats.dia_fin} — ${horaReal(stats.hora_fin_sim, stats.dia_fin)}</div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="label">Fin de jornada real</div>
-      <div class="value" style="font-size:0.95rem;">Día ${stats.dia_fin} — ${horaReal(stats.hora_fin_sim, stats.dia_fin)}</div>
+
+    <!-- Fila 2: autos y camionetas -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+      <!-- Bloque Autos -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="stat-card info" style="display:flex;flex-direction:column;gap:4px">
+          <div class="label">Autos atendidos</div>
+          <div class="value">${stats.total_autos}</div>
+        </div>
+        <div class="stat-card" style="display:flex;flex-direction:column;gap:4px">
+          <div class="label">Espera prom. Autos</div>
+          <div class="value">${stats.prom_esp_autos.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
+        </div>
+      </div>
+
+      <!-- Bloque Camionetas -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="stat-card info" style="display:flex;flex-direction:column;gap:4px">
+          <div class="label">Camionetas atendidas</div>
+          <div class="value">${stats.total_camiones}</div>
+        </div>
+        <div class="stat-card info" style="display:flex;flex-direction:column;gap:4px">
+          <div class="label">Espera prom. Camionetas</div>
+          <div class="value">${stats.prom_esp_camiones.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
+        </div>
+      </div>
+
     </div>
-    <div class="stat-card info">
-      <div class="label">Autos atendidos</div>
-      <div class="value">${stats.total_autos}</div>
+
+    <!-- Fila 3: bloqueos -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="stat-card warn" style="display:flex;flex-direction:column;gap:4px">
+        <div class="label">% Bloq. Frenos (promedio)</div>
+        <div class="value">${stats.pct_bloq_total.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+      </div>
+      <div class="stat-card warn" style="display:flex;flex-direction:column;gap:4px">
+        <div class="label">% Bloq. Frenos L1</div>
+        <div class="value">${stats.pct_bloq_f1.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+      </div>
+      <div class="stat-card warn" style="display:flex;flex-direction:column;gap:4px">
+        <div class="label">% Bloq. Frenos L2</div>
+        <div class="value">${stats.pct_bloq_f2.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+      </div>
     </div>
-    <div class="stat-card info">
-      <div class="label">Camionetas atendidas</div>
-      <div class="value">${stats.total_camiones}</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Espera promedio Autos</div>
-      <div class="value">${stats.prom_esp_autos.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
-    </div>
-    <div class="stat-card info">
-      <div class="label">Espera promedio Camionetas</div>
-      <div class="value">${stats.prom_esp_camiones.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
-    </div>
-    <div class="stat-card warn">
-      <div class="label">% Bloq. Frenos (promedio)</div>
-      <div class="value">${stats.pct_bloq_total.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
-    </div>
-    <div class="stat-card warn">
-      <div class="label">% Bloq. Frenos L1</div>
-      <div class="value">${stats.pct_bloq_f1.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
-    </div>
-    <div class="stat-card warn">
-      <div class="label">% Bloq. Frenos L2</div>
-      <div class="value">${stats.pct_bloq_f2.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
-    </div>
+
   </div>
   `;
 
