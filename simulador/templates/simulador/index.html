@@ -795,22 +795,17 @@
       return `<span title="${n} en cola" style="letter-spacing:1px;font-size:0.9rem">${s}</span>`;
     }
 
-    function proximosHtml(proximos, rndLA, rndLC) {
+    function proximosHtml(proximos) {
       if (!proximos || proximos === "—")
         return '<span style="color:var(--muted)">—</span>';
       return proximos
-        .split(" | ")
+        .split("<br>")
         .map((e) => {
           const at = e.lastIndexOf("@");
           if (at === -1) return `<div>${e}</div>`;
-          const name = e.slice(0, at);
-          const t = e.slice(at + 1);
-          let rndTag = "";
-          if (name.includes("Auto") && rndLA !== "—")
-            rndTag = ` ${rndLA}`;
-          else if (name.includes("Camion") && rndLC !== "—")
-            rndTag = ` ${rndLC}`;
-          return `<div><span style="color:var(--text)">${name}</span><span style="color:var(--accent)"> @${t}'</span>${rndTag}</div>`;
+          const name = e.slice(0, at).trim();
+          const t = e.slice(at + 1).trim();
+          return `<div><span style="color:var(--text)">${name}</span><span style="color:var(--accent)"> @${t}'</span></div>`;
         })
         .join("");
     }
