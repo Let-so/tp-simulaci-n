@@ -51,14 +51,14 @@ class Vehiculo:
 class EstacionFreno:
     id: int
     estado: str = ESTADO_LIBRE
-    vehiculo_id: Optional[int] = None
+    vehiculo_id: Optional[str] = None
     fin_atencion: float = INF
 
 @dataclass
 class EstacionLuces:
     id: int
     estado: str = ESTADO_LIBRE
-    vehiculo_id: Optional[int] = None
+    vehiculo_id: Optional[str] = None
     fin_atencion: float = INF
 
 # ─── Main simulation ─────────────────────────────────────────────────────────
@@ -83,7 +83,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     camion_counter   = 0
     iter_count           = 0
 
-    registro_vehiculos: dict[int, Vehiculo] = {}
+    registro_vehiculos: dict[str, Vehiculo] = {}
 
     autos_atendidos      = 0
     camiones_atendidos   = 0
