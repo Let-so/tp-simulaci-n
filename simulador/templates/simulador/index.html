@@ -795,7 +795,7 @@
       return `<span title="${n} en cola" style="letter-spacing:1px;font-size:0.9rem">${s}</span>`;
     }
 
-    function proximosHtml(proximos) {
+    function proximosHtml(proximos, rndLA, rndLC) {
       if (!proximos || proximos === "—")
         return '<span style="color:var(--muted)">—</span>';
       return proximos
@@ -805,7 +805,12 @@
           if (at === -1) return `<div>${e}</div>`;
           const name = e.slice(0, at);
           const t = e.slice(at + 1);
-          return `<div><span style="color:var(--text)">${name}</span><span style="color:var(--accent)"> @${t}'</span></div>`;
+          let rndTag = "";
+          if (name.includes("Auto") && rndLA !== "—")
+            rndTag = ` ${rndLA}`;
+          else if (name.includes("Camion") && rndLC !== "—")
+            rndTag = ` ${rndLC}`;
+          return `<div><span style="color:var(--text)">${name}</span><span style="color:var(--accent)"> @${t}'</span>${rndTag}</div>`;
         })
         .join("");
     }
@@ -1027,19 +1032,22 @@
             <th rowspan="2">Evento</th>
             <th rowspan="2" class="group-frenos">F1 Estado</th>
             <th rowspan="2" class="group-frenos">F1 Veh / Fin</th>
+            <th rowspan="2" class="group-frenos" style="color:#fbbf24;font-size:0.7rem">RND F1</th>
             <th rowspan="2" class="group-frenos">F2 Estado</th>
             <th rowspan="2" class="group-frenos">F2 Veh / Fin</th>
+            <th rowspan="2" class="group-frenos" style="color:#fbbf24;font-size:0.7rem">RND F2</th>
             <th rowspan="2" class="group-luces">L1 Estado</th>
             <th rowspan="2" class="group-luces">L1 Veh / Fin</th>
+            <th rowspan="2" class="group-luces" style="color:#a78bfa;font-size:0.7rem">RND L1</th>
             <th rowspan="2" class="group-luces">L2 Estado</th>
             <th rowspan="2" class="group-luces">L2 Veh / Fin</th>
+            <th rowspan="2" class="group-luces" style="color:#a78bfa;font-size:0.7rem">RND L2</th>
             <th rowspan="2" class="group-cola">Cola Autos</th>
             <th rowspan="2" class="group-cola">Cola Cam.</th>
             <th rowspan="2" class="group-acum">Esp. Autos</th>
             <th rowspan="2" class="group-acum">Esp. Cam.</th>
             <th rowspan="2" class="group-acum">% Bloq F1</th>
             <th rowspan="2" class="group-acum">% Bloq F2</th>
-            <th rowspan="2">Núm. Aleatorios</th>
             <th rowspan="2">Próximos eventos</th>
             ${thVehRow1}
           </tr>
@@ -1055,6 +1063,14 @@
           const f2v = r.f2_vid != null ? `#${r.f2_vid} →${r.f2_fin}'` : "—";
           const l1v = r.l1_vid != null ? `#${r.l1_vid} →${r.l1_fin}'` : "—";
           const l2v = r.l2_vid != null ? `#${r.l2_vid} →${r.l2_fin}'` : "—";
+
+          const rnd = r.rnds || {};
+          const rndF1  = rnd["rnd_freno_L1"]         != null ? `<span class="rnd-pill">${rnd["rnd_freno_L1"]}</span>`         : "—";
+          const rndF2  = rnd["rnd_freno_L2"]         != null ? `<span class="rnd-pill">${rnd["rnd_freno_L2"]}</span>`         : "—";
+          const rndL1  = rnd["rnd_luces_L1"]         != null ? `<span class="rnd-pill">${rnd["rnd_luces_L1"]}</span>`         : "—";
+          const rndL2  = rnd["rnd_luces_L2"]         != null ? `<span class="rnd-pill">${rnd["rnd_luces_L2"]}</span>`         : "—";
+          const rndLA  = rnd["rnd_llegada_auto"]     != null ? `<span class="rnd-pill">${rnd["rnd_llegada_auto"]}</span>`     : "—";
+          const rndLC  = rnd["rnd_llegada_camion"]   != null ? `<span class="rnd-pill">${rnd["rnd_llegada_camion"]}</span>`   : "—";
 
           const f1cls =
             r.f1_estado === "Libre" ? "libre" :
@@ -1093,11 +1109,15 @@
             <td class="evt-cell">${r.evento}</td>
             <td><span class="badge ${f1cls}">${r.f1_estado}</span></td>
             <td class="num-cell" style="color:var(--muted)">${f1v}</td>
+            <td class="num-cell">${rndF1}</td>
             <td><span class="badge ${f2cls}">${r.f2_estado}</span></td>
             <td class="num-cell" style="color:var(--muted)">${f2v}</td>
+            <td class="num-cell">${rndF2}</td>
             <td><span class="badge ${l1cls}">${r.l1_estado}</span></td>
             <td class="num-cell" style="color:var(--muted)">${l1v}</td>
+            <td class="num-cell">${rndL1}</td>
             <td><span class="badge ${l2cls}">${r.l2_estado}</span></td>
+            <td class="num-cell">${rndL2}</td>
             <td class="num-cell" style="color:var(--muted)">${l2v}</td>
             <td class="num-cell">${colaHtml(r.cola_autos, "🚗")}</td>
             <td class="num-cell">${colaHtml(r.cola_camiones, "🚙")}</td>
@@ -1105,8 +1125,7 @@
             <td class="num-cell">${r.prom_esp_camiones}'</td>
             <td class="num-cell">${r.pct_bloq_f1}%</td>
             <td class="num-cell">${r.pct_bloq_f2}%</td>
-            <td>${rndsHtml(r.rnds)}</td>
-            <td class="prox-cell">${proximosHtml(r.proximos)}</td>
+            <td class="prox-cell">${proximosHtml(r.proximos, rndLA, rndLC)}</td>
             ${vehCells}
           </tr>`;
         }

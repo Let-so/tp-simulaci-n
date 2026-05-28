@@ -84,6 +84,15 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     t_llegada_auto   = dt_auto
     t_llegada_camion = dt_camion
 
+    iter_count += 1
+    pending_rnds = {
+        "rnd_llegada_auto":   round(rnd_la, 6),
+        "rnd_llegada_camion": round(rnd_lc, 6),
+    }
+    rows.append(snapshot("Inicio Simulación", pending_rnds))
+    pending_rnds = {}
+
+
     vehiculo_counter     = 0
 
     registro_vehiculos: dict[int, Vehiculo] = {}
