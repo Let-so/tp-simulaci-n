@@ -104,10 +104,10 @@
 
     .param-group h3 {
       font-family: "Space Mono", monospace;
-      font-size: 0.65rem;
+      font-size: 18px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: #1bd7dd;
       border-bottom: 1px solid var(--border);
       padding-bottom: 0.5rem;
     }
@@ -119,14 +119,14 @@
     }
 
     .field label {
-      font-size: 0.8rem;
-      color: var(--muted);
+      font-size: 16px;
+      color: #f1c534;
     }
 
     .field input {
       background: var(--bg);
       border: 1px solid var(--border);
-      color: var(--text);
+      color: #f2f3f5;
       padding: 0.5rem 0.75rem;
       border-radius: 6px;
       font-family: "Space Mono", monospace;
@@ -140,7 +140,7 @@
     }
 
     .field .hint {
-      font-size: 0.7rem;
+      font-size: 14px;
       color: var(--muted);
     }
 
@@ -209,7 +209,7 @@
 
     .stat-card .value {
       font-family: "Space Mono", monospace;
-      font-size: 1.2rem;
+      font-size: 1.8rem;
       font-weight: 700;
       color: var(--accent);
     }
@@ -303,6 +303,9 @@
       max-height: 100%;
       display: block;
     }
+    .table-wrap table td, .table-wrap table th {
+        font-size: 13px !important; /* Aumentado para mejor lectura */
+    }
 
     table {
       width: 100%;
@@ -332,11 +335,11 @@
     }
 
     th.group-frenos {
-      color: var(--warn);
+      color: #00e5a0;
     }
 
     th.group-luces {
-      color: var(--accent2);
+      color: #0077ff;
     }
 
     th.group-cola {
@@ -345,6 +348,9 @@
 
     th.group-acum {
       color: var(--accent);
+    }
+    th.group-bloq {
+      color: var(--bloq);
     }
 
     td {
@@ -358,18 +364,13 @@
     }
 
     tr:hover td {
-      background: rgba(255, 255, 255, 0.025);
+      background: rgba(172, 4, 4, 0.349);
     }
 
-    /* alternating */
-    tbody tr:nth-child(even) td {
-      background: rgba(255, 255, 255, 0.012);
-    }
 
     /* event highlighting */
     tr.ev-bloq td {
       background: rgba(255, 107, 53, 0.07) !important;
-      border-bottom-color: rgba(255, 107, 53, 0.15);
     }
 
     tr.ev-bloq td:first-child {
@@ -897,9 +898,9 @@
         </div>
       </div>
 
-      <div class="param-group">
+      <div class="param-group resultados">
         <h3>Resultados a obtener</h3>
-        <div style="font-size: 0.78rem; color: var(--muted); line-height: 1.7">
+        <div style="font-size: 16px; color: var(--muted); line-height: 1.7">
           • Tiempo promedio de espera por tipo<br />
           • % tiempo estación frenos bloqueada<br />
           • Hora real de fin de jornada
@@ -1015,7 +1016,7 @@
           body: JSON.stringify(params),
         });
         const data = await res.json();
-
+        window.datosSimulacion = data.rows;
         if (data.error) {
           renderError(data.error + "\n" + (data.trace || ""));
         } else {
@@ -1048,49 +1049,49 @@
       <div class="section-title">Resultados — ${stats.dias_simulados} día${stats.dias_simulados > 1 ? "s" : ""} (${stats.total_iter.toLocaleString()} iteraciones)</div>
       <div style="display:grid;gap:12px;margin-bottom:1rem;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div class="stat-card" style="display:flex;flex-direction:column;gap:4px">
-            <div class="label">Días simulados</div>
+          <div class="stat-card" style="display:flex;flex-direction:column;gap:4px;">
+            <div class="label" style="font-size:16px;">Días simulados</div>
             <div class="value">${stats.dias_simulados}</div>
           </div>
           <div class="stat-card" style="display:flex;flex-direction:column;gap:4px">
-            <div class="label">Fin de jornada real</div>
-            <div class="value" style="font-size:0.95rem;">Día ${stats.dia_fin} — ${horaReal(stats.hora_fin_sim, stats.dia_fin)}</div>
+            <div class="label" style="font-size:16px;">Fin de jornada real</div>
+            <div class="value">Día ${stats.dia_fin} — ${horaReal(stats.hora_fin_sim, stats.dia_fin)}</div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div class="stat-card info" style="display:flex;flex-direction:column;gap:4px">
-              <div class="label">Autos atendidos</div>
+              <div class="label" style="font-size:16px;">Autos atendidos</div>
               <div class="value">${stats.total_autos}</div>
             </div>
             <div class="stat-card" style="display:flex;flex-direction:column;gap:4px">
-              <div class="label">Espera prom. Autos</div>
-              <div class="value">${stats.prom_esp_autos.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
+              <div class="label" style="font-size:16px;">Espera prom. Autos</div>
+              <div class="value">${stats.prom_esp_autos.toFixed(2)}<span style="font-size:22px;"> min</span></div>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div class="stat-card info" style="display:flex;flex-direction:column;gap:4px">
-              <div class="label">Camionetas atendidas</div>
+              <div class="label" style="font-size:16px;">Camionetas atendidas</div>
               <div class="value">${stats.total_camiones}</div>
             </div>
             <div class="stat-card info" style="display:flex;flex-direction:column;gap:4px">
-              <div class="label">Espera prom. Camionetas</div>
-              <div class="value">${stats.prom_esp_camiones.toFixed(2)}<small style="font-size:0.6em;"> min</small></div>
+              <div class="label" style="font-size:16px;">Espera prom. Camionetas</div>
+              <div class="value">${stats.prom_esp_camiones.toFixed(2)}<span style="font-size:22px;"> min</span></div>
             </div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
           <div class="stat-card warn" style="display:flex;flex-direction:column;gap:4px">
-            <div class="label">% Bloq. Frenos (promedio)</div>
-            <div class="value">${stats.pct_bloq_total.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+            <div class="label" style="font-size:16px;">% Bloq. Frenos (promedio)</div>
+            <div class="value">${stats.pct_bloq_total.toFixed(1)}<span style="font-size:22px;"> %</span></div>
           </div>
           <div class="stat-card warn" style="display:flex;flex-direction:column;gap:4px">
-            <div class="label">% Bloq. Frenos L1</div>
-            <div class="value">${stats.pct_bloq_f1.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+            <div class="label" style="font-size:16px;">% Bloq. Frenos L1</div>
+            <div class="value">${stats.pct_bloq_f1.toFixed(1)}<span style="font-size:22px;"> %</span></div>
           </div>
           <div class="stat-card warn" style="display:flex;flex-direction:column;gap:4px">
-            <div class="label">% Bloq. Frenos L2</div>
-            <div class="value">${stats.pct_bloq_f2.toFixed(1)}<small style="font-size:0.6em;">%</small></div>
+            <div class="label" style="font-size:16px;">% Bloq. Frenos L2</div>
+            <div class="value">${stats.pct_bloq_f2.toFixed(1)}<span style="font-size:22px;"> %</span></div>
           </div>
         </div>
       </div>
@@ -1160,8 +1161,8 @@
             <th rowspan="2" class="group-cola" style="position:sticky;top:0;z-index:3;height:33px">Cola Cam.</th>
             <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3;height:33px">Esp. Autos</th>
             <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3;height:33px">Esp. Cam.</th>
-            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3;height:33px">% Bloq F1</th>
-            <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3;height:33px">% Bloq F2</th>
+            <th rowspan="2" class="group-bloq" style="position:sticky;top:0;z-index:3;height:33px">% Bloq F1</th>
+            <th rowspan="2" class="group-bloq" style="position:sticky;top:0;z-index:3;height:33px">% Bloq F2</th>
             <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px;font-size:0.75rem;text-align:center;">Próximos eventos</th>
             
             <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px;font-size:0.75rem; border-left:2px solid var(--accent); color:var(--text); text-align:center; padding-left:1rem;">Vehículos Activos en Sistema</th>
@@ -1282,41 +1283,41 @@
 
           // Inyectamos la fila compacta con la nueva altura fija de 115px
           filasArray.push(`<tr class="${rowCls}" style="height:115px; cursor:pointer;" onclick="toggleRowSelect(this)">
-            <td class="iter-badge" style="height:115px; vertical-align:middle;">${r.iter}</td>
-            <td class="iter-badge" style="height:115px; vertical-align:middle;">${r.dia}</td>
-            <td class="hora-cell" style="height:115px; vertical-align:middle;">${r.hora}</td>
-            <td class="hora-cell" style="height:115px; color:var(--muted);font-size:0.7rem;vertical-align:middle;">${horaReal(r.hora, r.dia)}</td>
-            <td class="evt-cell" style="height:115px; vertical-align:middle;">${r.evento}</td>
-            <td class="num-cell" style="height:115px; border-left:2px solid var(--border);vertical-align:middle;">${rndLA}</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dt_llegada_auto"] ?? "—"}</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${r.t_llegada_auto != null ? r.t_llegada_auto : "—"}</td>
-            <td class="num-cell" style="height:115px; border-left:2px solid var(--border);vertical-align:middle;">${rndLC}</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dt_llegada_camion"] ?? "—"}</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${r.t_llegada_camion != null ? r.t_llegada_camion : "—"}</td>
-            <td style="height:115px; border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${f1cls}">${r.f1_estado}</span></td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${rndF1}</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dur_freno_L1"] ?? "—"}</td>
-            <td class="num-cell" style="height:115px; color:var(--muted);vertical-align:middle;">${r.f1_fin}</td>
-            <td style="height:115px; border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${l1cls}">${r.l1_estado}</span></td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${rndL1}</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dur_luces_L1"] ?? "—"}</td>
-            <td class="num-cell" style="height:115px; color:var(--muted);vertical-align:middle;">${r.l1_fin}</td>
+            <td class="iter-badge" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.iter}</td>
+            <td class="iter-badge" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.dia}</td>
+            <td class="hora-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.hora}</td>
+            <td class="hora-cell" style="height:115px;font-size:0.75rem; color:var(--muted);vertical-align:middle;">${horaReal(r.hora, r.dia)}</td>
+            <td class="evt-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.evento}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; border-left:2px solid var(--border);vertical-align:middle;">${rndLA}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rnd["dt_llegada_auto"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.t_llegada_auto != null ? r.t_llegada_auto : "—"}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; border-left:2px solid var(--border);vertical-align:middle;">${rndLC}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rnd["dt_llegada_camion"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.t_llegada_camion != null ? r.t_llegada_camion : "—"}</td>
+            <td style="height:115px; border-left:2px solid var(--border);font-size:0.75rem;vertical-align:middle;"><span class="badge ${f1cls}">${r.f1_estado}</span></td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rndF1}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rnd["dur_freno_L1"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; color:var(--muted);vertical-align:middle;">${r.f1_fin}</td>
+            <td style="height:115px; border-left:2px solid var(--border);font-size:0.75rem;vertical-align:middle;"><span class="badge ${l1cls}">${r.l1_estado}</span></td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rndL1}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rnd["dur_luces_L1"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; color:var(--muted);vertical-align:middle;">${r.l1_fin}</td>
             <td style="height:115px; border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${f2cls}">${r.f2_estado}</span></td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${rndF2}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rndF2}</td>
             <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dur_freno_L2"] ?? "—"}</td>
-            <td class="num-cell" style="height:115px; color:var(--muted);vertical-align:middle;">${r.f2_fin}</td>
-            <td style="height:115px; border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${l2cls}">${r.l2_estado}</span></td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${rndL2}</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dur_luces_L2"] ?? "—"}</td>
-            <td class="num-cell" style="height:115px; color:var(--muted);vertical-align:middle;">${r.l2_fin}</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${colaHtml(r.cola_autos, "🚗")}</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${colaHtml(r.cola_camiones, "🚙")}</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${r.prom_esp_autos}'</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${r.prom_esp_camiones}'</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${r.pct_bloq_f1}%</td>
-            <td class="num-cell" style="height:115px; vertical-align:middle;">${r.pct_bloq_f2}%</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; color:var(--muted);vertical-align:middle;">${r.f2_fin}</td>
+            <td style="height:115px; border-left:2px solid var(--border);font-size:0.75rem;vertical-align:middle;"><span class="badge ${l2cls}">${r.l2_estado}</span></td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rndL2}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rnd["dur_luces_L2"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; color:var(--muted);vertical-align:middle;">${r.l2_fin}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${colaHtml(r.cola_autos, "🚗")}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${colaHtml(r.cola_camiones, "🚙")}</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.prom_esp_autos}'</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.prom_esp_camiones}'</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.pct_bloq_f1}%</td>
+            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.pct_bloq_f2}%</td>
             
-            <td class="prox-cell" style="padding: 0; vertical-align:middle; height:115px; text-align:center;">
+            <td class="prox-cell" style="padding: 0; vertical-align:middle;font-size:0.75rem; height:115px; text-align:center;">
                 <div style="height: 115px; display:flex; flex-direction:column; justify-content:center; align-items:center; padding: 0.2rem; overflow:hidden;">
                     ${proximosHtml(r.proximos)}
                 </div>
@@ -1664,19 +1665,84 @@ if not cerrado:
     }
 
     function exportCSV() {
-      const table = document.querySelector(".table-wrap table");
-      if (!table) return alert("No hay tabla para exportar");
-      const rows = [];
-      rows.push(Array.from(table.querySelectorAll("thead th")).map(h=>h.innerText.trim()).join(","));
-      for (const tr of table.querySelectorAll("tbody tr")) {
-        rows.push(Array.from(tr.querySelectorAll("td")).map(td=>'"'+td.innerText.replace(/"/g,'""').trim()+'"').join(","));
+      const datos = window.datosSimulacion;
+      
+      if (!datos || !Array.isArray(datos) || datos.length === 0) {
+        return alert("ERROR: No hay filas cargadas en memoria para exportar.");
       }
-      const blob = new Blob([rows.join("\n")], {type:"text/csv;charset=utf-8;"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a"); a.href=url; a.download="simulacion_filas.csv";
-      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    }
 
+      try {
+        let csvContent = "sep=;\n";
+
+        const quitarAcentos = (str) => {
+          return str ? String(str).normalize("NFD").replace(/[\u0300-\u036f]/g, "") : "";
+        };
+        
+        const limpiarValor = (val) => {
+          // 1. GUIONES PARA VACÍOS: Atrapa nulos, undefined y strings vacíos
+          if (val === null || val === undefined || val === "") return '"-"';
+          
+          if (typeof val === 'object') val = JSON.stringify(val); 
+          let str = String(val).replace(/(\r\n|\n|\r|<br>)/gm, " | ").trim();
+          
+          // Doble chequeo: si después de limpiar quedó vacío, ponemos guion
+          if (str === "") return '"-"'; 
+          
+          return `"${quitarAcentos(str).replace(/"/g, '""')}"`;
+        };
+
+        // Obtenemos todas las columnas del JSON
+        let columnas = Object.keys(datos[0]);
+
+        // 2. ORDENAR COLUMNAS AL PRINCIPIO
+        // Pone acá los nombres EXACTOS de las claves que usás en tu Python.
+        // Lo que pongas acá va a aparecer en las primeras columnas del Excel, de izquierda a derecha.
+        const ordenDeseado = [
+          "dia", 
+          "hora", 
+          "hora_real", 
+          "evento", 
+          "rnd_llegada_auto",   // Reemplazá con tu key de Python
+          "tiempo_llegada_auto",// Reemplazá con tu key de Python
+          "proxima_llegada_auto"// Reemplazá con tu key de Python
+        ];
+
+        // Lógica para reordenar: empuja las de 'ordenDeseado' al frente
+        columnas.sort((a, b) => {
+          let indexA = ordenDeseado.indexOf(a);
+          let indexB = ordenDeseado.indexOf(b);
+          
+          if (indexA !== -1 && indexB !== -1) return indexA - indexB; // Ambas están en la lista
+          if (indexA !== -1) return -1; // Solo 'a' está en la lista (va primero)
+          if (indexB !== -1) return 1;  // Solo 'b' está en la lista (va primero)
+          return 0; // Ninguna está en la lista (mantienen su orden normal al final)
+        });
+
+        // Armamos la primera fila (Cabeceras) con el nuevo orden
+        csvContent += columnas.map(quitarAcentos).join(";") + "\n";
+
+        // Procesamos todas las filas respetando el nuevo orden de columnas
+        datos.forEach(row => {
+          const rowData = columnas.map(key => limpiarValor(row[key]));
+          csvContent += rowData.join(";") + "\n";
+        });
+
+        // Generar archivo y descargar
+        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "simulacion_ordenada.csv";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+
+      } catch (error) {
+        alert("Ocurrió un error inesperado al generar el CSV: " + error.message);
+        console.error(error);
+      }
+    }
     function toggleRowSelect(tr) { tr.classList.toggle("row-selected"); }
 
     function getCookie(name) {
