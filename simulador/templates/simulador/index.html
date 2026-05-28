@@ -968,13 +968,14 @@
 
       for (const r of rows) {
           for (const [idStr, veh] of Object.entries(r.vehiculos || {})) {
-              const id = idStr;
-              if (!idsSeen.has(id)) {
-                  idsSeen.add(id);
+              if (!idsSeen.has(idStr)) {
+                  idsSeen.add(idStr);
+                  if (veh.tipo === "Camioneta") camionetaIds.push(idStr);
+                  else autoIds.push(idStr);
               }
           }
       }
-      
+
       camionetaIds.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
       autoIds.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
