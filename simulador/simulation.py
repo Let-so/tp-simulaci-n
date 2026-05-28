@@ -109,6 +109,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
 
     # ── Inner helpers ──────────────────────────────────────────────────────
 
+
     def min_event():
         candidates = []
         if not cerrado:
