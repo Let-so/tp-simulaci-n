@@ -1432,7 +1432,7 @@
   </script>
 
   <!-- ── Sección de ayuda ──────────────────────────────────────────────────── -->
-      <div class="ayuda-wrap">
+       <div class="ayuda-wrap">
 
         <div class="ayuda-section">
           <div class="ayuda-section-label">Análisis del sistema</div>
@@ -1764,7 +1764,21 @@ if not cerrado:
     }
 
     function toggleRowSelect(tr) { tr.classList.toggle("row-selected"); }
-  </script>
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        for (const cookie of document.cookie.split(";")) {
+          const c = cookie.trim();
+          if (c.startsWith(name + "=")) {
+            cookieValue = decodeURIComponent(c.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    </script>
 </body>
 
 </html>
