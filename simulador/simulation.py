@@ -79,20 +79,6 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     cola_autos: list[Vehiculo]    = []
     cola_camiones: list[Vehiculo] = []
 
-    # rnd_la, dt_auto   = next_auto(media=media_auto)
-    # rnd_lc, dt_camion = next_camion(media=media_camion)
-    # t_llegada_auto   = dt_auto
-    # t_llegada_camion = dt_camion
-
-    # iter_count += 1
-    # pending_rnds = {
-    #     "rnd_llegada_auto":   round(rnd_la, 6),
-    #     "rnd_llegada_camion": round(rnd_lc, 6),
-    # }
-    # rows.append(snapshot("Inicio Simulación", pending_rnds))
-    # pending_rnds = {}
-
-
     vehiculo_counter     = 0
     iter_count           = 0
 
@@ -120,14 +106,6 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     t_llegada_auto   = dt_auto
     t_llegada_camion = dt_camion
 
-    # ── Fila 0: Inicio de simulación ──────────────────────────────────────
-    iter_count = 1
-    pending_rnds = {
-        "rnd_llegada_auto":   round(rnd_la, 6),
-        "rnd_llegada_camion": round(rnd_lc, 6),
-    }
-    rows.append(snapshot("Inicio Simulación", pending_rnds))
-    pending_rnds = {}
     # ── Inner helpers ──────────────────────────────────────────────────────
 
     def min_event():
@@ -136,7 +114,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
             candidates.append((t_llegada_auto,  EVT_LLEGADA_AUTO))
             candidates.append((t_llegada_camion, EVT_LLEGADA_CAMION))
         for f in frenos:
-            if f.fin_atencion < INF:   # excluye BLOQUEADA (fin_atencion == INF)
+            if f.fin_atencion < INF:
                 candidates.append((f.fin_atencion, f"Fin Frenos L{f.id}"))
         for l in luces:
             if l.fin_atencion < INF:
@@ -145,24 +123,18 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
 
     def proximos_eventos():
         evts = []
-
         if not cerrado:
             evts.append(f"{EVT_LLEGADA_AUTO}@{t_llegada_auto:.2f}")
             evts.append(f"{EVT_LLEGADA_CAMION}@{t_llegada_camion:.2f}")
-
         for f in frenos:
             if f.fin_atencion < INF:
                 evts.append(f"Fin Frenos L{f.id}@{f.fin_atencion:.2f}")
-
         for l in luces:
             if l.fin_atencion < INF:
                 evts.append(f"Fin Luces L{l.id}@{l.fin_atencion:.2f}")
-
         return "<br>".join(evts) if evts else "—"
 
     def snapshot(evento, rnds_usados):
-
-        # ── Estado por vehículo ──────────────────────────────────────────
         estados_vehiculos = {}
 
         for v in cola_autos:
@@ -188,8 +160,6 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
                     "estado": f"SA_EL({idx+1})",
                     "hora_llegada": round(veh.hora_llegada, 4) if veh else None,
                 }
-        # ────────────────────────────────────────────────────────────────
-
 
         return {
             "iter":  iter_count,
@@ -220,7 +190,6 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
             "pct_bloq_f1": round(tiempo_bloqueada_f1 / max(t, 1) * 100, 2),
             "pct_bloq_f2": round(tiempo_bloqueada_f2 / max(t, 1) * 100, 2),
             "rnds": dict(rnds_usados),
-
             "vehiculos": estados_vehiculos,
         }
 
@@ -232,7 +201,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
         frenos[idx].estado       = ESTADO_OCUPADO
         frenos[idx].vehiculo_id  = v.id
         frenos[idx].fin_atencion = t + dur
-        espera = t - v.hora_inicio_espera   # 0 si fue directo, real si esperó en cola
+        espera = t - v.hora_inicio_espera
         if v.tipo == "Auto":
             suma_espera_autos += espera
             autos_atendidos   += 1
@@ -253,13 +222,21 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
         v.hora_fin_espera = t
         asignar_a_freno(v, linea_idx)
 
+    # ── Fila 0: Inicio de simulación ──────────────────────────────────────
+    iter_count = 1
+    pending_rnds = {
+        "rnd_llegada_auto":   round(rnd_la, 6),
+        "rnd_llegada_camion": round(rnd_lc, 6),
+    }
+    rows.append(snapshot("Inicio Simulación", pending_rnds))
+    pending_rnds = {}
+
     # ─── Event loop ──────────────────────────────────────────────────────────
     while iter_count < 100000:
         t_next, evt_name = min_event()
         if t_next == INF:
             break
 
-        # Fix: marcar cerrado ANTES de avanzar t para evitar desfase de un evento
         if not cerrado and t_next >= day_close:
             cerrado = True
 
@@ -271,9 +248,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
         if evt_name == EVT_LLEGADA_AUTO and not cerrado:
             vehiculo_counter += 1
             v = Vehiculo(vehiculo_counter, "Auto", t)
-
             registro_vehiculos[v.id] = v
-
             v.hora_inicio_espera = t
             rnd_la, dt = next_auto(media=media_auto)
             pending_rnds["rnd_llegada_auto"] = round(rnd_la, 6)
@@ -282,7 +257,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
             asignado = False
             for idx in range(2):
                 if frenos[idx].estado == ESTADO_LIBRE:
-                    v.hora_fin_espera = t   # espera = 0 (va directo)
+                    v.hora_fin_espera = t
                     asignar_a_freno(v, idx)
                     asignado = True
                     break
@@ -293,9 +268,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
         elif evt_name == EVT_LLEGADA_CAMION and not cerrado:
             vehiculo_counter += 1
             v = Vehiculo(vehiculo_counter, "Camioneta", t)
-
             registro_vehiculos[v.id] = v
-
             v.hora_inicio_espera = t
             rnd_lc, dt = next_camion(media=media_camion)
             pending_rnds["rnd_llegada_camion"] = round(rnd_lc, 6)
@@ -304,7 +277,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
             asignado = False
             for idx in range(2):
                 if frenos[idx].estado == ESTADO_LIBRE:
-                    v.hora_fin_espera = t   # espera = 0 (va directo)
+                    v.hora_fin_espera = t
                     asignar_a_freno(v, idx)
                     asignado = True
                     break
@@ -377,11 +350,9 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
                 bool(cola_autos) or bool(cola_camiones)
             )
             if not any_active:
-                # Minutos de trabajo ya "consumidos" en jornadas completas anteriores
                 tiempo_restante = tiempo_max - dia_actual * OPEN_DURATION
                 if tiempo_restante <= 0:
                     break
-                # Arrancar día siguiente con los minutos que queden
                 dia_actual += 1
                 day_close   = t + min(OPEN_DURATION, tiempo_restante)
                 cerrado     = False
@@ -391,11 +362,10 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
                 t_llegada_camion  = t + dt_camion
 
     # ── Final stats ───────────────────────────────────────────────────────
-    # pct_bloq: sobre tiempo_max (minutos de operación planificados), no sobre t
     denom_bloq = max(tiempo_max, 1)
     stats = {
         "dias_simulados":    dia_actual,
-        "hora_fin_sim":      round(t, 2),   # minuto absoluto en que salió el último vehículo
+        "hora_fin_sim":      round(t, 2),
         "dia_fin":           dia_actual,
         "prom_esp_autos":    round(suma_espera_autos    / autos_atendidos,    4) if autos_atendidos    else 0,
         "prom_esp_camiones": round(suma_espera_camiones / camiones_atendidos, 4) if camiones_atendidos else 0,
