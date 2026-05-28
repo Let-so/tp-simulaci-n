@@ -1319,561 +1319,535 @@
   </script>
 
   <!-- ── Sección de ayuda ──────────────────────────────────────────────────── -->
-  <section id="ayuda">
-    <style>
-      #ayuda {
-        background: var(--surface);
-        border-top: 2px solid var(--border);
-        padding: 2rem 2.5rem;
-        color: var(--text);
-        font-family: "DM Sans", sans-serif;
-      }
+  <title>Exposición TP4 — RTV</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-      #ayuda h2 {
-        font-size: 18px;
-        font-weight: 500;
-        color: var(--text);
-        margin-bottom: 1rem;
-      }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f5f5f3;
+    color: #1a1a18;
+    line-height: 1.6;
+  }
 
-      #ayuda .ay-section {
-        margin-bottom: 2rem;
-      }
+  nav {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    border-bottom: 1px solid #e5e5e2;
+    z-index: 100;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+  }
 
-      #ayuda .ay-label {
-        font-size: 11px;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-bottom: 0.5rem;
-        font-family: "Space Mono", monospace;
-      }
+  nav a {
+    display: block;
+    padding: 1rem 1.25rem;
+    font-size: 13px;
+    color: #6b6b67;
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+  }
 
-      #ayuda .ay-badge {
-        display: inline-block;
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-      }
+  nav a:hover { color: #1a1a18; }
+  nav a.active { color: #1a1a18; border-bottom-color: #1a1a18; font-weight: 500; }
 
-      #ayuda .badge-green {
-        background: rgba(0, 229, 160, 0.15);
-        color: var(--libre);
-      }
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 2rem 6rem;
+  }
 
-      #ayuda .badge-red {
-        background: rgba(255, 107, 53, 0.15);
-        color: var(--warn);
-      }
+  section {
+    margin-bottom: 5rem;
+    scroll-margin-top: 56px;
+  }
 
-      #ayuda .badge-amber {
-        background: rgba(251, 191, 36, 0.12);
-        color: #fbbf24;
-      }
+  .sec-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #9a9a96;
+    margin-bottom: .5rem;
+  }
 
-      #ayuda .badge-blue {
-        background: rgba(0, 119, 255, 0.15);
-        color: var(--ocupado);
-      }
+  h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1a1a18;
+    margin-bottom: 2rem;
+    letter-spacing: -.01em;
+  }
 
-      #ayuda .badge-purple {
-        background: rgba(167, 139, 250, 0.12);
-        color: #a78bfa;
-      }
+  h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a18;
+    margin-bottom: .75rem;
+  }
 
-      #ayuda .ay-card {
-        background: var(--bg);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 1rem 1.25rem;
-      }
+  p {
+    font-size: 14px;
+    color: #4a4a46;
+    margin-bottom: .75rem;
+  }
 
-      #ayuda .metric-card {
-        background: var(--bg);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 1rem;
-        text-align: center;
-      }
+  p:last-child { margin-bottom: 0; }
 
-      #ayuda .metric-val {
-        font-size: 22px;
-        font-weight: 700;
-        color: var(--accent);
-        font-family: "Space Mono", monospace;
-      }
+  .block {
+    background: #fff;
+    border: 1px solid #e5e5e2;
+    border-radius: 12px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.25rem;
+  }
 
-      #ayuda .metric-lbl {
-        font-size: 12px;
-        color: var(--muted);
-        margin-top: 4px;
-      }
+  .block:last-child { margin-bottom: 0; }
 
-      #ayuda .ay-grid2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-      }
+  pre {
+    background: #f0efe9;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 1rem 0;
+    color: #2a2a26;
+  }
 
-      #ayuda .ay-grid3 {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 12px;
-      }
+  pre:last-child { margin-bottom: 0; }
 
-      #ayuda .ay-grid4 {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-      }
+  .hl-amber { background: #fef3c7; border-radius: 3px; padding: 1px 4px; color: #92400e; }
+  .hl-green  { background: #dcfce7; border-radius: 3px; padding: 1px 4px; color: #166534; }
+  .hl-red    { background: #fee2e2; border-radius: 3px; padding: 1px 4px; color: #991b1b; }
 
-      #ayuda .ay-sep {
-        border: none;
-        border-top: 1px solid var(--border);
-        margin: 1.5rem 0;
-      }
+  .dim { color: #9a9a96; }
 
-      #ayuda .ay-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 13px;
-        color: var(--muted);
-        background: var(--bg);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 4px 10px;
-        margin: 3px;
-      }
+  .flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: .75rem 0;
+  }
 
-      #ayuda .ay-arrow {
-        font-size: 18px;
-        color: var(--muted);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+  .fbox {
+    background: #f0efe9;
+    border: 1px solid #d8d8d4;
+    border-radius: 7px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1a1a18;
+    line-height: 1.4;
+    text-align: center;
+  }
 
-      #ayuda .step-box {
-        border-radius: 8px;
-        padding: 12px 14px;
-        text-align: center;
-        font-size: 13px;
-        font-weight: 600;
-      }
+  .fbox small { display: block; font-size: 11px; font-weight: 400; color: #6b6b67; margin-top: 2px; }
+  .fbox.green { background: #dcfce7; border-color: #86efac; color: #166534; }
+  .fbox.red   { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
 
-      #ayuda .step-libre {
-        background: rgba(0, 229, 160, 0.12);
-        color: var(--libre);
-        border: 1.5px solid var(--libre);
-      }
+  .arrow { color: #9a9a96; font-size: 16px; }
 
-      #ayuda .step-ocupado {
-        background: rgba(251, 191, 36, 0.12);
-        color: #fbbf24;
-        border: 1.5px solid #fbbf24;
-      }
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
 
-      #ayuda .step-bloqueada {
-        background: rgba(255, 107, 53, 0.15);
-        color: var(--warn);
-        border: 1.5px solid var(--warn);
-      }
+  .mini {
+    background: #f0efe9;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+  }
 
-      #ayuda .step-cola {
-        background: rgba(167, 139, 250, 0.12);
-        color: #a78bfa;
-        border: 1.5px solid #a78bfa;
-      }
+  .mini-label { font-size: 11px; font-weight: 600; color: #6b6b67; margin-bottom: .4rem; }
+  .mini p { font-size: 13px; margin: 0; }
 
-      #ayuda .flow-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-        font-size: 13px;
-      }
+  .note {
+    border-left: 3px solid;
+    border-radius: 0 6px 6px 0;
+    padding: .75rem 1rem;
+    font-size: 13px;
+    margin-top: 1rem;
+  }
 
-      #ayuda .dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        flex-shrink: 0;
-      }
+  .note.amber { border-color: #f59e0b; background: #fffbeb; color: #78350f; }
+  .note.green  { border-color: #22c55e; background: #f0fdf4; color: #14532d; }
+  .note.blue   { border-color: #3b82f6; background: #eff6ff; color: #1e3a8a; }
 
-      #ayuda .dot-green {
-        background: var(--libre);
-      }
+  ul { list-style: none; padding: 0; }
+  ul li {
+    font-size: 14px;
+    color: #4a4a46;
+    padding: .4rem 0 .4rem 1.25rem;
+    position: relative;
+    border-bottom: 1px solid #f0efe9;
+  }
+  ul li:last-child { border-bottom: none; }
+  ul li::before { content: "—"; position: absolute; left: 0; color: #c5c5c0; }
 
-      #ayuda .dot-amber {
-        background: #fbbf24;
-      }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: .5rem; }
+  th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #9a9a96;
+    padding: .5rem .75rem;
+    border-bottom: 1px solid #e5e5e2;
+  }
+  td {
+    padding: .6rem .75rem;
+    color: #4a4a46;
+    border-bottom: 1px solid #f0efe9;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  td code, th code { font-family: "SF Mono", "Fira Code", monospace; font-size: 12px; }
 
-      #ayuda .dot-red {
-        background: var(--warn);
-      }
+  code {
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 12.5px;
+    background: #f0efe9;
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: #2a2a26;
+  }
 
-      #ayuda .dot-blue {
-        background: var(--ocupado);
-      }
+  @media (max-width: 600px) {
+    main { padding: 2rem 1.25rem 4rem; }
+    .grid2 { grid-template-columns: 1fr; }
+    nav { padding: 0 1rem; }
+  }
+</style>
+</head>
+<body>
 
-      #ayuda .dot-purple {
-        background: #a78bfa;
-      }
+<nav id="nav">
+  <a href="#analisis">Análisis</a>
+  <a href="#consigna">Consigna</a>
+  <a href="#distribuciones">Distribuciones</a>
+  <a href="#prioridad">Prioridad</a>
+  <a href="#bloqueo">Bloqueo</a>
+  <a href="#estadisticas">Estadísticas</a>
+  <a href="#cierre">Cierre</a>
+</nav>
 
-      #ayuda .leyenda {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 1rem;
-        font-size: 12px;
-      }
+<main>
 
-      #ayuda .ej-table {
-        display: grid;
-        grid-template-columns: 60px 130px 90px 90px 90px 90px 60px 60px 100px;
-        gap: 4px;
-        align-items: center;
-        font-size: 12px;
-        padding: 6px 8px;
-        border-radius: 6px;
-        white-space: nowrap;
-      }
+  <!-- ── ANÁLISIS ── -->
+  <section id="analisis">
+    <div class="sec-label">Análisis del sistema</div>
+    <h2>Objetos, eventos y colas</h2>
 
-      #ayuda .ej-header {
-        background: var(--bg);
-        font-weight: 700;
-        font-size: 11px;
-        color: var(--muted);
-        font-family: "Space Mono", monospace;
-      }
+    <div class="block">
+      <h3>Objetos permanentes</h3>
+      <table>
+        <tr><th>Objeto</th><th>Estados posibles</th></tr>
+        <tr><td>Frenos 1 / Frenos 2</td><td>Libre — Ocupado — Bloqueada</td></tr>
+        <tr><td>Luces 1 / Luces 2</td><td>Libre — Ocupado</td></tr>
+      </table>
+    </div>
 
-      #ayuda .ej-even {
-        background: rgba(255, 255, 255, 0.02);
-      }
+    <div class="block">
+      <h3>Objetos temporales</h3>
+      <table>
+        <tr><th>Objeto</th><th>Atributos</th><th>Estados posibles</th></tr>
+        <tr><td>Auto</td><td>hora de llegada</td><td>En cola — En Frenos(i) — Bloqueado(i) — En Luces(i)</td></tr>
+        <tr><td>Camioneta</td><td>hora de llegada</td><td>En cola — En Frenos(i) — Bloqueado(i) — En Luces(i)</td></tr>
+      </table>
+    </div>
 
-      #ayuda .ej-odd {
-        background: rgba(255, 255, 255, 0.01);
-      }
+    <div class="block">
+      <h3>Eventos</h3>
+      <table>
+        <tr><th>Evento</th><th>Genera próximo evento en…</th></tr>
+        <tr><td>Llegada Auto</td><td><code>t + (−15 · ln(1 − RND))</code></td></tr>
+        <tr><td>Llegada Camioneta</td><td><code>t + (−30 · ln(1 − RND))</code></td></tr>
+        <tr><td>Fin Frenos (i)</td><td>Si Luces libre: <code>t + (4 + RND · 3)</code> para Luces</td></tr>
+        <tr><td>Fin Luces (i)</td><td>Si había bloqueado: <code>t + (6 + RND · 4)</code> para nueva Luces</td></tr>
+        <tr><td>Cierre</td><td>t = 480 min (fijo)</td></tr>
+      </table>
+    </div>
 
-      #ayuda .ej-bloq {
-        background: rgba(255, 107, 53, 0.08) !important;
-        border: 1px solid rgba(255, 107, 53, 0.3);
-      }
+    <div class="block">
+      <h3>Cola</h3>
+      <p>Una sola cola con prioridad. Las camionetas siempre se atienden antes que los autos, sin importar el orden de llegada. Dentro de cada tipo: FIFO.</p>
+    </div>
 
-      #ayuda .ej-cell {
-        padding: 2px 4px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
+    <div class="block">
+      <h3>Variables aleatorias y fórmulas</h3>
+      <table>
+        <tr><th>Variable</th><th>Distribución</th><th>Fórmula</th></tr>
+        <tr><td>Entre llegadas — autos</td><td>Exponencial negativa (μ = 15)</td><td><code>−15 · ln(1 − RND)</code></td></tr>
+        <tr><td>Entre llegadas — camionetas</td><td>Exponencial negativa (μ = 30)</td><td><code>−30 · ln(1 − RND)</code></td></tr>
+        <tr><td>Tiempo en Frenos</td><td>Uniforme U(4, 7)</td><td><code>4 + RND · (7 − 4)</code></td></tr>
+        <tr><td>Tiempo en Luces</td><td>Uniforme U(6, 10)</td><td><code>6 + RND · (10 − 6)</code></td></tr>
+      </table>
+    </div>
 
-      #ayuda .mono {
-        font-family: "Space Mono", monospace;
-        font-size: 12px;
-        background: var(--bg);
-        border-radius: 6px;
-        padding: 8px;
-        color: var(--accent);
-      }
+    <div class="block">
+      <h3>Variables auxiliares</h3>
+      <table>
+        <tr><th>Variable</th><th>Para qué se usa</th></tr>
+        <tr><td><code>suma_espera_autos</code></td><td>Calcular tiempo promedio de espera de autos</td></tr>
+        <tr><td><code>suma_espera_camiones</code></td><td>Calcular tiempo promedio de espera de camionetas</td></tr>
+        <tr><td><code>autos_atendidos</code></td><td>Divisor del promedio de espera</td></tr>
+        <tr><td><code>camiones_atendidos</code></td><td>Divisor del promedio de espera</td></tr>
+        <tr><td><code>tiempo_bloqueada_f1 / f2</code></td><td>Calcular % tiempo Frenos bloqueada</td></tr>
+        <tr><td><code>t_inicio_bloqueo_f1 / f2</code></td><td>Cronómetro de inicio del bloqueo</td></tr>
+      </table>
+    </div>
+  </section>
 
-      @media (max-width: 900px) {
+  <!-- ── CONSIGNA ── -->
+  <section id="consigna">
+    <div class="sec-label">Consigna</div>
+    <h2>Qué modela el sistema</h2>
 
-        #ayuda .ay-grid2,
-        #ayuda .ay-grid3,
-        #ayuda .ay-grid4 {
-          grid-template-columns: 1fr;
-        }
-
-        #ayuda {
-          padding: 1.5rem 1rem;
-        }
-      }
-    </style>
-
-    <div style="max-width: 1100px; margin: 0 auto">
-      <!-- Encabezado ayuda -->
-      <div style="
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
-          ">
-        <div class="ay-label">Guía del simulador</div>
-        <h2 style="font-size: 1.4rem; color: var(--accent)">
-          Planta de Revisión Técnica Vehicular
-        </h2>
+    <div class="block">
+      <h3>Flujo de un vehículo</h3>
+      <div class="flow">
+        <div class="fbox">Cola<small>camionetas primero</small></div>
+        <span class="arrow">→</span>
+        <div class="fbox">Frenos 1<small>U(4, 7) min</small></div>
+        <span class="arrow">→</span>
+        <div class="fbox">Luces 1<small>U(6, 10) min</small></div>
+        <span class="arrow">→</span>
+        <div class="fbox green">Sale</div>
       </div>
-
-      <!-- El sistema -->
-      <div class="ay-section">
-        <div class="ay-label">El sistema</div>
-        <div class="ay-card" style="margin-bottom: 1rem">
-          <div style="
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin-bottom: 1rem;
-                flex-wrap: wrap;
-              ">
-            <div class="ay-tag">🕗 Abre 08:00 — cierra 16:00</div>
-            <div class="ay-tag">
-              ⚠️ Si hay autos adentro, sigue hasta que salgan todos
-            </div>
-          </div>
-          <div class="ay-label" style="margin-bottom: 0.6rem">
-            Flujo de un vehículo
-          </div>
-          <div style="
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                flex-wrap: wrap;
-                margin-bottom: 1rem;
-              ">
-            <div class="step-box step-cola" style="min-width: 90px">
-              Cola<br /><span style="font-size: 11px; font-weight: 400">espera aquí</span>
-            </div>
-            <div class="ay-arrow">→</div>
-            <div class="step-box step-ocupado" style="min-width: 90px">
-              Frenos<br /><span style="font-size: 11px; font-weight: 400">4–7 min</span>
-            </div>
-            <div class="ay-arrow">→</div>
-            <div class="step-box step-ocupado" style="min-width: 110px">
-              Luces y emisiones<br /><span style="font-size: 11px; font-weight: 400">6–10 min</span>
-            </div>
-            <div class="ay-arrow">→</div>
-            <div class="step-box step-libre" style="min-width: 70px">
-              Sale<br /><span style="font-size: 11px; font-weight: 400">listo</span>
-            </div>
-          </div>
-          <div class="ay-label" style="margin-bottom: 0.6rem">
-            2 líneas en paralelo
-          </div>
-          <div class="ay-grid2">
-            <div style="
-                  border: 1px solid var(--border);
-                  border-radius: 8px;
-                  padding: 10px;
-                ">
-              <div style="
-                    font-size: 13px;
-                    font-weight: 500;
-                    margin-bottom: 8px;
-                    color: var(--muted);
-                  ">
-                Línea 1
-              </div>
-              <div style="display: flex; gap: 6px; align-items: center">
-                <div class="step-box step-libre" style="flex: 1; font-size: 12px">
-                  Frenos 1
-                </div>
-                <div class="ay-arrow" style="font-size: 14px">→</div>
-                <div class="step-box step-libre" style="flex: 1; font-size: 12px">
-                  Luces 1
-                </div>
-              </div>
-            </div>
-            <div style="
-                  border: 1px solid var(--border);
-                  border-radius: 8px;
-                  padding: 10px;
-                ">
-              <div style="
-                    font-size: 13px;
-                    font-weight: 500;
-                    margin-bottom: 8px;
-                    color: var(--muted);
-                  ">
-                Línea 2
-              </div>
-              <div style="display: flex; gap: 6px; align-items: center">
-                <div class="step-box step-libre" style="flex: 1; font-size: 12px">
-                  Frenos 2
-                </div>
-                <div class="ay-arrow" style="font-size: 14px">→</div>
-                <div class="step-box step-libre" style="flex: 1; font-size: 12px">
-                  Luces 2
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="ay-grid2">
-          <div class="ay-card">
-            <div class="ay-label">Llegadas</div>
-            <div class="flow-row">
-              <div class="dot dot-blue"></div>
-              <span>🚗 Auto cada ~<strong>15 min</strong> (exponencial)</span>
-            </div>
-            <div class="flow-row">
-              <div class="dot dot-purple"></div>
-              <span>🚙 Camioneta cada ~<strong>30 min</strong>
-                (exponencial)</span>
-            </div>
-            <div style="
-                  margin-top: 8px;
-                  padding: 8px;
-                  background: rgba(167, 139, 250, 0.08);
-                  border-radius: 6px;
-                  font-size: 12px;
-                  color: #a78bfa;
-                ">
-              ★ Las camionetas tienen <strong>prioridad</strong> en la cola
-            </div>
-          </div>
-          <div class="ay-card">
-            <div class="ay-label">El bloqueo 🔴</div>
-            <div style="font-size: 12px; color: var(--muted); margin-bottom: 8px">
-              Cuando Frenos termina pero Luces está ocupada:
-            </div>
-            <div style="display: flex; gap: 6px; align-items: center">
-              <div class="step-box step-bloqueada" style="flex: 1; font-size: 12px">
-                Frenos<br />bloqueada
-              </div>
-              <div class="ay-arrow" style="font-size: 14px">✗</div>
-              <div class="step-box step-ocupado" style="flex: 1; font-size: 12px">
-                Luces<br />ocupada
-              </div>
-            </div>
-            <div style="margin-top: 8px; font-size: 12px; color: var(--warn)">
-              Nadie puede entrar a esa línea hasta que Luces se libere
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <hr class="ay-sep" />
-
-      <!-- Parámetros -->
-      <div class="ay-section">
-        <div class="ay-label">Parámetros del enunciado</div>
-        <h2>Valores configurables</h2>
-        <div class="ay-card">
-          <div class="ay-grid4" style="margin-bottom: 1rem">
-            <div class="metric-card" style="border: 2px solid var(--warn)">
-              <div class="metric-val" style="color: var(--warn)">X</div>
-              <div class="metric-lbl">
-                Minutos a simular<br /><span style="font-size: 11px">(ej: 480 = 1 día)</span>
-              </div>
-            </div>
-            <div class="metric-card" style="border: 2px solid #a78bfa">
-              <div class="metric-val" style="color: #a78bfa">i</div>
-              <div class="metric-lbl">
-                Filas a mostrar<br /><span style="font-size: 11px">(máx 100.000)</span>
-              </div>
-            </div>
-            <div class="metric-card" style="border: 2px solid var(--ocupado)">
-              <div class="metric-val" style="color: var(--ocupado)">j</div>
-              <div class="metric-lbl">
-                Minuto de inicio<br /><span style="font-size: 11px">(desde qué fila mostrar)</span>
-              </div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-val" style="font-size: 15px; color: var(--muted)">
-                15/30<br />4‑7 / 6‑10
-              </div>
-              <div class="metric-lbl">
-                Tiempos medios<br /><span style="font-size: 11px">(llegadas y atención)</span>
-              </div>
-            </div>
-          </div>
-          <div style="
-                font-size: 13px;
-                color: var(--muted);
-                padding: 10px;
-                background: var(--bg);
-                border-radius: 6px;
-                border: 1px solid var(--border);
-              ">
-            ℹ️ La simulación para cuando ocurre lo primero: llega a
-            <strong style="color: var(--text)">X minutos</strong> o se generan
-            <strong style="color: var(--text)">100.000 iteraciones</strong>
-          </div>
-        </div>
-      </div>
-
-      <hr class="ay-sep" />
-
-      <!-- Las 3 respuestas -->
-      <div class="ay-section">
-        <div class="ay-label">Lo que hay que calcular</div>
-        <h2>Las 3 respuestas que pide el enunciado</h2>
-        <div class="ay-grid3">
-          <div class="ay-card" style="border-top: 3px solid #a78bfa">
-            <div style="font-size: 24px; margin-bottom: 8px">⏱️</div>
-            <div style="font-size: 14px; font-weight: 500; margin-bottom: 6px">
-              Espera promedio en cola
-            </div>
-            <div style="
-                  font-size: 12px;
-                  color: var(--muted);
-                  margin-bottom: 10px;
-                ">
-              Por tipo de vehículo (autos y camionetas por separado)
-            </div>
-            <div class="mono">suma_esperas / cant_atendidos</div>
-          </div>
-          <div class="ay-card" style="border-top: 3px solid var(--warn)">
-            <div style="font-size: 24px; margin-bottom: 8px">🔴</div>
-            <div style="font-size: 14px; font-weight: 500; margin-bottom: 6px">
-              % tiempo bloqueada
-            </div>
-            <div style="
-                  font-size: 12px;
-                  color: var(--muted);
-                  margin-bottom: 10px;
-                ">
-              Estación de Frenos (F1 y F2 por separado)
-            </div>
-            <div class="mono">t_bloqueada / X × 100</div>
-          </div>
-          <div class="ay-card" style="border-top: 3px solid var(--libre)">
-            <div style="font-size: 24px; margin-bottom: 8px">🕐</div>
-            <div style="font-size: 14px; font-weight: 500; margin-bottom: 6px">
-              Hora fin de jornada
-            </div>
-            <div style="
-                  font-size: 12px;
-                  color: var(--muted);
-                  margin-bottom: 10px;
-                ">
-              Instante en que sale el último vehículo del sistema
-            </div>
-            <div class="mono">t del último Fin Luces</div>
-          </div>
-        </div>
-      </div>
-
-      <hr class="ay-sep" />
-
-      <!-- Estados -->
-      <div class="ay-section">
-        <div class="ay-label">Referencia de estados</div>
-        <h2>Estados posibles de cada estación</h2>
-        <div class="ay-grid3">
-          <div class="step-box step-libre" style="padding: 16px">
-            <div style="font-size: 16px; margin-bottom: 4px">Libre</div>
-            <div style="font-size: 12px; font-weight: 400">
-              No hay vehículo. Puede entrar el siguiente de la cola.
-            </div>
-          </div>
-          <div class="step-box step-ocupado" style="padding: 16px">
-            <div style="font-size: 16px; margin-bottom: 4px">Ocupado</div>
-            <div style="font-size: 12px; font-weight: 400">
-              Hay un vehículo siendo revisado ahora mismo.
-            </div>
-          </div>
-          <div class="step-box step-bloqueada" style="padding: 16px">
-            <div style="font-size: 16px; margin-bottom: 4px">Bloqueada</div>
-            <div style="font-size: 12px; font-weight: 400">
-              Terminó frenos pero Luces está ocupada. Nadie más puede entrar.
-            </div>
-          </div>
-        </div>
+      <div class="flow">
+        <div style="width: 120px"></div>
+        <div class="fbox">Frenos 2<small>U(4, 7) min</small></div>
+        <span class="arrow">→</span>
+        <div class="fbox">Luces 2<small>U(6, 10) min</small></div>
+        <span class="arrow">→</span>
+        <div class="fbox green">Sale</div>
       </div>
     </div>
-    <!-- /max-width -->
+
+    <div class="block">
+      <h3>Los 3 resultados que pide el enunciado</h3>
+      <ul>
+        <li>Tiempo promedio de espera en cola — por tipo (autos vs camionetas)</li>
+        <li>Porcentaje de tiempo que Frenos estuvo bloqueada</li>
+        <li>Hora real de fin de jornada — último vehículo sale después de las 16:00</li>
+      </ul>
+    </div>
   </section>
+
+  <!-- ── DISTRIBUCIONES ── -->
+  <section id="distribuciones">
+    <div class="sec-label">Distribuciones</div>
+    <h2>De la fórmula al código</h2>
+
+    <div class="block">
+      <h3>Llegadas — Exponencial negativa</h3>
+      <p>Los tiempos entre llegadas siguen una distribución exponencial negativa. La fórmula es la transformada inversa:</p>
+      <pre>X = −media · ln(1 − RND)
+
+<span class="hl-amber">def next_auto(rnd=None, media=15):</span>
+    if rnd is None: rnd = random.random()
+    return rnd, round(<span class="hl-amber">-media * math.log(1 - rnd)</span>, 4)
+
+<span class="hl-amber">def next_camion(rnd=None, media=30):</span>
+    if rnd is None: rnd = random.random()
+    return rnd, round(<span class="hl-amber">-media * math.log(1 - rnd)</span>, 4)</pre>
+    </div>
+
+    <div class="block">
+      <h3>Tiempos de servicio — Uniforme</h3>
+      <p>Frenos y Luces usan distribución uniforme. La fórmula es:</p>
+      <pre>X = a + RND · (b − a)
+
+<span class="hl-green">def tiempo_freno(rnd=None, a=4, b=7):</span>
+    if rnd is None: rnd = random.random()
+    return rnd, round(<span class="hl-green">a + rnd * (b - a)</span>, 4)
+
+<span class="hl-green">def tiempo_luces(rnd=None, a=6, b=10):</span>
+    if rnd is None: rnd = random.random()
+    return rnd, round(<span class="hl-green">a + rnd * (b - a)</span>, 4)</pre>
+    </div>
+  </section>
+
+  <!-- ── PRIORIDAD ── -->
+  <section id="prioridad">
+    <div class="sec-label">Prioridad</div>
+    <h2>Cómo las camionetas van antes</h2>
+
+    <div class="block">
+      <h3>Dos listas separadas</h3>
+      <p>No es una sola lista ordenada. Son dos listas. La prioridad se aplica en el momento de sacar, no de encolar.</p>
+      <pre>cola_autos:    list[Vehiculo] = []
+cola_camiones: list[Vehiculo] = []</pre>
+    </div>
+
+    <div class="block">
+      <h3>Función <code>intentar_siguiente_vehiculo()</code></h3>
+      <p>Se ejecuta cada vez que una línea queda libre. Siempre mira camionetas primero.</p>
+      <pre>def intentar_siguiente_vehiculo(linea_idx):
+    f = frenos[linea_idx]
+    if f.estado != ESTADO_LIBRE:
+        return
+    <span class="hl-amber">if cola_camiones:</span>
+        v = cola_camiones.pop(0)
+    <span class="hl-amber">elif cola_autos:</span>
+        v = cola_autos.pop(0)
+    else:
+        return
+    asignar_a_freno(v, linea_idx)</pre>
+      <div class="note green">Se llama en dos momentos: al terminar Fin Frenos (si Luces estaba libre) y al terminar Fin Luces (si Frenos estaba bloqueada). En ambos casos respeta la prioridad.</div>
+    </div>
+  </section>
+
+  <!-- ── BLOQUEO ── -->
+  <section id="bloqueo">
+    <div class="sec-label">Bloqueo</div>
+    <h2>Qué pasa cuando Luces está ocupada</h2>
+
+    <div class="block">
+      <h3>Evento Fin Frenos — dos caminos</h3>
+      <div class="flow" style="margin-bottom: 1rem;">
+        <div class="fbox green">Luces libre</div>
+        <span class="arrow">→</span>
+        <p style="margin: 0; font-size: 13px;">vehículo pasa, Frenos queda Libre, entra siguiente de cola</p>
+      </div>
+      <div class="flow" style="margin-bottom: 1rem;">
+        <div class="fbox red">Luces ocupada</div>
+        <span class="arrow">→</span>
+        <p style="margin: 0; font-size: 13px;">Frenos pasa a BLOQUEADA, se guarda <code>t_inicio_bloqueo</code></p>
+      </div>
+      <pre>if l.estado == ESTADO_LIBRE:
+    r, dur = tiempo_luces(a=luces_a, b=luces_b)
+    l.estado       = ESTADO_OCUPADO
+    l.fin_atencion = t + dur
+    f.estado       = ESTADO_LIBRE
+    <span class="hl-green">intentar_siguiente_vehiculo(idx)</span>
+else:
+    <span class="hl-red">f.estado = ESTADO_BLOQUEADA</span>
+    <span class="hl-red">t_inicio_bloqueo_f1 = t</span></pre>
+    </div>
+
+    <div class="block">
+      <h3>Evento Fin Luces — desbloqueo</h3>
+      <p>El vehículo sale del sistema. Si Frenos estaba bloqueada, se acumula el tiempo y el vehículo bloqueado pasa a Luces.</p>
+      <pre>l.estado = ESTADO_LIBRE
+
+if f.estado == ESTADO_BLOQUEADA:
+    <span class="hl-amber">tiempo_bloqueada_f1 += t - t_inicio_bloqueo_f1</span>
+    t_inicio_bloqueo_f1 = None
+    l.estado       = ESTADO_OCUPADO
+    l.fin_atencion = t + dur
+    f.estado       = ESTADO_LIBRE
+    <span class="hl-green">intentar_siguiente_vehiculo(idx)</span></pre>
+      <div class="note blue">La destrucción del vehículo es implícita: <code>l.vehiculo_id = None</code>. El objeto deja de ser referenciado por cualquier estación o cola, y el snapshot ya no lo muestra.</div>
+    </div>
+  </section>
+
+  <!-- ── ESTADÍSTICAS ── -->
+  <section id="estadisticas">
+    <div class="sec-label">Estadísticas</div>
+    <h2>Dónde y cómo se calculan</h2>
+
+    <div class="block">
+      <h3>Los 6 acumuladores</h3>
+      <pre>autos_atendidos      = 0
+camiones_atendidos   = 0
+suma_espera_autos    = 0.0
+suma_espera_camiones = 0.0
+tiempo_bloqueada_f1  = 0.0
+tiempo_bloqueada_f2  = 0.0</pre>
+    </div>
+
+    <div class="block">
+      <h3>La espera se acumula en <code>asignar_a_freno()</code></h3>
+      <p>En el momento en que el vehículo empieza a ser atendido en Frenos.</p>
+      <pre><span class="hl-amber">espera = t - v.hora_inicio_espera</span>
+if v.tipo == "Auto":
+    suma_espera_autos += espera
+    autos_atendidos   += 1
+else:
+    suma_espera_camiones += espera
+    camiones_atendidos   += 1</pre>
+      <div class="note amber">Si el vehículo entra directo sin esperar, <code>t == hora_inicio_espera</code> y la espera es 0.</div>
+    </div>
+
+    <div class="block">
+      <h3>Cálculo final</h3>
+      <div class="grid2">
+        <div class="mini">
+          <div class="mini-label">Espera promedio por tipo</div>
+          <p><code>suma_espera_autos / autos_atendidos</code></p>
+        </div>
+        <div class="mini">
+          <div class="mini-label">% tiempo Frenos bloqueada</div>
+          <p><code>tiempo_bloqueada_f1 / X × 100</code></p>
+        </div>
+      </div>
+      <div class="mini" style="margin-top: 1rem;">
+        <div class="mini-label">Hora real de fin de jornada</div>
+        <p>El valor de <code>t</code> en el último evento procesado</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CIERRE ── -->
+  <section id="cierre">
+    <div class="sec-label">Cierre</div>
+    <h2>Cierre a las 16:00</h2>
+
+    <div class="block">
+      <h3>La variable <code>cerrado</code></h3>
+      <p>Antes de procesar cada evento, el sistema evalúa si ya se llegó al cierre:</p>
+      <pre>if not cerrado and t_next >= day_close:
+    <span class="hl-amber">cerrado = True</span>
+
+if not cerrado:
+    candidates.append((t_llegada_auto,  EVT_LLEGADA_AUTO))
+    candidates.append((t_llegada_camion, EVT_LLEGADA_CAMION))</pre>
+    </div>
+
+    <div class="block">
+      <h3>¿Cuándo termina la simulación?</h3>
+      <p>Cuando no queda ningún vehículo activo en el sistema.</p>
+      <pre>if cerrado:
+    any_active = (
+        any(f.estado != ESTADO_LIBRE for f in frenos) or
+        any(l.estado != ESTADO_LIBRE for l in luces) or
+        bool(cola_autos) or bool(cola_camiones)
+    )
+    if not any_active:
+        break</pre>
+      <div class="note green">El sistema no se corta a las 16:00. Se corta cuando sale el último vehículo que estaba dentro o en cola al dar las 16:00. Ese instante es la hora real de fin de jornada.</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+
 </body>
 
 </html>
