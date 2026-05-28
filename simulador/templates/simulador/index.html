@@ -1127,7 +1127,7 @@
         const bloqRows = rows.filter(r => r.f1_estado === "Bloqueada" || r.f2_estado === "Bloqueada").length;
         const colaRows = rows.filter(r => r.cola_autos > 0 || r.cola_camiones > 0).length;
 
-        // ── 2. Encabezados Fijos listos para Clusterize ──
+        // ── 2. Encabezados Fijos ──
         let tableHeaderHtml = `
       <div class="section-title">${rows.length} filas desde T=${params.inicio_mostrar}'</div>
       <div style="font-size:0.85rem;color:var(--muted);margin:0.35rem 0 0.4rem 0;">Mostrando ${rows.length} de ${totalRows} filas — Iteraciones: ${stats.total_iter.toLocaleString()}</div>
@@ -1135,7 +1135,7 @@
         <span style="color:var(--bloq)">■ Bloqueada: <strong>${bloqRows}</strong> fila${bloqRows !== 1 ? "s" : ""}</span>
         <span style="color:#a78bfa">■ Cola &gt;0: <strong>${colaRows}</strong> fila${colaRows !== 1 ? "s" : ""}</span>
       </div>
-      <div id="scrollArea" class="table-wrap clusterize-scroll" style="max-height: 500px;">
+      <div id="scrollArea" class="table-wrap clusterize-scroll" style="height: 100%; max-height: 100%;">
       <table>
         <thead>
           <tr>
@@ -1159,9 +1159,9 @@
             <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3;height:33px">Esp. Cam.</th>
             <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3;height:33px">% Bloq F1</th>
             <th rowspan="2" class="group-acum" style="position:sticky;top:0;z-index:3;height:33px">% Bloq F2</th>
-            <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px;font-size:0.75rem;">Próximos eventos</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px;font-size:0.75rem;text-align:center;">Próximos eventos</th>
             
-            <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px;font-size:0.75rem; border-left:2px solid var(--accent); color:var(--text); text-align:left; padding-left:1rem;">Vehículos Activos en Sistema</th>
+            <th rowspan="2" style="position:sticky;top:0;z-index:3;height:33px;font-size:0.75rem; border-left:2px solid var(--accent); color:var(--text); text-align:center; padding-left:1rem;">Vehículos Activos en Sistema</th>
           </tr>
           <tr>
             <th style="position:sticky;top:33px;z-index:2;height:33px;font-size:0.75rem;color:var(--muted);border-left:2px solid var(--border)">RND</th>
@@ -1205,9 +1205,9 @@
                                 veh.estado.startsWith("SA_EL") ? "color:var(--ocupado)" : 
                                 veh.estado.startsWith("EA_B")  ? "color:var(--warn)" : "color:#a78bfa";
             
-            // Shrink=0 garantiza que mantengan su tamaño original en la fila horizontal
-            return `<span style="display:inline-flex; align-items:center; border:1px solid ${border}; background:${bg}; padding:2px 6px; border-radius:6px; font-size:0.7rem; white-space:nowrap; flex-shrink:0;">
-                ${icon} #${id} <span style="margin:0 4px; ${estadoColor}; font-weight:bold;">${veh.estado}</span> <span style="color:var(--muted); font-size:0.65rem;">(@${veh.hora_llegada})</span>
+            // max-content y flex-shrink garantizan que siempre queden prolijos
+            return `<span style="display:inline-flex; justify-content:center; align-items:center; border:1px solid ${border}; background:${bg}; padding:2px 6px; border-radius:6px; font-size:0.68rem; white-space:nowrap; flex-shrink:0; width:max-content; margin: 0 auto;">
+                ${icon} #${id} <span style="margin:0 4px; ${estadoColor}; font-weight:bold;">${veh.estado}</span> <span style="color:var(--muted); font-size:0.6rem;">(@${veh.hora_llegada})</span>
             </span>`;
         };
 
@@ -1230,76 +1230,91 @@
           const hasCola = r.cola_autos > 0 || r.cola_camiones > 0;
           const rowCls = isBloq ? "ev-bloq" : hasCola ? "ev-cola" : "";
 
-          // ── LÓGICA CON ALTURA FIJA PARA CLUSTERIZE ──
-// ── LÓGICA DE VEHÍCULOS (SOLO 3 Y 3 + ESTACIONES) SIN SCROLL ──
+          // ── LÓGICA DE VEHÍCULOS (GRILLA 4x2 FIJA Y SIN SCROLL) ──
           const vehiculosArr = Object.entries(r.vehiculos || {});
           let celdaVehiculos = "";
 
           if (vehiculosArr.length === 0) {
-              celdaVehiculos = `<td style="border-left:2px solid var(--accent); color:var(--muted); text-align:center;">—</td>`;
+              celdaVehiculos = `<td style="border-left:2px solid var(--accent); color:var(--muted); text-align:center; height:115px;">—</td>`;
           } else {
-              const atendidos = vehiculosArr.filter(([_, v]) => v.estado !== "EA_EF");
-              const enCola = vehiculosArr.filter(([_, v]) => v.estado === "EA_EF");
+              // Obtenemos los atendidos y los ordenamos alfabéticamente para garantizar el orden: F1 -> L1 -> F2 -> L2
+              const atendidos = vehiculosArr.filter(([_, v]) => v.estado !== "EA_EF")
+                                            .sort((a, b) => a[1].estado.localeCompare(b[1].estado));
+              
+              const colaCamiones = vehiculosArr.filter(([_, v]) => v.tipo === "Camioneta" && v.estado === "EA_EF");
+              const colaAutos = vehiculosArr.filter(([_, v]) => v.tipo === "Auto" && v.estado === "EA_EF");
 
-              let todosHtml = [...atendidos, ...enCola].map(([id, veh]) => createBadge(id, veh)).join("");
+              // COLUMNA 1: Cola (Max 2 camiones + Max 2 autos)
+              const visiblesCamiones = colaCamiones.slice(0, 2);
+              const visiblesAutos = colaAutos.slice(0, 2);
+              let colCola = [...visiblesCamiones, ...visiblesAutos].map(([id, veh]) => createBadge(id, veh));
 
-              // Calculamos cuántos quedaron afuera matemáticamente
-              const mostradosEnCola = enCola.length;
+              // Calculamos remanente para poner la tarjetita final si sobra
+              const mostradosEnCola = visiblesCamiones.length + visiblesAutos.length;
               const totalesEnCola = r.cola_autos + r.cola_camiones;
               const ocultos = totalesEnCola - mostradosEnCola;
-
+              
               if (ocultos > 0) {
-                  todosHtml += `<span style="display:inline-flex; align-items:center; border:1px dashed var(--muted); background:rgba(255,255,255,0.05); color:var(--muted); padding:2px 6px; border-radius:6px; font-size:0.7rem; white-space:nowrap; margin:2px;">
-                      + ${ocultos} esperando
-                  </span>`;
+                  colCola.push(`<span style="display:inline-flex; justify-content:center; align-items:center; border:1px dashed var(--muted); background:rgba(255,255,255,0.05); color:var(--muted); padding:2px 6px; border-radius:6px; font-size:0.65rem; white-space:nowrap; flex-shrink:0; width:max-content; margin: 0 auto;">
+                      + ${ocultos} en cola
+                  </span>`);
               }
 
-              // Inyectamos en un DIV centrado, sin barras de scroll, cortando lo que exceda los 46px
+              // COLUMNA 2: Estaciones (F1, L1, F2, L2)
+              let colEstaciones = atendidos.map(([id, veh]) => createBadge(id, veh));
+
+              // La celda es una grilla CSS dividida en 2 mitades perfectas, con overflow hidden absoluto
               celdaVehiculos = `
-              <td style="border-left:2px solid var(--accent); max-width: 450px; padding: 0;">
-                  <div style="display:flex; flex-wrap:wrap; overflow:hidden; gap:4px; padding:0 0.5rem; height:46px; align-content:center;">
-                      ${todosHtml}
+              <td style="border-left:2px solid var(--accent); min-width: 340px; padding: 0.2rem; vertical-align:middle; height:115px;">
+                  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; height:100%; overflow:hidden; padding: 0 0.2rem;">
+                      <div style="display:flex; flex-direction:column; gap:2px; justify-content:center;">
+                          ${colCola.join("")}
+                      </div>
+                      <div style="display:flex; flex-direction:column; gap:2px; justify-content:center;">
+                          ${colEstaciones.join("")}
+                      </div>
                   </div>
               </td>`;
           }
 
-          filasArray.push(`<tr class="${rowCls}" onclick="toggleRowSelect(this)" style="cursor:pointer">
-            <td class="iter-badge" style="height:46px; vertical-align:middle;">${r.iter}</td>
-            <td class="iter-badge" style="vertical-align:middle;">${r.dia}</td>
-            <td class="hora-cell" style="vertical-align:middle;">${r.hora}</td>
-            <td class="hora-cell" style="color:var(--muted);font-size:0.7rem;vertical-align:middle;">${horaReal(r.hora, r.dia)}</td>
-            <td class="evt-cell" style="vertical-align:middle;">${r.evento}</td>
-            <td class="num-cell" style="border-left:2px solid var(--border);vertical-align:middle;">${rndLA}</td>
-            <td class="num-cell" style="vertical-align:middle;">${rnd["dt_llegada_auto"] ?? "—"}</td>
-            <td class="num-cell" style="vertical-align:middle;">${r.t_llegada_auto != null ? r.t_llegada_auto : "—"}</td>
-            <td class="num-cell" style="border-left:2px solid var(--border);vertical-align:middle;">${rndLC}</td>
-            <td class="num-cell" style="vertical-align:middle;">${rnd["dt_llegada_camion"] ?? "—"}</td>
-            <td class="num-cell" style="vertical-align:middle;">${r.t_llegada_camion != null ? r.t_llegada_camion : "—"}</td>
-            <td style="border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${f1cls}">${r.f1_estado}</span></td>
-            <td class="num-cell" style="vertical-align:middle;">${rndF1}</td>
-            <td class="num-cell" style="vertical-align:middle;">${rnd["dur_freno_L1"] ?? "—"}</td>
-            <td class="num-cell" style="color:var(--muted);vertical-align:middle;">${r.f1_fin}</td>
-            <td style="border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${l1cls}">${r.l1_estado}</span></td>
-            <td class="num-cell" style="vertical-align:middle;">${rndL1}</td>
-            <td class="num-cell" style="vertical-align:middle;">${rnd["dur_luces_L1"] ?? "—"}</td>
-            <td class="num-cell" style="color:var(--muted);vertical-align:middle;">${r.l1_fin}</td>
-            <td style="border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${f2cls}">${r.f2_estado}</span></td>
-            <td class="num-cell" style="vertical-align:middle;">${rndF2}</td>
-            <td class="num-cell" style="vertical-align:middle;">${rnd["dur_freno_L2"] ?? "—"}</td>
-            <td class="num-cell" style="color:var(--muted);vertical-align:middle;">${r.f2_fin}</td>
-            <td style="border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${l2cls}">${r.l2_estado}</span></td>
-            <td class="num-cell" style="vertical-align:middle;">${rndL2}</td>
-            <td class="num-cell" style="vertical-align:middle;">${rnd["dur_luces_L2"] ?? "—"}</td>
-            <td class="num-cell" style="color:var(--muted);vertical-align:middle;">${r.l2_fin}</td>
-            <td class="num-cell" style="vertical-align:middle;">${colaHtml(r.cola_autos, "🚗")}</td>
-            <td class="num-cell" style="vertical-align:middle;">${colaHtml(r.cola_camiones, "🚙")}</td>
-            <td class="num-cell" style="vertical-align:middle;">${r.prom_esp_autos}'</td>
-            <td class="num-cell" style="vertical-align:middle;">${r.prom_esp_camiones}'</td>
-            <td class="num-cell" style="vertical-align:middle;">${r.pct_bloq_f1}%</td>
-            <td class="num-cell" style="vertical-align:middle;">${r.pct_bloq_f2}%</td>
+          // Inyectamos la fila compacta con la nueva altura fija de 115px
+          filasArray.push(`<tr class="${rowCls}" style="height:115px; cursor:pointer;" onclick="toggleRowSelect(this)">
+            <td class="iter-badge" style="height:115px; vertical-align:middle;">${r.iter}</td>
+            <td class="iter-badge" style="height:115px; vertical-align:middle;">${r.dia}</td>
+            <td class="hora-cell" style="height:115px; vertical-align:middle;">${r.hora}</td>
+            <td class="hora-cell" style="height:115px; color:var(--muted);font-size:0.7rem;vertical-align:middle;">${horaReal(r.hora, r.dia)}</td>
+            <td class="evt-cell" style="height:115px; vertical-align:middle;">${r.evento}</td>
+            <td class="num-cell" style="height:115px; border-left:2px solid var(--border);vertical-align:middle;">${rndLA}</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dt_llegada_auto"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${r.t_llegada_auto != null ? r.t_llegada_auto : "—"}</td>
+            <td class="num-cell" style="height:115px; border-left:2px solid var(--border);vertical-align:middle;">${rndLC}</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dt_llegada_camion"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${r.t_llegada_camion != null ? r.t_llegada_camion : "—"}</td>
+            <td style="height:115px; border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${f1cls}">${r.f1_estado}</span></td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${rndF1}</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dur_freno_L1"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px; color:var(--muted);vertical-align:middle;">${r.f1_fin}</td>
+            <td style="height:115px; border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${l1cls}">${r.l1_estado}</span></td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${rndL1}</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dur_luces_L1"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px; color:var(--muted);vertical-align:middle;">${r.l1_fin}</td>
+            <td style="height:115px; border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${f2cls}">${r.f2_estado}</span></td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${rndF2}</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dur_freno_L2"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px; color:var(--muted);vertical-align:middle;">${r.f2_fin}</td>
+            <td style="height:115px; border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${l2cls}">${r.l2_estado}</span></td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${rndL2}</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dur_luces_L2"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px; color:var(--muted);vertical-align:middle;">${r.l2_fin}</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${colaHtml(r.cola_autos, "🚗")}</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${colaHtml(r.cola_camiones, "🚙")}</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${r.prom_esp_autos}'</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${r.prom_esp_camiones}'</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${r.pct_bloq_f1}%</td>
+            <td class="num-cell" style="height:115px; vertical-align:middle;">${r.pct_bloq_f2}%</td>
             
-            <td class="prox-cell" style="padding: 0;">
-                <div style="height: 46px; overflow-y: auto; display:flex; flex-direction:column; justify-content:center; padding: 0 0.5rem; scrollbar-width: none;">
+            <td class="prox-cell" style="padding: 0; vertical-align:middle; height:115px; text-align:center;">
+                <div style="height: 115px; display:flex; flex-direction:column; justify-content:center; align-items:center; padding: 0.2rem; overflow:hidden;">
                     ${proximosHtml(r.proximos)}
                 </div>
             </td>
@@ -1311,24 +1326,15 @@
       }
 
       // ── 4. Inyectamos la estructura base en el DOM ──
-          panel.innerHTML = `
-      <div class="results-top">${topHtml}</div>
-      <div class="dock-controls">
-        <label>Altura: <input id="dock-height" type="range" min="20" max="90" value="75" oninput="applyDockHeight(this.value)"></label>
-        <button id="toggle-edit" data-enabled="0" onclick="toggleEditable()">Editable: NO</button>
-        <button onclick="exportCSV()">Exportar CSV</button>
-      </div>
-      <div class="help-panel">
-        <ul style="margin-top:0.25rem;line-height:1.5;margin-bottom:0;list-style:disc;padding-left:1rem;">
-          <li><strong>Hora (min)</strong>: instante desde la apertura (8:00 = 0).</li>
-          <li><strong>Evento</strong>: acción que ocurrió en ese instante.</li>
-          <li><strong>F1 / F2 / L1 / L2</strong>: estado y vehículo atendido (si aplica).</li>
-          <li><strong>Cola Autos / Cam.</strong>: cantidad de vehículos esperando.</li>
-          <li><strong>Esp. Autos / Esp. Cam.</strong>: espera promedio acumulada.</li>
-        </ul>
-      </div>
-      <div class="table-dock" style="flex:0 0 45vh">${tableHtml}</div>
-
+      panel.innerHTML = `
+        <div class="results-top">${topHtml}</div>
+        <div class="dock-controls">
+          <label>Altura: <input id="dock-height" type="range" min="20" max="95" value="85" oninput="applyDockHeight(this.value)"></label>
+          <button id="toggle-edit" data-enabled="0" onclick="toggleEditable()">Editable: NO</button>
+          <button onclick="exportCSV()">Exportar CSV</button>
+        </div>
+        <div class="table-dock" style="flex:0 0 85vh; height:85vh;">${tableHtml}</div>
+        
       <div class="ayuda-wrap">
 
         <div class="ayuda-section">
@@ -1624,7 +1630,6 @@ if not cerrado:
 
       </div>
     `;
-    
 
       // ── 5. Activamos el motor de Clusterize ──
       if (filasArray.length > 0) {
@@ -1636,13 +1641,13 @@ if not cerrado:
       }
 
       const dockHeightInput = document.getElementById("dock-height");
-      if(dockHeightInput) dockHeightInput.value = 90;
-      applyDockHeight(90);
+      if(dockHeightInput) dockHeightInput.value = 110;
+      applyDockHeight(110);
     }
     function applyDockHeight(v) {
       const dock = document.querySelector(".table-dock");
       if (!dock) return;
-      dock.style.flex = `0 0 ${parseInt(v,10)||45}vh`;
+      dock.style.flex = `0 0 ${parseInt(v,10)||85}vh`;
     }
 
     function toggleEditable() {
