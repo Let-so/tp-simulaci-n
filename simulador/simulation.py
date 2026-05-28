@@ -191,13 +191,18 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
             "pct_bloq_f2": round(tiempo_bloqueada_f2 / max(t, 1) * 100, 2),
             "rnds": dict(rnds_usados),
             "vehiculos": estados_vehiculos,
+            "t_llegada_auto":  round(t_llegada_auto, 4) if not cerrado else "—",
+            "t_llegada_camion": round(t_llegada_camion, 4) if not cerrado else "—",
         }
 
     def asignar_a_freno(v, idx):
         """Asigna v al freno[idx] y acumula espera + conteo. Único lugar donde se cuenta."""
         nonlocal suma_espera_autos, autos_atendidos, suma_espera_camiones, camiones_atendidos
+
         r, dur = tiempo_freno(a=freno_a, b=freno_b)
         pending_rnds[f"rnd_freno_L{idx+1}"] = round(r, 6)
+        pending_rnds[f"dur_freno_L{idx+1}"] = round(dur, 4)
+
         frenos[idx].estado       = ESTADO_OCUPADO
         frenos[idx].vehiculo_id  = v.id
         frenos[idx].fin_atencion = t + dur
@@ -226,7 +231,9 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     iter_count = 1
     pending_rnds = {
         "rnd_llegada_auto":   round(rnd_la, 6),
+        "dt_llegada_auto":    round(dt_auto, 4),
         "rnd_llegada_camion": round(rnd_lc, 6),
+        "dt_llegada_camion":  round(dt_camion, 4),
     }
     rows.append(snapshot("Inicio Simulación", pending_rnds))
     pending_rnds = {}
@@ -252,6 +259,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
             v.hora_inicio_espera = t
             rnd_la, dt = next_auto(media=media_auto)
             pending_rnds["rnd_llegada_auto"] = round(rnd_la, 6)
+            pending_rnds["dt_llegada_auto"]  = round(dt, 4)
             t_llegada_auto = t + dt
 
             asignado = False
@@ -272,6 +280,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
             v.hora_inicio_espera = t
             rnd_lc, dt = next_camion(media=media_camion)
             pending_rnds["rnd_llegada_camion"] = round(rnd_lc, 6)
+            pending_rnds["dt_llegada_camion"]  = round(dt, 4)
             t_llegada_camion = t + dt
 
             asignado = False
@@ -294,6 +303,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
             if l.estado == ESTADO_LIBRE:
                 r, dur = tiempo_luces(a=luces_a, b=luces_b)
                 pending_rnds[f"rnd_luces_L{idx+1}"] = round(r, 6)
+                pending_rnds[f"dur_luces_L{idx+1}"] = round(dur, 4)
                 l.estado       = ESTADO_OCUPADO
                 l.vehiculo_id  = vid
                 l.fin_atencion = t + dur
@@ -330,6 +340,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
                 vid_bloq = f.vehiculo_id
                 r, dur = tiempo_luces(a=luces_a, b=luces_b)
                 pending_rnds[f"rnd_luces_L{idx+1}"] = round(r, 6)
+                pending_rnds[f"dur_luces_L{idx+1}"] = round(dur, 4)
                 l.estado       = ESTADO_OCUPADO
                 l.vehiculo_id  = vid_bloq
                 l.fin_atencion = t + dur
