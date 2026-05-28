@@ -94,6 +94,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
 
 
     vehiculo_counter     = 0
+    iter_count       = 0
 
     registro_vehiculos: dict[int, Vehiculo] = {}
 
