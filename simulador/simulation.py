@@ -79,18 +79,18 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     cola_autos: list[Vehiculo]    = []
     cola_camiones: list[Vehiculo] = []
 
-    rnd_la, dt_auto   = next_auto(media=media_auto)
-    rnd_lc, dt_camion = next_camion(media=media_camion)
-    t_llegada_auto   = dt_auto
-    t_llegada_camion = dt_camion
+    # rnd_la, dt_auto   = next_auto(media=media_auto)
+    # rnd_lc, dt_camion = next_camion(media=media_camion)
+    # t_llegada_auto   = dt_auto
+    # t_llegada_camion = dt_camion
 
-    iter_count += 1
-    pending_rnds = {
-        "rnd_llegada_auto":   round(rnd_la, 6),
-        "rnd_llegada_camion": round(rnd_lc, 6),
-    }
-    rows.append(snapshot("Inicio Simulación", pending_rnds))
-    pending_rnds = {}
+    # iter_count += 1
+    # pending_rnds = {
+    #     "rnd_llegada_auto":   round(rnd_la, 6),
+    #     "rnd_llegada_camion": round(rnd_lc, 6),
+    # }
+    # rows.append(snapshot("Inicio Simulación", pending_rnds))
+    # pending_rnds = {}
 
 
     vehiculo_counter     = 0
