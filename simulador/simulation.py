@@ -255,13 +255,14 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
         t_next, evt_name = min_event()
         if t_next == INF:
             break
-        if t_next >= tiempo_max:
-            break
         # 1. FORZAR EL EVENTO DE CIERRE A LA HORA EXACTA (ej: 480, 960, etc.)
         if not cerrado and t_next >= day_close:
             cerrado = True
             t_next = day_close
             evt_name = "Cierre"
+        if t_next >= INF:
+            break
+        
 
         if cerrado:
             any_active = (any(f.estado != ESTADO_LIBRE for f in frenos) or 
