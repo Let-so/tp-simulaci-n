@@ -1339,41 +1339,6 @@
         <div class="table-dock" style="flex:0 0 85vh; height:85vh;">${tableHtml}</div>
         
       <div class="ayuda-wrap">
-        
-        <div class="ayuda-section">
-          <div class="ayuda-section-label">Consigna</div>
-          <h2>Qué modela el sistema</h2>
-
-          <div class="ayuda-block">
-            <h3>Flujo de un vehículo</h3>
-            <div class="ayuda-flow">
-              <div class="ayuda-fbox">Cola<small>camionetas primero</small></div>
-              <span class="ayuda-arrow">→</span>
-              <div class="ayuda-fbox">Frenos 1<small>U(4, 7) min</small></div>
-              <span class="ayuda-arrow">→</span>
-              <div class="ayuda-fbox">Luces 1<small>U(6, 10) min</small></div>
-              <span class="ayuda-arrow">→</span>
-              <div class="ayuda-fbox g">Sale</div>
-            </div>
-            <div class="ayuda-flow">
-              <div style="width:120px"></div>
-              <div class="ayuda-fbox">Frenos 2<small>U(4, 7) min</small></div>
-              <span class="ayuda-arrow">→</span>
-              <div class="ayuda-fbox">Luces 2<small>U(6, 10) min</small></div>
-              <span class="ayuda-arrow">→</span>
-              <div class="ayuda-fbox g">Sale</div>
-            </div>
-          </div>
-
-          <div class="ayuda-block">
-            <h3>Los 3 resultados que pide el enunciado</h3>
-            <ul class="ayuda-ul">
-              <li>Tiempo promedio de espera en cola — por tipo (autos vs camionetas)</li>
-              <li>Porcentaje de tiempo que Frenos estuvo bloqueada</li>
-              <li>Hora real de fin de jornada — último vehículo sale después de las 16:00</li>
-            </ul>
-          </div>
-        </div>
 
         <div class="ayuda-section">
           <div class="ayuda-section-label">Análisis del sistema</div>
@@ -1436,6 +1401,41 @@
               <tr><td><code>tiempo_bloqueada_f1 / f2</code></td><td>Calcular % tiempo Frenos bloqueada</td></tr>
               <tr><td><code>t_inicio_bloqueo_f1 / f2</code></td><td>Cronómetro de inicio del bloqueo</td></tr>
             </table>
+          </div>
+        </div>
+
+        <div class="ayuda-section">
+          <div class="ayuda-section-label">Consigna</div>
+          <h2>Qué modela el sistema</h2>
+
+          <div class="ayuda-block">
+            <h3>Flujo de un vehículo</h3>
+            <div class="ayuda-flow">
+              <div class="ayuda-fbox">Cola<small>camionetas primero</small></div>
+              <span class="ayuda-arrow">→</span>
+              <div class="ayuda-fbox">Frenos 1<small>U(4, 7) min</small></div>
+              <span class="ayuda-arrow">→</span>
+              <div class="ayuda-fbox">Luces 1<small>U(6, 10) min</small></div>
+              <span class="ayuda-arrow">→</span>
+              <div class="ayuda-fbox g">Sale</div>
+            </div>
+            <div class="ayuda-flow">
+              <div style="width:120px"></div>
+              <div class="ayuda-fbox">Frenos 2<small>U(4, 7) min</small></div>
+              <span class="ayuda-arrow">→</span>
+              <div class="ayuda-fbox">Luces 2<small>U(6, 10) min</small></div>
+              <span class="ayuda-arrow">→</span>
+              <div class="ayuda-fbox g">Sale</div>
+            </div>
+          </div>
+
+          <div class="ayuda-block">
+            <h3>Los 3 resultados que pide el enunciado</h3>
+            <ul class="ayuda-ul">
+              <li>Tiempo promedio de espera en cola — por tipo (autos vs camionetas)</li>
+              <li>Porcentaje de tiempo que Frenos estuvo bloqueada</li>
+              <li>Hora real de fin de jornada — último vehículo sale después de las 16:00</li>
+            </ul>
           </div>
         </div>
 
@@ -1600,6 +1600,9 @@ else:
             </div>
           </div>
         </div>
+
+
+      </div>
     `;
 
       // ── 5. Activamos el motor de Clusterize ──
