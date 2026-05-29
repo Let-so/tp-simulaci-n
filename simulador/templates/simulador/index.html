@@ -1334,7 +1334,6 @@
         <div class="dock-controls">
           <label>Altura: <input id="dock-height" type="range" min="20" max="95" value="85" oninput="applyDockHeight(this.value)"></label>
           <button id="toggle-edit" data-enabled="0" onclick="toggleEditable()">Editable: NO</button>
-          <button onclick="exportCSV()">Exportar CSV</button>
         </div>
         <div class="table-dock" style="flex:0 0 85vh; height:85vh;">${tableHtml}</div>
         
@@ -1646,85 +1645,7 @@ else:
       });
     }
 
-    function exportCSV() {
-      const datos = window.datosSimulacion;
-      
-      if (!datos || !Array.isArray(datos) || datos.length === 0) {
-        return alert("ERROR: No hay filas cargadas en memoria para exportar.");
-      }
-
-      try {
-        let csvContent = "sep=;\n";
-
-        const quitarAcentos = (str) => {
-          return str ? String(str).normalize("NFD").replace(/[\u0300-\u036f]/g, "") : "";
-        };
-        
-        const limpiarValor = (val) => {
-          // 1. GUIONES PARA VACÍOS: Atrapa nulos, undefined y strings vacíos
-          if (val === null || val === undefined || val === "") return '"-"';
-          
-          if (typeof val === 'object') val = JSON.stringify(val); 
-          let str = String(val).replace(/(\r\n|\n|\r|<br>)/gm, " | ").trim();
-          
-          // Doble chequeo: si después de limpiar quedó vacío, ponemos guion
-          if (str === "") return '"-"'; 
-          
-          return `"${quitarAcentos(str).replace(/"/g, '""')}"`;
-        };
-
-        // Obtenemos todas las columnas del JSON
-        let columnas = Object.keys(datos[0]);
-
-        // 2. ORDENAR COLUMNAS AL PRINCIPIO
-        // Pone acá los nombres EXACTOS de las claves que usás en tu Python.
-        // Lo que pongas acá va a aparecer en las primeras columnas del Excel, de izquierda a derecha.
-        const ordenDeseado = [
-          "dia", 
-          "hora", 
-          "hora_real", 
-          "evento", 
-          "rnd_llegada_auto",   // Reemplazá con tu key de Python
-          "tiempo_llegada_auto",// Reemplazá con tu key de Python
-          "proxima_llegada_auto"// Reemplazá con tu key de Python
-        ];
-
-        // Lógica para reordenar: empuja las de 'ordenDeseado' al frente
-        columnas.sort((a, b) => {
-          let indexA = ordenDeseado.indexOf(a);
-          let indexB = ordenDeseado.indexOf(b);
-          
-          if (indexA !== -1 && indexB !== -1) return indexA - indexB; // Ambas están en la lista
-          if (indexA !== -1) return -1; // Solo 'a' está en la lista (va primero)
-          if (indexB !== -1) return 1;  // Solo 'b' está en la lista (va primero)
-          return 0; // Ninguna está en la lista (mantienen su orden normal al final)
-        });
-
-        // Armamos la primera fila (Cabeceras) con el nuevo orden
-        csvContent += columnas.map(quitarAcentos).join(";") + "\n";
-
-        // Procesamos todas las filas respetando el nuevo orden de columnas
-        datos.forEach(row => {
-          const rowData = columnas.map(key => limpiarValor(row[key]));
-          csvContent += rowData.join(";") + "\n";
-        });
-
-        // Generar archivo y descargar
-        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "simulacion_ordenada.csv";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-
-      } catch (error) {
-        alert("Ocurrió un error inesperado al generar el CSV: " + error.message);
-        console.error(error);
-      }
-    }
+    
     function toggleRowSelect(tr) { tr.classList.toggle("row-selected"); }
 
     function getCookie(name) {
