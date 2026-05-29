@@ -19,7 +19,7 @@ EVT_FIN_LUCES_1    = "Fin Luces L1"
 EVT_FIN_LUCES_2    = "Fin Luces L2"
 EVT_FIN_SIM        = "Fin Simulación"
 EVT_INICIO_DIA     = "Inicio Día"
-# ─── Random generators ───────────────────────────────────────────────────────
+# ─── Generadore ───────────────────────────────────────────────────────
 
 def next_auto(rnd=None, media=15):
     if rnd is None: rnd = random.random()
