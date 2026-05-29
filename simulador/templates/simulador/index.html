@@ -1545,11 +1545,23 @@ else:
             <pre>l.estado = ESTADO_LIBRE
 
 if f.estado == ESTADO_BLOQUEADA:
-    <span class="hl-a">tiempo_bloqueada_f1 += t - t_inicio_bloqueo_f1</span>
-    t_inicio_bloqueo_f1 = None
-    l.estado       = ESTADO_OCUPADO
-    l.fin_atencion = t + dur
-    f.estado       = ESTADO_LIBRE
+                if idx == 0 and t_inicio_bloqueo_f1 is not None:
+                    tiempo_bloqueada_f1 += t - t_inicio_bloqueo_f1
+                    t_inicio_bloqueo_f1 = None
+                elif idx == 1 and t_inicio_bloqueo_f2 is not None:
+                    tiempo_bloqueada_f2 += t - t_inicio_bloqueo_f2
+                    t_inicio_bloqueo_f2 = None
+
+                vid_bloq = f.vehiculo_id
+                r, dur = tiempo_luces(a=luces_a, b=luces_b)
+                pending_rnds[f"rnd_luces_L{idx+1}"] = round(r, 6)
+                pending_rnds[f"dur_luces_L{idx+1}"] = round(dur, 4)
+                l.estado       = ESTADO_OCUPADO
+                l.vehiculo_id  = vid_bloq
+                l.fin_atencion = t + dur
+                f.estado       = ESTADO_LIBRE
+                f.vehiculo_id  = None
+                f.fin_atencion = INF
     <span class="hl-g">intentar_siguiente_vehiculo(idx)</span></pre>
             <div class="ayuda-note blue">La destrucción del vehículo es implícita: <code>l.vehiculo_id = None</code>. El objeto deja de ser referenciado y el snapshot ya no lo muestra.</div>
           </div>
