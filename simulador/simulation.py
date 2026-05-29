@@ -260,11 +260,10 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
             cerrado = True
             t_next = day_close
             evt_name = "Cierre"
-        if t_next >= INF:
-            break
         if t_next >= tiempo_max:
             break
-        
+        if t_next >= INF:
+            break
 
         if cerrado:
             any_active = (any(f.estado != ESTADO_LIBRE for f in frenos) or 
