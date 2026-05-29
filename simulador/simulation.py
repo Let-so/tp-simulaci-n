@@ -3,7 +3,8 @@ import random
 from dataclasses import dataclass
 from typing import Optional
 
-# ─── Constants ───────────────────────────────────────────────────────────────
+# ─── Constantes ───────────────────────────────────────────────────────────────
+
 OPEN_DURATION = 480   # minutos por jornada (08:00–16:00)
 INF = float('inf')
 
@@ -19,7 +20,8 @@ EVT_FIN_LUCES_1    = "Fin Luces L1"
 EVT_FIN_LUCES_2    = "Fin Luces L2"
 EVT_FIN_SIM        = "Fin Simulación"
 EVT_INICIO_DIA     = "Inicio Día"
-# ─── Generadore ───────────────────────────────────────────────────────
+
+# ─── Generadores de RND ───────────────────────────────────────────────────────
 
 def next_auto(rnd=None, media=15):
     if rnd is None: rnd = random.random()
@@ -37,7 +39,7 @@ def tiempo_luces(rnd=None, a=6, b=10):
     if rnd is None: rnd = random.random()
     return rnd, round(a + rnd * (b - a), 4)
 
-# ─── Data structures ─────────────────────────────────────────────────────────
+# ─── Estructura ─────────────────────────────────────────────────────────
 
 @dataclass
 class Vehiculo:
@@ -61,7 +63,7 @@ class EstacionLuces:
     vehiculo_id: Optional[str] = None
     fin_atencion: float = INF
 
-# ─── Main simulation ─────────────────────────────────────────────────────────
+# ─── SIMULACIÓN ─────────────────────────────────────────────────────────
 
 def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
                    media_auto=15, media_camion=30,
@@ -107,8 +109,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     t_llegada_auto   = dt_auto
     t_llegada_camion = dt_camion
 
-    # ── Inner helpers ──────────────────────────────────────────────────────
-
+    # ── Funciones auxiliares ──────────────────────────────────────────────────────
 
     def min_event():
         candidates = []
@@ -237,6 +238,7 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
         asignar_a_freno(v, linea_idx)
 
     # ── Fila 0: Inicio de simulación ──────────────────────────────────────
+    
     iter_count = 1
     pending_rnds = {
         "rnd_llegada_auto":   round(rnd_la, 6),
@@ -248,18 +250,27 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     pending_rnds = {}
 
     # ─── Event loop ──────────────────────────────────────────────────────────
-    # ─── Event loop ──────────────────────────────────────────────────────────
+
     while iter_count < 100000:
         t_next, evt_name = min_event()
         if t_next == INF:
-            break
-        if t_next >= tiempo_max:
             break
         # 1. FORZAR EL EVENTO DE CIERRE A LA HORA EXACTA (ej: 480, 960, etc.)
         if not cerrado and t_next >= day_close:
             cerrado = True
             t_next = day_close
             evt_name = "Cierre"
+            t = day_close
+            rows.append(snapshot(evt_name, {}))
+            continue
+            
+        
+        if t_next >= tiempo_max:
+            en_estacion = (any(f.estado != ESTADO_LIBRE for f in frenos) or 
+                           any(l.estado != ESTADO_LIBRE for l in luces) or
+                           bool(cola_autos) or bool(cola_camiones))
+            if not en_estacion:
+                break
 
         if cerrado:
             any_active = (any(f.estado != ESTADO_LIBRE for f in frenos) or 
@@ -369,10 +380,12 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
                 f.vehiculo_id  = None
                 f.fin_atencion = INF
                 intentar_siguiente_vehiculo(idx)# ── Inicio Día ────────────────────────────────────────────────────
+
         elif evt_name == EVT_INICIO_DIA:
             if cola_autos or cola_camiones:
                 # Si hay gente, no iniciamos el día, simplemente seguimos procesando atenciones
                 continue
+
             cerrado = False
             dia_actual += 1
             day_close = dia_actual * OPEN_DURATION
@@ -388,16 +401,18 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
                 "rnd_llegada_camion": round(rnd_lc, 6),
                 "dt_llegada_camion": round(dt_camion, 4),
             }
-            rows.append(snapshot("Inicio Día", pending_rnds))
-            continue
-        # ── Build row ─────────────────────────────────────────────────────
-        if evt_name != EVT_INICIO_DIA:
-            rows.append(snapshot(evt_name, pending_rnds))
+
+        rows.append(snapshot(evt_name, pending_rnds))
+        continue
         # ── Fin de jornada / simulación ───────────────────────────────────
         
-    # ── Final stats ───────────────────────────────────────────────────────
+    # ── Estadisticas finales ───────────────────────────────────────────────────────
     denom_bloq = max(t, 1)
-    dia_target = dia_actual - 1 if dia_actual > 1 else 1
+    dias_cerrados = [r["dia"] for r in rows if r["evento"] == "Cierre"]
+    if dias_cerrados:
+        dia_target = max(dias_cerrados)
+    else:
+        dia_target = dia_actual
     filas_dia = [r for r in rows if r["dia"] == dia_target]
     fila_fin = filas_dia[-1] if filas_dia else rows[-1]
     stats = {

@@ -303,7 +303,7 @@
       max-height: 100%;
       display: block;
     }
-    .table-wrap table td, .table-wrap table th {
+    .table-wrap table th {
         font-size: 13px !important; /* Aumentado para mejor lectura */
     }
 
@@ -389,7 +389,6 @@
     .iter-badge {
       font-family: "Space Mono", monospace;
       color: var(--muted);
-      font-size: 0.7rem;
     }
 
     .hora-cell {
@@ -446,7 +445,7 @@
 
     .rnd-pill {
       font-family: "Space Mono", monospace;
-      font-size: 0.62rem;
+      font-size: 14px;
       color: #a78bfa;
       background: rgba(167, 139, 250, 0.1);
       padding: 0.1rem 0.35rem;
@@ -457,7 +456,6 @@
 
     .num-cell {
       font-family: "Space Mono", monospace;
-      font-size: 0.72rem;
       text-align: right;
     }
 
@@ -676,7 +674,6 @@
     /* ── Sección de ayuda ── */
   
     .ayuda-wrap {
-      max-width: 760px;
       margin: 0 auto;
       padding: 2rem 0 4rem;
     }
@@ -972,7 +969,7 @@
           if (at === -1) return `<div>${e}</div>`;
           const name = e.slice(0, at).trim();
           const t = e.slice(at + 1).trim();
-          return `<div><span style="color:var(--text)">${name}</span><span style="color:var(--accent)"> @${t}'</span></div>`;
+          return `<div><span style="color:var(--text)">${name}</span><span style="color:var(--accent)"> ${t}'</span></div>`;
         })
         .join("");
     }
@@ -1210,8 +1207,8 @@
                                 veh.estado.startsWith("EA_B")  ? "color:var(--warn)" : "color:#a78bfa";
             
             // max-content y flex-shrink garantizan que siempre queden prolijos
-            return `<span style="display:inline-flex; justify-content:center; align-items:center; border:1px solid ${border}; background:${bg}; padding:2px 6px; border-radius:6px; font-size:0.68rem; white-space:nowrap; flex-shrink:0; width:max-content; margin: 0 auto;">
-                ${icon} #${id} <span style="margin:0 4px; ${estadoColor}; font-weight:bold;">${veh.estado}</span> <span style="color:var(--muted); font-size:0.6rem;">(@${veh.hora_llegada})</span>
+            return `<span style="display:inline-flex; justify-content:center; align-items:center; border:1px solid ${border}; background:${bg}; padding:2px 6px; border-radius:6px; font-size:14px; white-space:nowrap; flex-shrink:0; width:max-content; margin: 0 auto;">
+                ${icon} #${id} <span style="margin:0 4px; ${estadoColor}; font-weight:bold;font-size:14px;">${veh.estado}</span> <span style="color:var(--muted); font-size:14px;">Hr. Llegada: ${veh.hora_llegada}</span>
             </span>`;
         };
 
@@ -1283,41 +1280,41 @@
 
           // Inyectamos la fila compacta con la nueva altura fija de 115px
           filasArray.push(`<tr class="${rowCls}" style="height:115px; cursor:pointer;" onclick="toggleRowSelect(this)">
-            <td class="iter-badge" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.iter}</td>
-            <td class="iter-badge" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.dia}</td>
-            <td class="hora-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.hora}</td>
-            <td class="hora-cell" style="height:115px;font-size:0.75rem; color:var(--muted);vertical-align:middle;">${horaReal(r.hora, r.dia)}</td>
-            <td class="evt-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.evento}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; border-left:2px solid var(--border);vertical-align:middle;">${rndLA}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rnd["dt_llegada_auto"] ?? "—"}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.t_llegada_auto != null ? r.t_llegada_auto : "—"}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; border-left:2px solid var(--border);vertical-align:middle;">${rndLC}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rnd["dt_llegada_camion"] ?? "—"}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.t_llegada_camion != null ? r.t_llegada_camion : "—"}</td>
-            <td style="height:115px; border-left:2px solid var(--border);font-size:0.75rem;vertical-align:middle;"><span class="badge ${f1cls}">${r.f1_estado}</span></td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rndF1}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rnd["dur_freno_L1"] ?? "—"}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; color:var(--muted);vertical-align:middle;">${r.f1_fin}</td>
-            <td style="height:115px; border-left:2px solid var(--border);font-size:0.75rem;vertical-align:middle;"><span class="badge ${l1cls}">${r.l1_estado}</span></td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rndL1}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rnd["dur_luces_L1"] ?? "—"}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; color:var(--muted);vertical-align:middle;">${r.l1_fin}</td>
-            <td style="height:115px; border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${f2cls}">${r.f2_estado}</span></td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rndF2}</td>
+            <td class="iter-badge" style="height:115px;font-size:16px; vertical-align:middle;">${r.iter}</td>
+            <td class="iter-badge" style="height:115px;font-size:16px; vertical-align:middle;">${r.dia}</td>
+            <td class="hora-cell" style="height:115px;font-size:16px; vertical-align:middle;">${r.hora}</td>
+            <td class="hora-cell" style="height:115px;font-size:16px; color:var(--muted);vertical-align:middle;">${horaReal(r.hora, r.dia)}</td>
+            <td class="evt-cell" style="height:115px;font-size:16px; vertical-align:middle;">${r.evento}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; border-left:2px solid var(--border);vertical-align:middle;">${rndLA}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${rnd["dt_llegada_auto"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${r.t_llegada_auto != null ? r.t_llegada_auto : "—"}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; border-left:2px solid var(--border);vertical-align:middle;">${rndLC}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${rnd["dt_llegada_camion"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${r.t_llegada_camion != null ? r.t_llegada_camion : "—"}</td>
+            <td style="height:115px; border-left:2px solid var(--border);font-size:16px;vertical-align:middle;"><span class="badge ${f1cls}" style="font-size:14px;">${r.f1_estado}</span></td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${rndF1}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${rnd["dur_freno_L1"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; color:var(--muted);vertical-align:middle;">${r.f1_fin}</td>
+            <td style="height:115px; border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${l1cls}" style="font-size:14px;">${r.l1_estado}</span></td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${rndL1}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${rnd["dur_luces_L1"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; color:var(--muted);vertical-align:middle;">${r.l1_fin}</td>
+            <td style="height:115px; border-left:2px solid var(--border);vertical-align:middle;"><span class="badge ${f2cls}" style="font-size:14px;">${r.f2_estado}</span></td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${rndF2}</td>
             <td class="num-cell" style="height:115px; vertical-align:middle;">${rnd["dur_freno_L2"] ?? "—"}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; color:var(--muted);vertical-align:middle;">${r.f2_fin}</td>
-            <td style="height:115px; border-left:2px solid var(--border);font-size:0.75rem;vertical-align:middle;"><span class="badge ${l2cls}">${r.l2_estado}</span></td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rndL2}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${rnd["dur_luces_L2"] ?? "—"}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; color:var(--muted);vertical-align:middle;">${r.l2_fin}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${colaHtml(r.cola_autos, "🚗")}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${colaHtml(r.cola_camiones, "🚙")}</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.prom_esp_autos}'</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.prom_esp_camiones}'</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.pct_bloq_f1}%</td>
-            <td class="num-cell" style="height:115px;font-size:0.75rem; vertical-align:middle;">${r.pct_bloq_f2}%</td>
+            <td class="num-cell" style="height:115px;font-size:16px; color:var(--muted);vertical-align:middle;">${r.f2_fin}</td>
+            <td style="height:115px; border-left:2px solid var(--border);font-size:16px;vertical-align:middle;"><span class="badge ${l2cls}" style="font-size:14px;">${r.l2_estado}</span></td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${rndL2}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${rnd["dur_luces_L2"] ?? "—"}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; color:var(--muted);vertical-align:middle;">${r.l2_fin}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${colaHtml(r.cola_autos, "🚗")}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${colaHtml(r.cola_camiones, "🚙")}</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${r.prom_esp_autos}'</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${r.prom_esp_camiones}'</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${r.pct_bloq_f1}%</td>
+            <td class="num-cell" style="height:115px;font-size:16px; vertical-align:middle;">${r.pct_bloq_f2}%</td>
             
-            <td class="prox-cell" style="padding: 0; vertical-align:middle;font-size:0.75rem; height:115px; text-align:center;">
+            <td class="prox-cell" style="padding: 0; vertical-align:middle;font-size:16px; height:115px; text-align:center;">
                 <div style="height: 115px; display:flex; flex-direction:column; justify-content:center; align-items:center; padding: 0.2rem; overflow:hidden;">
                     ${proximosHtml(r.proximos)}
                 </div>
@@ -1335,7 +1332,6 @@
         <div class="dock-controls">
           <label>Altura: <input id="dock-height" type="range" min="20" max="95" value="85" oninput="applyDockHeight(this.value)"></label>
           <button id="toggle-edit" data-enabled="0" onclick="toggleEditable()">Editable: NO</button>
-          <button onclick="exportCSV()">Exportar CSV</button>
         </div>
         <div class="table-dock" style="flex:0 0 85vh; height:85vh;">${tableHtml}</div>
         
@@ -1546,11 +1542,23 @@ else:
             <pre>l.estado = ESTADO_LIBRE
 
 if f.estado == ESTADO_BLOQUEADA:
-    <span class="hl-a">tiempo_bloqueada_f1 += t - t_inicio_bloqueo_f1</span>
-    t_inicio_bloqueo_f1 = None
-    l.estado       = ESTADO_OCUPADO
-    l.fin_atencion = t + dur
-    f.estado       = ESTADO_LIBRE
+                if idx == 0 and t_inicio_bloqueo_f1 is not None:
+                    tiempo_bloqueada_f1 += t - t_inicio_bloqueo_f1
+                    t_inicio_bloqueo_f1 = None
+                elif idx == 1 and t_inicio_bloqueo_f2 is not None:
+                    tiempo_bloqueada_f2 += t - t_inicio_bloqueo_f2
+                    t_inicio_bloqueo_f2 = None
+
+                vid_bloq = f.vehiculo_id
+                r, dur = tiempo_luces(a=luces_a, b=luces_b)
+                pending_rnds[f"rnd_luces_L{idx+1}"] = round(r, 6)
+                pending_rnds[f"dur_luces_L{idx+1}"] = round(dur, 4)
+                l.estado       = ESTADO_OCUPADO
+                l.vehiculo_id  = vid_bloq
+                l.fin_atencion = t + dur
+                f.estado       = ESTADO_LIBRE
+                f.vehiculo_id  = None
+                f.fin_atencion = INF
     <span class="hl-g">intentar_siguiente_vehiculo(idx)</span></pre>
             <div class="ayuda-note blue">La destrucción del vehículo es implícita: <code>l.vehiculo_id = None</code>. El objeto deja de ser referenciado y el snapshot ya no lo muestra.</div>
           </div>
@@ -1602,35 +1610,6 @@ else:
           </div>
         </div>
 
-        <div class="ayuda-section">
-          <div class="ayuda-section-label">Cierre</div>
-          <h2>Cierre a las 16:00</h2>
-
-          <div class="ayuda-block">
-            <h3>La variable <code>cerrado</code></h3>
-            <p>Antes de procesar cada evento, el sistema evalúa si ya se llegó al cierre:</p>
-            <pre>if not cerrado and t_next >= day_close:
-    <span class="hl-a">cerrado = True</span>
-
-if not cerrado:
-    candidates.append((t_llegada_auto,  EVT_LLEGADA_AUTO))
-    candidates.append((t_llegada_camion, EVT_LLEGADA_CAMION))</pre>
-          </div>
-
-          <div class="ayuda-block">
-            <h3>¿Cuándo termina la simulación?</h3>
-            <p>Cuando no queda ningún vehículo activo en el sistema.</p>
-            <pre>if cerrado:
-    any_active = (
-        any(f.estado != ESTADO_LIBRE for f in frenos) or
-        any(l.estado != ESTADO_LIBRE for l in luces) or
-        bool(cola_autos) or bool(cola_camiones)
-    )
-    if not any_active:
-        break</pre>
-            <div class="ayuda-note green">El sistema no se corta a las 16:00. Se corta cuando sale el último vehículo que estaba dentro o en cola al dar las 16:00. Ese instante es la hora real de fin de jornada.</div>
-          </div>
-        </div>
 
       </div>
     `;
@@ -1664,85 +1643,7 @@ if not cerrado:
       });
     }
 
-    function exportCSV() {
-      const datos = window.datosSimulacion;
-      
-      if (!datos || !Array.isArray(datos) || datos.length === 0) {
-        return alert("ERROR: No hay filas cargadas en memoria para exportar.");
-      }
-
-      try {
-        let csvContent = "sep=;\n";
-
-        const quitarAcentos = (str) => {
-          return str ? String(str).normalize("NFD").replace(/[\u0300-\u036f]/g, "") : "";
-        };
-        
-        const limpiarValor = (val) => {
-          // 1. GUIONES PARA VACÍOS: Atrapa nulos, undefined y strings vacíos
-          if (val === null || val === undefined || val === "") return '"-"';
-          
-          if (typeof val === 'object') val = JSON.stringify(val); 
-          let str = String(val).replace(/(\r\n|\n|\r|<br>)/gm, " | ").trim();
-          
-          // Doble chequeo: si después de limpiar quedó vacío, ponemos guion
-          if (str === "") return '"-"'; 
-          
-          return `"${quitarAcentos(str).replace(/"/g, '""')}"`;
-        };
-
-        // Obtenemos todas las columnas del JSON
-        let columnas = Object.keys(datos[0]);
-
-        // 2. ORDENAR COLUMNAS AL PRINCIPIO
-        // Pone acá los nombres EXACTOS de las claves que usás en tu Python.
-        // Lo que pongas acá va a aparecer en las primeras columnas del Excel, de izquierda a derecha.
-        const ordenDeseado = [
-          "dia", 
-          "hora", 
-          "hora_real", 
-          "evento", 
-          "rnd_llegada_auto",   // Reemplazá con tu key de Python
-          "tiempo_llegada_auto",// Reemplazá con tu key de Python
-          "proxima_llegada_auto"// Reemplazá con tu key de Python
-        ];
-
-        // Lógica para reordenar: empuja las de 'ordenDeseado' al frente
-        columnas.sort((a, b) => {
-          let indexA = ordenDeseado.indexOf(a);
-          let indexB = ordenDeseado.indexOf(b);
-          
-          if (indexA !== -1 && indexB !== -1) return indexA - indexB; // Ambas están en la lista
-          if (indexA !== -1) return -1; // Solo 'a' está en la lista (va primero)
-          if (indexB !== -1) return 1;  // Solo 'b' está en la lista (va primero)
-          return 0; // Ninguna está en la lista (mantienen su orden normal al final)
-        });
-
-        // Armamos la primera fila (Cabeceras) con el nuevo orden
-        csvContent += columnas.map(quitarAcentos).join(";") + "\n";
-
-        // Procesamos todas las filas respetando el nuevo orden de columnas
-        datos.forEach(row => {
-          const rowData = columnas.map(key => limpiarValor(row[key]));
-          csvContent += rowData.join(";") + "\n";
-        });
-
-        // Generar archivo y descargar
-        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "simulacion_ordenada.csv";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-
-      } catch (error) {
-        alert("Ocurrió un error inesperado al generar el CSV: " + error.message);
-        console.error(error);
-      }
-    }
+    
     function toggleRowSelect(tr) { tr.classList.toggle("row-selected"); }
 
     function getCookie(name) {
