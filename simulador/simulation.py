@@ -262,6 +262,8 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
             evt_name = "Cierre"
         if t_next >= INF:
             break
+        if t_next >= tiempo_max:
+            break
         
 
         if cerrado:
