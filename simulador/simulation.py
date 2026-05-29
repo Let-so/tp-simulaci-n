@@ -250,7 +250,9 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
     pending_rnds = {}
 
     # ─── Event loop ──────────────────────────────────────────────────────────
-
+    fin_simulacion_registrado = False
+    dia_vis = int(inicio_mostrar // OPEN_DURATION) + 1
+    filas_mostradas = 0
     while iter_count < 100000:
         t_next, evt_name = min_event()
         if t_next == INF:
@@ -266,10 +268,16 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
             
         
         if t_next >= tiempo_max:
+            dia_objetivo = int((tiempo_max - 0.001) // OPEN_DURATION) + 1
+            if not fin_simulacion_registrado and dia_actual == dia_objetivo:
+                t = tiempo_max
+                rows.append(snapshot("Fin Simulación", {}))
+                fin_simulacion_registrado = True
             en_estacion = (any(f.estado != ESTADO_LIBRE for f in frenos) or 
                            any(l.estado != ESTADO_LIBRE for l in luces) or
                            bool(cola_autos) or bool(cola_camiones))
             if not en_estacion:
+                rows.append(snapshot("Fin Simulación Real", {}))
                 break
 
         if cerrado:
@@ -401,9 +409,10 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
                 "rnd_llegada_camion": round(rnd_lc, 6),
                 "dt_llegada_camion": round(dt_camion, 4),
             }
-
-        rows.append(snapshot(evt_name, pending_rnds))
-        continue
+        if t >= inicio_mostrar and dia_actual >= dia_vis and filas_mostradas < cant_mostrar:
+                rows.append(snapshot(evt_name, pending_rnds))
+                filas_mostradas += 1
+                continue
         # ── Fin de jornada / simulación ───────────────────────────────────
         
     # ── Estadisticas finales ───────────────────────────────────────────────────────
@@ -421,9 +430,9 @@ def run_simulation(tiempo_max: int, inicio_mostrar: float, cant_mostrar: int,
         "dia_fin":           fila_fin["dia"],
         "prom_esp_autos":    round(suma_espera_autos    / autos_atendidos,    4) if autos_atendidos    else 0,
         "prom_esp_camiones": round(suma_espera_camiones / camiones_atendidos, 4) if camiones_atendidos else 0,
-        "pct_bloq_f1":       round(tiempo_bloqueada_f1 / denom_bloq * 100, 2),
-        "pct_bloq_f2":       round(tiempo_bloqueada_f2 / denom_bloq * 100, 2),
-        "pct_bloq_total":    round((tiempo_bloqueada_f1 + tiempo_bloqueada_f2) / (2 * denom_bloq) * 100, 2),
+        "pct_bloq_f1":       round(tiempo_bloqueada_f1 / tiempo_max * 100, 2),
+        "pct_bloq_f2":       round(tiempo_bloqueada_f2 / tiempo_max * 100, 2),
+        "pct_bloq_total":    round((tiempo_bloqueada_f1 + tiempo_bloqueada_f2) / (2 * tiempo_max) * 100, 2),
         "total_autos":       autos_atendidos,
         "total_camiones":    camiones_atendidos,
         "total_iter":        iter_count,
